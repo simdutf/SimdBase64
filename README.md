@@ -1,2 +1,107 @@
 # SimdBase64
 Fast WHATWG forgiving-base64 in C#
+
+The C# standard library has fast (SIMD-based) base64 encoding functions, but it lacks
+base64 decoding function.
+
+The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
+used in major JavaScript runtimes (Node.js and Bun) to C#.
+
+
+## Requirements
+
+We recommend you install .NET 8 or better: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+
+
+## Running tests
+
+```
+dotnet test
+```
+
+To get a list of available tests, enter the command:
+
+```
+dotnet test --list-tests
+```
+
+To run specific tests, it is helpful to use the filter parameter:
+
+```
+dotnet test -c Release --filter Ascii
+```
+
+## Running Benchmarks
+
+To run the benchmarks, run the following command:
+```
+cd benchmark
+dotnet run -c Release
+```
+
+To run just one benchmark, use a filter:
+
+```
+cd benchmark
+dotnet run --configuration Release --filter "*Arabic-Lipsum*"
+```
+
+If you are under macOS or Linux, you may want to run the benchmarks in privileged mode:
+
+```
+cd benchmark
+sudo dotnet run -c Release
+```
+
+## Building the library
+
+```
+cd src
+dotnet build
+```
+
+## Code format
+
+We recommend you use `dotnet format`. E.g.,
+
+```
+cd test
+dotnet format
+```
+
+## Programming tips
+
+You can print the content of a vector register like so:
+
+```C#
+        public static void ToString(Vector256<byte> v)
+        {
+            Span<byte> b = stackalloc byte[32];
+            v.CopyTo(b);
+            Console.WriteLine(Convert.ToHexString(b));
+        }
+        public static void ToString(Vector128<byte> v)
+        {
+            Span<byte> b = stackalloc byte[16];
+            v.CopyTo(b);
+            Console.WriteLine(Convert.ToHexString(b));
+        }
+```
+
+## Performance tips
+
+- Be careful: `Vector128.Shuffle` is not the same as `Ssse3.Shuffle` nor is  `Vector128.Shuffle` the same as `Avx2.Shuffle`. Prefer the latter.
+
+## References
+
+- [base64 encoding with simd-support](https://github.com/dotnet/runtime/issues/27433)
+- [gfoidl.Base64](https://github.com/gfoidl/Base64)
+- [simdutf's base64 decode](https://github.com/simdutf/simdutf/blob/74126531454de9b06388cb2de78b18edbfcfbe3d/src/westmere/sse_base64.cpp#L337)
+- [WHATWG forgiving-base64 decode](https://infra.spec.whatwg.org/#forgiving-base64-decode)
+
+## More reading 
+
+- https://github.com/dotnet/coreclr/pull/21948/files#diff-2a22774bd6bff8e217ecbb3a41afad033ce0ca0f33645e9d8f5bdf7c9e3ac248
+- https://github.com/dotnet/runtime/issues/41699
+- https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions

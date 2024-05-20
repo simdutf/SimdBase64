@@ -1,5 +1,5 @@
 ﻿using System;
-using SimdUnicode;
+//using SimdUnicode;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
@@ -17,7 +17,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
-
+using gfoidl.Base64;
 
 namespace SimdUnicodeBenchmarks
 {
@@ -25,11 +25,33 @@ namespace SimdUnicodeBenchmarks
 
     public class Speed : IColumn
     {
+        static long GetDirectorySize(string folderPath)
+        {
+            long totalSize = 0;
+            DirectoryInfo di = new DirectoryInfo(folderPath);
+
+            foreach (FileInfo fi in di.EnumerateFiles("*.*", SearchOption.AllDirectories))
+            {
+                totalSize += fi.Length;
+            }
+
+            return totalSize;
+        }
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
         {
             var ourReport = summary.Reports.First(x => x.BenchmarkCase.Equals(benchmarkCase));
             var fileName = (string)benchmarkCase.Parameters["FileName"];
-            long length = new System.IO.FileInfo(fileName).Length;
+            long length = 0;
+            if (File.Exists(fileName))
+            {
+                Console.WriteLine($"File exists: {fileName}");
+                length = new System.IO.FileInfo(fileName).Length;
+            }
+            else if (Directory.Exists(fileName))
+            {
+                Console.WriteLine("It's a directory");
+                length = GetDirectorySize(fileName);
+            }
             if (ourReport.ResultStatistics is null)
             {
                 return "N/A";
@@ -68,7 +90,7 @@ namespace SimdUnicodeBenchmarks
                 if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
                 {
                     Console.WriteLine("ARM64 system detected.");
-                    AddFilter(new AnyCategoriesFilter(["arm64", "scalar", "runtime"]));
+                    AddFilter(new AnyCategoriesFilter(["arm64", "scalar", "runtime", "gfoidl"]));
 
                 }
                 else if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
@@ -76,177 +98,119 @@ namespace SimdUnicodeBenchmarks
                     if (Vector512.IsHardwareAccelerated && System.Runtime.Intrinsics.X86.Avx512Vbmi.IsSupported)
                     {
                         Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX-512 support.");
-                        AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "scalar", "runtime"]));
+                        AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else if (Avx2.IsSupported)
                     {
                         Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX2 support.");
-                        AddFilter(new AnyCategoriesFilter(["avx", "sse", "scalar", "runtime"]));
+                        AddFilter(new AnyCategoriesFilter(["avx", "sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else if (Ssse3.IsSupported)
                     {
                         Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse4.2 support.");
-                        AddFilter(new AnyCategoriesFilter(["sse", "scalar", "runtime"]));
+                        AddFilter(new AnyCategoriesFilter(["sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else
                     {
                         Console.WriteLine("X64 system detected (Intel, AMD,...) without relevant SIMD support.");
-                        AddFilter(new AnyCategoriesFilter(["scalar", "runtime"]));
+                        AddFilter(new AnyCategoriesFilter(["scalar", "runtime", "gfoidl"]));
                     }
                 }
                 else
                 {
-                    AddFilter(new AnyCategoriesFilter(["scalar", "runtime"]));
-
+                    AddFilter(new AnyCategoriesFilter(["scalar", "runtime", "gfoidl"]));
                 }
 
             }
         }
         // Parameters and variables for real data
-        [Params(@"data/Arabic-Lipsum.utf8.txt",
-                @"data/Hebrew-Lipsum.utf8.txt",
-                @"data/Korean-Lipsum.utf8.txt",
-                @"data/Chinese-Lipsum.utf8.txt",
-                @"data/Hindi-Lipsum.utf8.txt",
-                @"data/Latin-Lipsum.utf8.txt",
-                @"data/Emoji-Lipsum.utf8.txt",
-                @"data/Japanese-Lipsum.utf8.txt",
-                @"data/Russian-Lipsum.utf8.txt",
-                @"data/arabic.utf8.txt",
-                @"data/chinese.utf8.txt",
-                @"data/czech.utf8.txt",
-                @"data/english.utf8.txt",
-                @"data/esperanto.utf8.txt",
-                @"data/french.utf8.txt",
-                @"data/german.utf8.txt",
-                @"data/greek.utf8.txt",
-                @"data/hebrew.utf8.txt",
-                @"data/hindi.utf8.txt",
-                @"data/japanese.utf8.txt",
-                @"data/korean.utf8.txt",
-                @"data/persan.utf8.txt",
-                @"data/portuguese.utf8.txt",
-                @"data/russian.utf8.txt",
-                @"data/thai.utf8.txt",
-                @"data/turkish.utf8.txt",
-                @"data/vietnamese.utf8.txt")]
+        [Params(//@"data/email/enron1.txt",
+                @"data/email/",
+                @"data/dns/swedenzonebase.txt")]
         public string? FileName;
-        public byte[] allLinesUtf8 = new byte[0];
+        public string[] FileContent;
 
 
-        public unsafe delegate byte* Utf8ValidationFunction(byte* pUtf8, int length);
-        public unsafe delegate byte* DotnetRuntimeUtf8ValidationFunction(byte* pUtf8, int length, out int utf16CodeUnitCountAdjustment, out int scalarCountAdjustment);
-
-        public void RunUtf8ValidationBenchmark(byte[] data, Utf8ValidationFunction validationFunction)
+        public void RunRuntimeDecodingBenchmark(string[] data)
         {
-            unsafe
+            foreach (string s in FileContent)
             {
-                fixed (byte* pUtf8 = data)
-                {
-                    var res = validationFunction(pUtf8, data.Length);
-                    if (res != pUtf8 + data.Length)
-                    {
-                        throw new Exception("Invalid UTF-8: I expected the pointer to be at the end of the buffer.");
-                    }
-                }
+                Convert.FromBase64String(s);
+            }
+        }
+        public unsafe void RunGfoidlDecodingBenchmark(string[] data)
+        {
+            foreach (string s in FileContent)
+            {
+                ReadOnlySpan<char> span = s.ToCharArray();
+                int outlen = Base64.Default.GetDecodedLength(span);
+                Span<byte> dataout = stackalloc byte[outlen];
+                int consumed = 0;
+                int written = 0;
+                Base64.Default.Decode(span, dataout, out consumed, out written, true);
             }
         }
 
-        public void RunDotnetRuntimeUtf8ValidationBenchmark(byte[] data, DotnetRuntimeUtf8ValidationFunction validationFunction)
-        {
-            unsafe
-            {
-                fixed (byte* pUtf8 = data)
-                {
-                    int utf16CodeUnitCountAdjustment, scalarCountAdjustment;
-                    validationFunction(pUtf8, data.Length, out utf16CodeUnitCountAdjustment, out scalarCountAdjustment);
-                }
-            }
-        }
 
         [GlobalSetup]
         public void Setup()
         {
-            allLinesUtf8 = FileName == null ? allLinesUtf8 : File.ReadAllBytes(FileName);
+            Console.WriteLine($"FileContent : {FileName}");
+            if (FileName == "data/dns/swedenzonebase.txt")
+            {
+                FileContent = File.ReadAllLines(FileName);
+            }
+            else if (FileName == "data/email/")
+            {
+                Console.WriteLine($"FileContent : {FileName}");
+
+
+                string[] fileNames = Directory.GetFiles(FileName);
+                FileContent = new string[fileNames.Length];
+
+                for (int i = 0; i < fileNames.Length; i++)
+                {
+                    Console.WriteLine($"FileContent loading: {fileNames[i]}");
+
+                    FileContent[i] = File.ReadAllText(fileNames[i]);
+                }
+
+            }
+            else
+            {
+                FileContent = [];
+            }
+
         }
 
         [Benchmark]
         [BenchmarkCategory("default", "runtime")]
-        public unsafe void DotnetRuntimeUtf8ValidationRealData()
+        public unsafe void DotnetRuntimeBase64RealData()
         {
-            RunDotnetRuntimeUtf8ValidationBenchmark(allLinesUtf8, DotnetRuntime.Utf8Utility.GetPointerToFirstInvalidByte);
+            RunRuntimeDecodingBenchmark(FileContent);
+        }
+        [Benchmark]
+        [BenchmarkCategory("default", "gfoidl")]
+        public unsafe void DotnetGfoildBase64RealData()
+        {
+            RunGfoidlDecodingBenchmark(FileContent);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("default")]
-        public unsafe void SIMDUtf8ValidationRealData()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByte);
-            }
-        }
-
-        [Benchmark]
-        [BenchmarkCategory("scalar")]
-        public unsafe void Utf8ValidationRealDataScalar()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByteScalar);
-            }
-        }
-        [Benchmark]
-        [BenchmarkCategory("arm64")]
-        public unsafe void SIMDUtf8ValidationRealDataArm64()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByteArm64);
-            }
-        }
-        [Benchmark]
-        [BenchmarkCategory("avx")]
-        public unsafe void SIMDUtf8ValidationRealDataAvx2()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByteAvx2);
-            }
-        }
-        [Benchmark]
-        [BenchmarkCategory("sse")]
-        public unsafe void SIMDUtf8ValidationRealDataSse()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByteSse);
-            }
-        }
-        /*
-        // TODO: enable this benchmark when the AVX-512 implementation is ready
-        [Benchmark]
-        [BenchmarkCategory("avx512")]
-        public unsafe void SIMDUtf8ValidationRealDataAvx512()
-        {
-            if (allLinesUtf8 != null)
-            {
-                RunUtf8ValidationBenchmark(allLinesUtf8, SimdUnicode.UTF8.GetPointerToFirstInvalidByteAvx512);
-            }
-        }*/
 
     }
     public class Program
     {
-        // TODO: adopt BenchmarkSwitcher https://benchmarkdotnet.org/articles/guides/how-to-run.html 
-        /*public static void Main(string[] args)
+        static void Main(string[] args)
         {
-            var config = DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(100));
-            BenchmarkRunner.Run<RealDataBenchmark>(config);
-        }*/
-        static void Main(string[] args) => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
-
-
+            if (args.Length == 0)
+            {
+                BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(["--filter", "*"]);
+            }
+            else
+            {
+                BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+            }
+        }
     }
 
 }

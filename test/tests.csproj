@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SimdUnicode.csproj" />
+    <ProjectReference Include="..\src\SimdBase64.csproj" />
   </ItemGroup>
 
 </Project>

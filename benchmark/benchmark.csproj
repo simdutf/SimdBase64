@@ -12,10 +12,11 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    <PackageReference Include="gfoidl.Base64" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SimdUnicode.csproj" />
+    <ProjectReference Include="..\src\SimdBase64.csproj" />
     <ProjectReference Include="..\test\tests.csproj" />
   </ItemGroup>
 

@@ -2,10 +2,11 @@
 Fast WHATWG forgiving-base64 in C#
 
 The C# standard library has fast (SIMD-based) base64 encoding functions, but it lacks
-base64 decoding function.
+base64 decoding function. The initial work that lead to the fast functions in the runtime
+was carried out by [gfoidl](https://github.com/gfoidl/Base64).
 
 The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
-used in major JavaScript runtimes (Node.js and Bun) to C#.
+used in major JavaScript runtimes (Node.js and Bun) to C#. It would complete the existing work.
 
 
 ## Requirements
@@ -95,7 +96,7 @@ You can print the content of a vector register like so:
 ## References
 
 - [base64 encoding with simd-support](https://github.com/dotnet/runtime/issues/27433)
-- [gfoidl.Base64](https://github.com/gfoidl/Base64)
+- [gfoidl.Base64](https://github.com/gfoidl/Base64): original code that lead to the SIMD-based code in the runtime
 - [simdutf's base64 decode](https://github.com/simdutf/simdutf/blob/74126531454de9b06388cb2de78b18edbfcfbe3d/src/westmere/sse_base64.cpp#L337)
 - [WHATWG forgiving-base64 decode](https://infra.spec.whatwg.org/#forgiving-base64-decode)
 

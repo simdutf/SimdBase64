@@ -140,6 +140,8 @@ namespace SimdUnicodeBenchmarks
         }
         public unsafe void RunGfoidlDecodingBenchmark(string[] data)
         {
+            // gfoidl does not appear to always succeed. Note that
+            // the decoding was not integrated into the DOTNET runtime.
             foreach (string s in FileContent)
             {
                 ReadOnlySpan<char> span = s.ToCharArray();

@@ -1,5 +1,5 @@
 # SimdBase64
-Fast WHATWG forgiving-base64 in C#
+## Fast WHATWG forgiving-base64 in C#
 
 The C# standard library has fast (SIMD-based) base64 encoding functions, but it lacks
 base64 decoding function. The initial work that lead to the fast functions in the runtime

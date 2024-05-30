@@ -24,11 +24,6 @@ namespace SimdUnicode
             return e == (BitConverter.IsLittleEndian ? Endianness.LITTLE : Endianness.BIG);
         }
 
-        // public static bool IsAsciiWhiteSpace<T>(T c) where T : IComparable, IComparable<char>
-        // {
-        //     return c.CompareTo(' ') == 0 || c.CompareTo('\t') == 0 || c.CompareTo('\n') == 0 || c.CompareTo('\r') == 0 || c.CompareTo('\f') == 0;
-        // }
-
         public static bool IsAsciiWhiteSpace(char c)
         {
             return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f';
@@ -53,12 +48,6 @@ namespace SimdUnicode
         public enum ErrorCode
         {
             SUCCESS = 0,
-            HEADER_BITS, // Any byte must have fewer than 5 header bits.
-            TOO_SHORT, // The leading byte must be followed by N-1 continuation bytes, where N is the UTF-8 character length. This is also the error when the input is truncated.
-            TOO_LONG, // We either have too many consecutive continuation bytes or the string starts with a continuation byte.
-            OVERLONG, // The decoded character must be above certain thresholds depending on the number of bytes (U+7F, U+7FF, U+FFFF).
-            TOO_LARGE, // The decoded character must not exceed U+10FFFF, and must be within other specified ranges depending on the encoding.
-            SURROGATE, // Surrogates must not appear, or must be properly paired in UTF-16.
             INVALID_BASE64_CHARACTER, // Found a character that cannot be part of a valid base64 string.
             BASE64_INPUT_REMAINDER, // The base64 input terminates with a single character, excluding padding.
             OUTPUT_BUFFER_TOO_SMALL, // The provided buffer is too small for the output.

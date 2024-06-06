@@ -4,11 +4,13 @@ using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Buffers;
 
 namespace SimdUnicode
 {
     public static class Base64
     {
+
 
         // NB:their Base64 encoding function takes a byte[]
         // https://learn.microsoft.com/en-us/dotnet/api/system.convert.tobase64string?view=net-8.0#system-convert-tobase64string(system-byte())
@@ -32,7 +34,7 @@ namespace SimdUnicode
         [Flags]
         public enum Base64Options
         {
-            Default = 0, // Standard base64 format
+            None = 0, // Standard base64 format
             Url = 1      // Base64url format
         }
 
@@ -60,13 +62,12 @@ namespace SimdUnicode
             public long Count { get; set; } // Use 'int' instead of 'size_t'
 
             // Default constructor
-            public Result() : this(ErrorCode.SUCCESS, 0) { }
+            public Result() : this(ErrorCode.SUCCESS) { }
 
             // Constructor with parameters
-            public Result(ErrorCode error, long position)
+            public Result(ErrorCode error)
             {
                 Error = error;
-                Count = position;
             }
 
             // TODO:Fix this when it becomes needed
@@ -93,17 +94,25 @@ namespace SimdUnicode
 
 
 
-        public unsafe static Result Base64TailDecode(byte* dst, byte* src, int length, Base64Options options)
+        // public unsafe static Result Base64TailDecode(byte* dst, byte* src, int length, Base64Options options)
+            public unsafe static OperationStatus DecodeFromBase64(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
-            byte[] toBase64 = (options & Base64Options.Url) != 0 ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
-            uint[] d0 = (options & Base64Options.Url) != 0 ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
-            uint[] d1 = (options & Base64Options.Url) != 0 ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
-            uint[] d2 = (options & Base64Options.Url) != 0 ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
-            uint[] d3 = (options & Base64Options.Url) != 0 ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
+            byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
+            uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
+            uint[] d2 = isUrl != false ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
+            uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
 
-            byte* srcEnd = src + length;
-            byte* srcInit = src;
-            byte* dstInit = dst;
+            int length = source.Length;
+
+            // Define pointers within the fixed blocks
+            fixed (byte* srcInit = source)
+            fixed (byte* dstInit = dest)
+
+            {
+            byte* srcEnd = srcInit + length;
+            byte* src = srcInit;
+            byte* dst = dstInit;
 
             // Continue the implementation
             uint x;
@@ -113,7 +122,7 @@ namespace SimdUnicode
 
             while (true)
             {
-                // some sort of fastpath
+                // fastpath
                 while (src + 4 <= srcEnd &&
                        (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                 {
@@ -139,7 +148,12 @@ namespace SimdUnicode
                     }
                     else if (code > 64)
                     {
-                        return new Result(ErrorCode.INVALID_BASE64_CHARACTER, src - srcInit);
+                        bytesConsumed = (int)(src - srcInit);
+                        bytesWritten = (int)(dst - dstInit);
+
+                        // Todo:make all this conform to the API eg probably no error code
+                        // return new ErrorCode.INVALID_BASE64_CHARACTER;// Found a character that cannot be part of a valid base64 string.
+                                                return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
                     }
                     else
                     {
@@ -148,11 +162,12 @@ namespace SimdUnicode
                     src++;
                 }
 
+                // deals with reminder
                 if (idx != 4)
                 {
-                    if (idx == 2)
+                    if (idx == 2) // we just copy directly while converting
                     {
-                        triple = ((uint)buffer[0] << (3 * 6)) + ((uint)buffer[1] << (2 * 6));
+                        triple = ((uint)buffer[0] << (3 * 6)) + ((uint)buffer[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
@@ -166,7 +181,7 @@ namespace SimdUnicode
                         }
                         else
                         {
-                            triple = SwapBytes(triple); // You would need to implement or use a method to swap bytes
+                            triple = SwapBytes(triple);
                             triple >>= 8;
                             byte[] byteTriple = BitConverter.GetBytes(triple);
                             dst[0] = byteTriple[0];  // Copy only the first byte
@@ -174,7 +189,7 @@ namespace SimdUnicode
                         dst += 1;
                     }
 
-                    else if (idx == 3)
+                    else if (idx == 3) // same story here
                     {
                         triple = ((uint)buffer[0] << 3 * 6) +
                                         ((uint)buffer[1] << 2 * 6) +
@@ -196,9 +211,14 @@ namespace SimdUnicode
 
                     else if (idx == 1)
                     {
-                        return new Result(ErrorCode.BASE64_INPUT_REMAINDER, dst - dstInit);
+                        bytesConsumed = (int)(src - srcInit);
+                        bytesWritten = (int)(dst - dstInit);
+                        // return new Result(ErrorCode.BASE64_INPUT_REMAINDER);
+                        return OperationStatus.Done;// The base64 input terminates with a single character, excluding padding.
                     }
-                    return new Result(ErrorCode.SUCCESS, dst - dstInit);
+                    bytesConsumed = (int)(src - srcInit);
+                    bytesWritten = (int)(dst - dstInit);
+                    return OperationStatus.Done;//SUCCESS
                 }
                 triple =
                     ((uint)(buffer[0]) << 3 * 6) + ((uint)(buffer[1]) << 2 * 6) +
@@ -215,6 +235,8 @@ namespace SimdUnicode
                     Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
                 }
                 dst += 3;
+            }
+
             }
 
 

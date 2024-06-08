@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
-
+using System.Buffers;
 
 public class Base64DecodingTests
 {
@@ -94,7 +94,7 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
         // Add more as needed
     }
 
-    public unsafe delegate byte* Base64DecoderDelegate(byte* pInputBuffer, int inputLength, out int utf16CodeUnitCountAdjustment, out int scalarCountAdjustment);
+public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 
 
     public class FactOnSystemRequirementAttribute : FactAttribute
@@ -122,7 +122,7 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
                         (requiredSystems.HasFlag(TestSystemRequirements.X64Avx2) && System.Runtime.Intrinsics.X86.Avx2.IsSupported) ||
                         (requiredSystems.HasFlag(TestSystemRequirements.X64Sse) && System.Runtime.Intrinsics.X86.Sse.IsSupported);
                 default:
-                    return false; // If architecture is not covered above, the test is not supported.
+                    return false;
             }
         }
     }
@@ -142,34 +142,32 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
 
 
     
-    private void simpleGoodSequences(Base64DecoderDelegate Base64DecoderDelegate)
+
+    public void DecodeBase64Cases()
     {
-        string[] goodSequences = {
-        "a",
-        "\xC3\xB1",
-        "\xE2\x82\xA1",
-        "\xF0\x90\x8C\xBC",
-        "\xC2\x80",
-        "\xF0\x90\x80\x80",
-        "\xEE\x80\x80",
-        "\xEF\xBB\xBF"
-    };
+        // Initialize cases with sample data
+        var cases = new List<byte[]> { new byte[] { 0x53, 0x53 } };
+        // Define expected results for each case
+        var expectedResults = new List<(OperationStatus, int)> { (OperationStatus.Done, 1) };
 
-        foreach (var seq in goodSequences)
+        // Iterate over each case
+        for (int i = 0; i < cases.Count; i++)
         {
-            byte[] input = System.Text.Encoding.UTF8.GetBytes(seq);
-            unsafe
-            {
-                fixed (byte* pInput = input)
-                {
-                    // Assert.True(ValidateUtf8(input,Base64DecoderDelegate),
-                                    // $"Failure in Scalar function: SimdUnicode.UTF8.GetPointerToFirstInvalidByte.Sequence: {seq}");
+            // Allocate buffer based on the maximal possible output length for base64
+            byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar(cases[i].AsSpan())];
+            // Decode the base64 data into binary
+            int bytesConsumed;
+            int bytesWritten;
 
-//                     Assert.True(ValidateCount(input,Base64DecoderDelegate));
-                }
-            }
+            var result = Base64.DecodeFromBase64Scalar(cases[i], buffer, out bytesConsumed, out bytesWritten );
+
+            // Check that the operation status and bytes written match expected results
+            Assert.Equal(expectedResults[i].Item1, result);
+            Assert.Equal(expectedResults[i].Item2, bytesWritten);
         }
     }
+
+
 
     [Fact]
     [Trait("Category", "scalar")]
@@ -178,19 +176,6 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
         // simpleGoodSequences(SimdUnicode.UTF8.GetPointerToFirstInvalidByteScalar);
     }
 
-    [Trait("Category", "avx")]
-    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
-    public void simpleGoodSequencesAvx2()
-    {
-        // simpleGoodSequences(SimdUnicode.UTF8.GetPointerToFirstInvalidByteAvx2);
-    }
-
-    [Trait("Category", "arm64")]
-    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
-    public void simpleGoodSequencesArm64()
-    {
-        // simpleGoodSequences(SimdUnicode.UTF8.GetPointerToFirstInvalidByteArm64);
-    }
 
 }
 

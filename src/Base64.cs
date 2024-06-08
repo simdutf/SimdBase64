@@ -92,10 +92,36 @@ namespace SimdUnicode
             }
         }
 
+        public static int MaximalBinaryLengthFromBase64Scalar(ReadOnlySpan<byte> input)
+        {
+            // We follow https://infra.spec.whatwg.org/#forgiving-base64-decode
+            int padding = 0;
+            int length = input.Length;
+            if (length > 0)
+            {
+                if (input[length - 1].Equals('='))
+                {
+                    padding++;
+                    if (length > 1 && input[length - 2].Equals('='))
+                    {
+                        padding++;
+                    }
+                }
+            }
+            int actualLength = length - padding;
+            if (actualLength % 4 <= 1)
+            {
+                return actualLength / 4 * 3;
+            }
+            // If we have a valid input, then the remainder must be 2 or 3 adding one or two extra bytes.
+            return actualLength / 4 * 3 + (actualLength % 4) - 1;
+        }
+
+
 
 
         // public unsafe static Result Base64TailDecode(byte* dst, byte* src, int length, Base64Options options)
-            public unsafe static OperationStatus DecodeFromBase64(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
+            public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
@@ -151,9 +177,7 @@ namespace SimdUnicode
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
 
-                        // Todo:make all this conform to the API eg probably no error code
-                        // return new ErrorCode.INVALID_BASE64_CHARACTER;// Found a character that cannot be part of a valid base64 string.
-                                                return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
+                        return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
                     }
                     else
                     {
@@ -213,8 +237,8 @@ namespace SimdUnicode
                     {
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
-                        // return new Result(ErrorCode.BASE64_INPUT_REMAINDER);
-                        return OperationStatus.Done;// The base64 input terminates with a single character, excluding padding.
+                        // return new Result(ErrorCode.BASE64_INPUT_REMAINDER); <= this was in the C++ code. the errorcode is different
+                        return OperationStatus.InvalidData;// The base64 input terminates with a single character, excluding padding.
                     }
                     bytesConsumed = (int)(src - srcInit);
                     bytesWritten = (int)(dst - dstInit);

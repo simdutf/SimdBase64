@@ -27,8 +27,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\SimdBase64.csproj" />
-    <!-- <ProjectReference Include="..\benchmark\benchmark.csproj" /> -->
-
   </ItemGroup>
 
 </Project>

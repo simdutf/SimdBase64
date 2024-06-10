@@ -145,12 +145,7 @@ namespace SimdUnicode
                             {
                                 triple <<= 8;
                                 byte[] byteTriple = BitConverter.GetBytes(triple);
-                                dst[0] = byteTriple[0];  // Copy only the first byte
-                                                         // TODO/check:
-                                                         // In the C++ code, there is this :
-                                                         // std::memcpy(dst, &triple, 1);
-                                                         // but I am not sure if its worth it for only 1 byte? 
-                                                         // Intuitively It sounds like something the compiler can take care of in this context?
+                                dst[0] = byteTriple[0];  
                             }
                             else
                             {
@@ -170,7 +165,6 @@ namespace SimdUnicode
                             if (MatchSystem(Endianness.BIG))
                             {
                                 triple <<= 8;
-                                // std::memcpy(dst, &triple, 2);
                                 Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
                             }
                             else
@@ -186,7 +180,6 @@ namespace SimdUnicode
                         {
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
-                            // return new Result(ErrorCode.BASE64_INPUT_REMAINDER); <= this was in the C++ code. the errorcode is different
                             return OperationStatus.InvalidData;// The base64 input terminates with a single character, excluding padding.
                         }
                         bytesConsumed = (int)(src - srcInit);
@@ -199,7 +192,6 @@ namespace SimdUnicode
                     if (MatchSystem(Endianness.BIG))
                     {
                         triple <<= 8;
-                        // std::memcpy(dst, &triple, 3);
                         Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
 
                     }
@@ -207,7 +199,6 @@ namespace SimdUnicode
                     {
                         triple = SwapBytes(triple);
                         triple >>= 8;
-                        // std::memcpy(dst, &triple, 3);
                         Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
                     }
                     dst += 3;

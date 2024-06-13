@@ -10,29 +10,6 @@ using System.Buffers;
 
 public class Base64DecodingTests
 {
-
-//     public static class Base64Delegates
-// {
-//     public delegate OperationStatus DecodeFromBase64Delegate(
-//         ReadOnlySpan<byte> source, 
-//         Span<byte> dest, 
-//         out int bytesConsumed, 
-//         out int bytesWritten, 
-//         bool isFinalBlock, 
-//         bool isUrl);
-
-//     public delegate OperationStatus DecodeFromBase64DelegateSafe(
-//         ReadOnlySpan<byte> source, 
-//         Span<byte> dest, 
-//         out int bytesConsumed, 
-//         out int bytesWritten, 
-//         bool isFinalBlock, 
-//         bool isUrl);
-
-//     public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
-// }
-
-
     // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
 static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
 {
@@ -118,6 +95,8 @@ public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> sour
 public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 
 public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
+public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+
 
 
     public class FactOnSystemRequirementAttribute : FactAttribute
@@ -199,7 +178,7 @@ public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
 
 
 
-        public void CompleteDecodeBase64Cases(DecodeFromBase64Delegate DecodeFromBase64Delegate,DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+        public void CompleteDecodeBase64Cases(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary,DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
     List<(string decoded, string base64)> cases = new List<(string, string)>
     {
@@ -209,12 +188,14 @@ public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
     foreach (var (decoded, base64) in cases)
     {
         byte[] base64Bytes = Encoding.UTF8.GetBytes(base64); // Convert base64 string to byte array
+        // PrintHexAndBinary(base64Bytes);
         ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes); // Create ReadOnlySpan from the byte array
         int bytesConsumed;
         int bytesWritten;
 
         byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)]; // Pass ReadOnlySpan to method expecting it
-        var result = DecodeFromBase64Delegate(base64Span, buffer, out bytesConsumed, out bytesWritten, true , false);
+        var result = Base64WithWhiteSpaceToBinary(base64Span,base64Span.Length , buffer, out bytesConsumed, out bytesWritten, true , false);
+        // var result = DecodeFromBase64Delegate(base64Span, buffer, out bytesConsumed, out bytesWritten, true , false);
         Assert.Equal(OperationStatus.Done, result);// This part is buggy
         // Assert.Equal(decoded.Length, bytesWritten);
         for (int i = 0; i < bytesWritten; i++)
@@ -223,7 +204,7 @@ public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
         }
     }
 
-    // Console.Write(" --  ");
+    Console.Write(" -- Safe version: --  ");
 
     foreach (var (decoded, base64) in cases)
     {
@@ -249,7 +230,8 @@ public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
         [Trait("Category", "scalar")]
         public void CompleteDecodeBase64CasesScalar()
         {
-            CompleteDecodeBase64Cases(Base64.DecodeFromBase64Scalar,Base64.SafeDecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
+            // CompleteDecodeBase64Cases(Base64.DecodeFromBase64Scalar,Base64.SafeDecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
+            CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar,Base64.SafeDecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
         }
 
 

@@ -47,6 +47,7 @@ namespace SimdUnicode
 
         public static int MaximalBinaryLengthFromBase64Scalar(ReadOnlySpan<byte> input)
         {
+            Console.WriteLine($"-Firing MaximalBinaryLengthFromBase64Scalar ");
             // We follow https://infra.spec.whatwg.org/#forgiving-base64-decode
             int padding = 0;
             int length = input.Length;
@@ -54,9 +55,11 @@ namespace SimdUnicode
             {
                 if (input[length - 1].Equals('='))
                 {
+                Console.WriteLine("Found equal sign!");
                     padding++;
                     if (length > 1 && input[length - 2].Equals('='))
                     {
+                        Console.WriteLine("Found another equal sign!");
                         padding++;
                     }
                 }
@@ -72,6 +75,8 @@ namespace SimdUnicode
 
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
+
+            Console.WriteLine("-------------------------------");
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
             uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
@@ -116,15 +121,19 @@ namespace SimdUnicode
                     {
                         char c = (char)*src;
 
-                        
                         byte code = toBase64[c];
                         buffer[idx] = code;
+                        Console.WriteLine($"Processing 4 chars: {c}, code is {code}");
+
+
                         if (code <= 63)
                         {
                             idx++;
                         }
                         else if (code > 64)
                         {
+                            Console.WriteLine($"code greater than 64!");
+
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
 
@@ -180,6 +189,8 @@ namespace SimdUnicode
 
                         else if (idx == 1)
                         {
+                            Console.WriteLine($"Idx == 1 !");
+
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
                             return OperationStatus.InvalidData;// The base64 input terminates with a single character, excluding padding.
@@ -189,8 +200,8 @@ namespace SimdUnicode
                         return OperationStatus.Done;//SUCCESS
                     }
                     triple =
-                        ((uint)(buffer[0]) << 3 * 6) + ((uint)(buffer[1]) << 2 * 6) +
-                        ((uint)(buffer[2]) << 1 * 6) + ((uint)(buffer[3]) << 0 * 6);
+                        ((uint)buffer[0] << 3 * 6) + ((uint)buffer[1] << 2 * 6) +
+                        ((uint)buffer[2] << 1 * 6) + ((uint)buffer[3] << 0 * 6);
                     if (MatchSystem(Endianness.BIG))
                     {
                         triple <<= 8;
@@ -369,6 +380,58 @@ namespace SimdUnicode
 
             }
         }
+
+
+        public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, int length, Span<byte> output,out int bytesConsumed, out int bytesWritten,  bool isFinalBlock = true, bool isUrl = false)        
+        {
+            while(length > 0 && IsAsciiWhiteSpace((char)input[length - 1])) {
+                length--;
+            }
+            int equallocation = length; // location of the first padding character if any
+            int equalsigns = 0;
+            if(length > 0 && input[length - 1] == '=') {
+                length -= 1;
+                equalsigns++;
+                while(length > 0 && IsAsciiWhiteSpace((char)input[length - 1])) {
+                length--;
+                }
+                if(length > 0 && input[length - 1] == '=') {
+                equalsigns++;
+                length -= 1;
+                }
+            }
+            if(length == 0) {
+                if(equalsigns > 0) {
+                // NB: in the C++ code, only the  bytesconsumed is returned
+                bytesConsumed = equallocation; 
+                bytesWritten = 0; 
+
+                return OperationStatus.InvalidData;
+
+                }
+                bytesConsumed = 0;
+                bytesWritten = 0;
+                return OperationStatus.Done;
+            }
+
+            ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
+            OperationStatus r = Base64.DecodeFromBase64Scalar( trimmedInput,output,out bytesConsumed, out bytesWritten,isFinalBlock, isUrl);
+            // OperationStatus r = Base64.DecodeFromBase64Scalar( input,output,out bytesConsumed, out bytesWritten,isFinalBlock, isUrl);
+            Console.WriteLine($"DecodeFromBase64Scalar returns{r}");
+
+            if(r == OperationStatus.Done && equalsigns > 0) {
+                // // additional checks
+                // In the C++ code, In case of error, r.counts indicates the position of the error. In case of success, indicates the number of code units validated/written.
+                // is r.count equivalent to bytesconsumed ? figure out: why is it here?
+                 
+                    if((bytesConsumed % 3 == 0) || ((bytesConsumed % 3) + 1 + equalsigns != 4)) {
+                        Console.WriteLine($"Error triggering as DecodeFromBase64 returns true and equal sings > 0. bytesConsumed is:{bytesConsumed}");
+                        return OperationStatus.InvalidData;
+                    }
+            }
+            return r;
+            }
+
 
     }
 

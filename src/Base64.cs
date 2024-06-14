@@ -417,15 +417,16 @@ namespace SimdUnicode
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
             OperationStatus r = Base64.DecodeFromBase64Scalar( trimmedInput,output,out bytesConsumed, out bytesWritten,isFinalBlock, isUrl);
             // OperationStatus r = Base64.DecodeFromBase64Scalar( input,output,out bytesConsumed, out bytesWritten,isFinalBlock, isUrl);
-            Console.WriteLine($"DecodeFromBase64Scalar returns{r}");
+            Console.WriteLine($"DecodeFromBase64Scalar returns {r}");
 
             if(r == OperationStatus.Done && equalsigns > 0) {
-                // // additional checks
+                //  additional checks
+                // C++/C# difference:
                 // In the C++ code, In case of error, r.counts indicates the position of the error. In case of success, indicates the number of code units validated/written.
-                // is r.count equivalent to bytesconsumed ? figure out: why is it here?
+                // 
                  
-                    if((bytesConsumed % 3 == 0) || ((bytesConsumed % 3) + 1 + equalsigns != 4)) {
-                        Console.WriteLine($"Error triggering as DecodeFromBase64 returns true and equal sings > 0. bytesConsumed is:{bytesConsumed}");
+                    if((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4)) { // this line is wrong
+                        Console.WriteLine($"Error triggering as DecodeFromBase64 returns true and equal sings > 0. bytesConsumed is:{bytesConsumed}, equalsigns is :{equalsigns},(bytesConsumed % 3) + 1 + equalsigns):{bytesConsumed % 3 + 1 + equalsigns != 4}");
                         return OperationStatus.InvalidData;
                     }
             }

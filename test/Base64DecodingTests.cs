@@ -91,9 +91,9 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
         // Add more as needed
     }
 
+// This seems redundant but I think the tests will be more legible later on. 
 public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
-
 public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
 public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 
@@ -157,7 +157,7 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
             int bytesConsumed;
             int bytesWritten;
 
-            var result = DecodeFromBase64Delegate(cases[i], buffer, out bytesConsumed, out bytesWritten, true, false );
+            var result = DecodeFromBase64Delegate(cases[i],  buffer, out bytesConsumed, out bytesWritten, true, false );
 
             Assert.Equal(expectedResults[i].Item1, result);
             Assert.Equal(expectedResults[i].Item2, bytesWritten);

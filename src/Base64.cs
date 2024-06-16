@@ -395,8 +395,10 @@ namespace SimdUnicode
         public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input,  Span<byte> output,out int bytesConsumed, out int bytesWritten,  bool isFinalBlock = true, bool isUrl = false)        
         {
             int length = input.Length;
+            int whiteSpaces = 0;
             while(length > 0 && IsAsciiWhiteSpace((char)input[length - 1])) {
                 length--;
+                whiteSpaces++;
             }
             int equallocation = length; // location of the first padding character if any
             int equalsigns = 0;
@@ -404,16 +406,16 @@ namespace SimdUnicode
                 length -= 1;
                 equalsigns++;
                 while(length > 0 && IsAsciiWhiteSpace((char)input[length - 1])) {
-                length--;
+                    length--;
+                    whiteSpaces++;
                 }
                 if(length > 0 && input[length - 1] == '=') {
-                equalsigns++;
-                length -= 1;
+                    equalsigns++;
+                    length -= 1;
                 }
             }
             if(length == 0) {
                 if(equalsigns > 0) {
-                // NB: in the C++ code, only the  bytesconsumed is returned
                 bytesConsumed = equallocation; 
                 bytesWritten = 0; 
 
@@ -433,12 +435,13 @@ namespace SimdUnicode
             if(r == OperationStatus.Done && equalsigns > 0) {
                 //  additional checks
 
-                 
                     if((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4)) { // this line is wrong
                         Console.WriteLine($"Error triggering as DecodeFromBase64 returns true and equal sings > 0. bytesConsumed is:{bytesConsumed}, equalsigns is :{equalsigns},(bytesConsumed % 3) + 1 + equalsigns):{bytesConsumed % 3 + 1 + equalsigns != 4}");
+                        //TODO: This path should probably be formally tested in subsequent PRs
                         return OperationStatus.InvalidData;
                     }
             }
+            bytesConsumed += equalsigns + whiteSpaces;
             return r;
             }
 
@@ -447,15 +450,11 @@ namespace SimdUnicode
             {
                 if (isUrl)
                 {
-                    // URL-safe Base64 length calculation
                     return length / 3 * 4 + (length % 3 != 0 ? length % 3 + 1 : 0);
                 }
                 // Standard Base64 length calculation with padding to make the length a multiple of 4
                 return (length + 2) / 3 * 4;
             }
-
-            // public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, int outLen, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
-            // simdutf_warn_unused result base64_to_binary_safe_impl(const chartype * input, size_t length, char* output, size_t& outlen, base64_options options) noexcept {
 
             public unsafe static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false){
                 // This was the comment in the C++ code :The implementation could be nicer, but we expect that most times, the user
@@ -479,7 +478,7 @@ namespace SimdUnicode
                 // The output buffer is maybe too small. We will decode a truncated version of the input.
                 int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
                 int safeInputLength = Base64LengthFromBinary(outlen3);
-                OperationStatus r = DecodeFromBase64Scalar(input.Slice(0,safeInputLength), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
+                OperationStatus r = DecodeFromBase64Scalar(input.Slice(0,safeInputLength -1), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
                 Console.WriteLine($"This is DecodeFromBase64Scalar's result:{r}");
 
                 if(r == OperationStatus.InvalidData) { 
@@ -489,6 +488,7 @@ namespace SimdUnicode
                             0 : (bytesConsumed % 3) + 1);// the +1 is a bit mysterious to me still, some sort of safe padding?
                 int outputIndex = bytesConsumed - (bytesConsumed % 3);
                 int inputIndex = safeInputLength;
+                int whiteSpaces = 0;
                 // offset is a value that is no larger than 3. We backtrack
                 // by up to offset characters + an undetermined number of
                 // white space characters. It is expected that the next loop
@@ -500,6 +500,7 @@ namespace SimdUnicode
                     // skipping
                     } else {
                     offset--;
+                    whiteSpaces++;
                     }
                 }
                 int remainingOut = output.Length - outputIndex;
@@ -515,6 +516,7 @@ namespace SimdUnicode
                     paddingCharacts++;
                     while(RemainingInputLength > 0 && IsAsciiWhiteSpace((char)tailInput[RemainingInputLength - 1])) {
                         RemainingInputLength--;
+                        whiteSpaces++;
                     }
                     if(RemainingInputLength > 0 && tailInput[RemainingInputLength - 1] == '=') {
                         RemainingInputLength--;
@@ -522,8 +524,10 @@ namespace SimdUnicode
                     }
                 }
                 //TODO: remaining
-                r = SafeDecodeFromBase64Scalar( tailInput.Slice(RemainingInputLength),output.Slice(outputIndex), out bytesConsumed, out bytesWritten, isFinalBlock,isUrl);
-                int outlen = outputIndex + remainingOut;
+                int tailBytesConsumed;
+                int tailBytesWritten;
+                r = SafeDecodeFromBase64Scalar( tailInput.Slice(RemainingInputLength),output.Slice(outputIndex), out tailBytesConsumed, out tailBytesWritten, isFinalBlock,isUrl);
+                int outlen = output.Slice(outputIndex).Length;
                 Console.WriteLine($"SafeDecodeFromBase64Scalar returns {r}");
 
                 if(r == OperationStatus.Done && paddingCharacts > 0) {
@@ -532,7 +536,9 @@ namespace SimdUnicode
                         r = OperationStatus.InvalidData;
                     }
                 }
-                // r.count += inputIndex;
+
+                bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
+                bytesWritten += tailBytesWritten;
                 return r;
             }
 

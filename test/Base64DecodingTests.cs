@@ -88,10 +88,8 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
         X64Avx512 = 2,
         X64Avx2 = 4,
         X64Sse = 8,
-        // Add more as needed
     }
 
-// This seems redundant but I think the tests will be more legible later on. 
 public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);

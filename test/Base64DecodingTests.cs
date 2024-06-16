@@ -93,9 +93,9 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
 
 // This seems redundant but I think the tests will be more legible later on. 
 public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
-public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
-public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, int length, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source,  Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 
 
 
@@ -194,10 +194,9 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
         int bytesWritten;
 
         byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)]; // Pass ReadOnlySpan to method expecting it
-        var result = Base64WithWhiteSpaceToBinary(base64Span,base64Span.Length , buffer, out bytesConsumed, out bytesWritten, true , false);
-        // var result = DecodeFromBase64Delegate(base64Span, buffer, out bytesConsumed, out bytesWritten, true , false);
+        var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true , false);
         Assert.Equal(OperationStatus.Done, result);// This part is buggy
-        // Assert.Equal(decoded.Length, bytesWritten);
+        Assert.Equal(decoded.Length, bytesWritten);
         for (int i = 0; i < bytesWritten; i++)
         {
             Assert.Equal(decoded[i], (char)buffer[i]);
@@ -214,14 +213,14 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
         int bytesWritten;
 
         byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)]; // Pass ReadOnlySpan to method expecting it
-        var result = DecodeFromBase64DelegateSafe(base64Span, base64Span.Length, buffer ,  out bytesConsumed, out bytesWritten, true , false);
-        // Assert.Equal(OperationStatus.Done, result);
-        // Assert.Equal(decoded.Length, bytesWritten);
-        // This part is buggy:
-        // for (int i = 0; i < bytesWritten; i++)
-        // {
-        //     Assert.Equal(decoded[i], (char)buffer[i]);
-        // }
+        var result = DecodeFromBase64DelegateSafe(base64Span,  buffer ,  out bytesConsumed, out bytesWritten, true , false);
+        Assert.Equal(OperationStatus.Done, result);
+        Assert.Equal(decoded.Length, bytesWritten);
+        
+        for (int i = 0; i < bytesWritten; i++)
+        {
+            Assert.Equal(decoded[i], (char)buffer[i]);
+        }
     }    
     
     }
@@ -231,7 +230,7 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
         public void CompleteDecodeBase64CasesScalar()
         {
             // CompleteDecodeBase64Cases(Base64.DecodeFromBase64Scalar,Base64.SafeDecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
-            CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar,Base64.SafeDecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
+            CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar,Base64.SafeBase64ToBinaryWithWhiteSpace,Base64.MaximalBinaryLengthFromBase64Scalar);
         }
 
 

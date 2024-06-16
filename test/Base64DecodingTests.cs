@@ -11,74 +11,67 @@ using System.Buffers;
 public class Base64DecodingTests
 {
     // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
-static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
-{
-    int chunkSize = 16; // 128 bits = 16 bytes
-
-    // Process each chunk for hexadecimal
-    Console.Write("Hex: ");
-    for (int i = 0; i < bytes.Length; i++)
+    static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
     {
-        if (i > 0 && i % chunkSize == 0)
-            Console.WriteLine(); // New line after every 16 bytes
-        
-        if (i == highlightIndex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write($"{bytes[i]:X2} ");
-            Console.ResetColor();
-        }
-        else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write($"{bytes[i]:X2} ");
-            Console.ResetColor();
-        }
-        else
-        {
-            Console.Write($"{bytes[i]:X2} ");
-        }
+        int chunkSize = 16; // 128 bits = 16 bytes
 
-        if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
+        // Process each chunk for hexadecimal
+        Console.Write("Hex: ");
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            if (i > 0 && i % chunkSize == 0)
+                Console.WriteLine(); // New line after every 16 bytes
+
+            if (i == highlightIndex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"{bytes[i]:X2} ");
+                Console.ResetColor();
+            }
+            else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"{bytes[i]:X2} ");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.Write($"{bytes[i]:X2} ");
+            }
+
+            if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
+        }
+        Console.WriteLine("\n"); // New line for readability and to separate hex from binary
+
+        // Process each chunk for binary
+        Console.Write("Binary: ");
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            if (i > 0 && i % chunkSize == 0)
+                Console.WriteLine(); // New line after every 16 bytes
+
+            string binaryString = Convert.ToString(bytes[i], 2).PadLeft(8, '0');
+            if (i == highlightIndex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"{binaryString} ");
+                Console.ResetColor();
+            }
+            else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"{binaryString} ");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.Write($"{binaryString} ");
+            }
+
+            if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
+        }
+        Console.WriteLine(); // New line for readability
     }
-    Console.WriteLine("\n"); // New line for readability and to separate hex from binary
-
-    // Process each chunk for binary
-    Console.Write("Binary: ");
-    for (int i = 0; i < bytes.Length; i++)
-    {
-        if (i > 0 && i % chunkSize == 0)
-            Console.WriteLine(); // New line after every 16 bytes
-
-        string binaryString = Convert.ToString(bytes[i], 2).PadLeft(8, '0');
-        if (i == highlightIndex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write($"{binaryString} ");
-            Console.ResetColor();
-        }
-        else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write($"{binaryString} ");
-            Console.ResetColor();
-        }
-        else
-        {
-            Console.Write($"{binaryString} ");
-        }
-
-        if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
-    }
-    Console.WriteLine(); // New line for readability
-}
-
-
-
-    private const int NumTrials = 100;
-    private static readonly Random rand = new Random();
-
-    static int[] outputLengths = { 128, 345, 1000 }; 
 
     [Flags]
     public enum TestSystemRequirements
@@ -90,14 +83,14 @@ static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
         X64Sse = 8,
     }
 
-public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
-public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
-public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
-public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source,  Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+    public delegate OperationStatus DecodeFromBase64Delegate(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+    public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
+    public delegate int MaxBase64ToBinaryLengthDelegate(ReadOnlySpan<byte> input);
+    public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock, bool isUrl);
 
 
 
-    public class FactOnSystemRequirementAttribute : FactAttribute
+    public sealed class FactOnSystemRequirementAttribute : FactAttribute
     {
         private TestSystemRequirements RequiredSystems;
 
@@ -128,7 +121,7 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
     }
 
 
-    public class TestIfCondition : FactAttribute
+    public sealed class TestIfCondition : FactAttribute
     {
         public TestIfCondition(Func<bool> condition, string skipReason)
         {
@@ -138,10 +131,9 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
                 Skip = skipReason;
             }
         }
+
+        public Func<bool> Condition { get; }
     }
-
-
-    
 
     public void DecodeBase64Cases(DecodeFromBase64Delegate DecodeFromBase64Delegate, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
@@ -155,7 +147,7 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
             int bytesConsumed;
             int bytesWritten;
 
-            var result = DecodeFromBase64Delegate(cases[i],  buffer, out bytesConsumed, out bytesWritten, true, false );
+            var result = DecodeFromBase64Delegate(cases[i], buffer, out bytesConsumed, out bytesWritten, true, false);
 
             Assert.Equal(expectedResults[i].Item1, result);
             Assert.Equal(expectedResults[i].Item2, bytesWritten);
@@ -168,69 +160,61 @@ public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> 
     [Trait("Category", "scalar")]
     public void DecodeBase64CasesScalar()
     {
-        DecodeBase64Cases(Base64.DecodeFromBase64Scalar,Base64.MaximalBinaryLengthFromBase64Scalar);
+        DecodeBase64Cases(Base64.DecodeFromBase64Scalar, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-
-
-
-
-
-        public void CompleteDecodeBase64Cases(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary,DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    public void CompleteDecodeBase64Cases(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
-    List<(string decoded, string base64)> cases = new List<(string, string)>
+        List<(string decoded, string base64)> cases = new List<(string, string)>
     {
         ("abcd", " Y\fW\tJ\njZ A=\r= ")
     };
 
-    foreach (var (decoded, base64) in cases)
-    {
-        byte[] base64Bytes = Encoding.UTF8.GetBytes(base64); // Convert base64 string to byte array
-        // PrintHexAndBinary(base64Bytes);
-        ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes); // Create ReadOnlySpan from the byte array
-        int bytesConsumed;
-        int bytesWritten;
-
-        byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)]; // Pass ReadOnlySpan to method expecting it
-        var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true , false);
-        Assert.Equal(OperationStatus.Done, result);
-        Assert.Equal(decoded.Length, bytesWritten);
-        Assert.Equal(base64.Length,bytesConsumed);  
-        for (int i = 0; i < bytesWritten; i++)
+        foreach (var (decoded, base64) in cases)
         {
-            Assert.Equal(decoded[i], (char)buffer[i]);
+            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+            int bytesConsumed;
+            int bytesWritten;
+
+            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
+            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
         }
+
+        foreach (var (decoded, base64) in cases)
+        {
+            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+            int bytesConsumed;
+            int bytesWritten;
+
+            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
+            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
+
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
+        }
+
     }
 
-    Console.Write(" -- Safe version: --  ");
-
-    foreach (var (decoded, base64) in cases)
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void CompleteDecodeBase64CasesScalar()
     {
-        byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-        ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-        int bytesConsumed;
-        int bytesWritten;
-
-        byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)]; // Pass ReadOnlySpan to method expecting it
-        var result = DecodeFromBase64DelegateSafe(base64Span,  buffer ,  out bytesConsumed, out bytesWritten, true , false);
-        Assert.Equal(OperationStatus.Done, result);
-        Assert.Equal(decoded.Length, bytesWritten);
-        Assert.Equal(base64.Length,bytesConsumed);
-        
-        for (int i = 0; i < bytesWritten; i++)
-        {
-            Assert.Equal(decoded[i], (char)buffer[i]);
-        }
-    }    
-    
+        CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
-
-        [Fact]
-        [Trait("Category", "scalar")]
-        public void CompleteDecodeBase64CasesScalar()
-        {
-            CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar,Base64.SafeBase64ToBinaryWithWhiteSpace,Base64.MaximalBinaryLengthFromBase64Scalar);
-        }
 
 
 }

@@ -68,10 +68,6 @@ namespace SimdUnicode
             return actualLength / 4 * 3 + (actualLength % 4) - 1;
         }
 
-        // C++/C# difference:
-        // In the C++ code, in case of error, the function returns the position of the error. 
-        // In case of success, however, it indicates the number of code units validated/written.
-        // To make it more like the runtime, this function  returns both via reference.
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 

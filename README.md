@@ -91,7 +91,8 @@ You can print the content of a vector register like so:
 
 ## Performance tips
 
-- Be careful: `Vector128.Shuffle` is not the same as `Ssse3.Shuffle` nor is  `Vector128.Shuffle` the same as `Avx2.Shuffle`. Prefer the latter.
+- Be careful: `Vector128.Shuffle` is not the same as `Ssse3.Shuffle` nor is  `Vector256.Shuffle` the same as `Avx2.Shuffle`. Prefer the latter.
+- Similarly `Vector128.Shuffle` is not the same as `AdvSimd.Arm64.VectorTableLookup`, use the latter.
 
 ## References
 
@@ -102,7 +103,5 @@ You can print the content of a vector register like so:
 
 ## More reading 
 
-- https://github.com/dotnet/coreclr/pull/21948/files#diff-2a22774bd6bff8e217ecbb3a41afad033ce0ca0f33645e9d8f5bdf7c9e3ac248
-- https://github.com/dotnet/runtime/issues/41699
 - https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/
 - https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions

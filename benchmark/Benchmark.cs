@@ -5,6 +5,7 @@ using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Filters;
+using BenchmarkDotNet.Jobs;
 using System.Text;
 using System.Runtime;
 using System.Runtime.InteropServices;
@@ -82,6 +83,7 @@ namespace SimdUnicodeBenchmarks
 
         private class Config : ManualConfig
         {
+            static bool warned;
             public Config()
             {
                 AddColumn(new Speed());
@@ -89,7 +91,11 @@ namespace SimdUnicodeBenchmarks
 
                 if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
                 {
-                    Console.WriteLine("ARM64 system detected.");
+                    if (!warned)
+                    {
+                        Console.WriteLine("ARM64 system detected.");
+                        warned = true;
+                    }
                     AddFilter(new AnyCategoriesFilter(["arm64", "scalar", "runtime", "gfoidl"]));
 
                 }
@@ -97,22 +103,38 @@ namespace SimdUnicodeBenchmarks
                 {
                     if (Vector512.IsHardwareAccelerated && System.Runtime.Intrinsics.X86.Avx512Vbmi.IsSupported)
                     {
-                        Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX-512 support.");
+                        if (!warned)
+                        {
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX-512 support.");
+                            warned = true;
+                        }
                         AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else if (Avx2.IsSupported)
                     {
-                        Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX2 support.");
+                        if (!warned)
+                        {
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX2 support.");
+                            warned = true;
+                        }
                         AddFilter(new AnyCategoriesFilter(["avx", "sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else if (Ssse3.IsSupported)
                     {
-                        Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse4.2 support.");
+                        if (!warned)
+                        {
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse4.2 support.");
+                            warned = true;
+                        }
                         AddFilter(new AnyCategoriesFilter(["sse", "scalar", "runtime", "gfoidl"]));
                     }
                     else
                     {
-                        Console.WriteLine("X64 system detected (Intel, AMD,...) without relevant SIMD support.");
+                        if (!warned)
+                        {
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) without relevant SIMD support.");
+                            warned = true;
+                        }
                         AddFilter(new AnyCategoriesFilter(["scalar", "runtime", "gfoidl"]));
                     }
                 }
@@ -206,12 +228,15 @@ namespace SimdUnicodeBenchmarks
         {
             if (args.Length == 0)
             {
-                BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(["--filter", "*"]);
+                args = new string[] { "--filter", "*" };
             }
-            else
-            {
-                BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
-            }
+            var job = Job.Default
+                .WithWarmupCount(1)
+                .WithMinIterationCount(2)
+                .WithMaxIterationCount(10)
+                .AsDefault();
+
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, DefaultConfig.Instance.AddJob(job).WithSummaryStyle(SummaryStyle.Default.WithMaxParameterColumnWidth(100)));
         }
     }
 

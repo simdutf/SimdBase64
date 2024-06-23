@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
 using System.IO.Pipes;
+using System.Text;
 
 namespace SimdUnicode
 {
@@ -71,6 +72,7 @@ namespace SimdUnicode
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
+            Console.WriteLine("--DecodeFromBase64Scalar firing");
 
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
@@ -88,30 +90,35 @@ namespace SimdUnicode
                 byte* src = srcInit;
                 byte* dst = dstInit;
 
-                uint x;
+                UInt32 x;
                 uint triple;
                 int idx;
                 byte[] buffer = new byte[4];
 
                 while (true)
                 {
-                    // fastpath
+                    // fastpath is wrong, it is converted as is but I am not sure what it is doing
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
+                        // Console.WriteLine("Doing Fastpath! +1");
+
                         if (MatchSystem(Endianness.BIG))
                         {
                             x = SwapBytes(x);
                         }
-                        Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
+                        *(uint*)dst = x;// optimization opportunity: copy 4 bytes
                         dst += 3;
                         src += 4;
                     }
                     idx = 0;
 
+                    Console.WriteLine("Going for main routine..");
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
+                        Console.WriteLine("Main routine! +4");
+
                         char c = (char)*src;
 
                         byte code = toBase64[c];
@@ -123,6 +130,7 @@ namespace SimdUnicode
                         }
                         else if (code > 64)
                         {
+                            Console.WriteLine($"Error! Character {c} converts to {code} which causes Code > 64.");
 
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
@@ -213,6 +221,7 @@ namespace SimdUnicode
         // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
         public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
+            Console.WriteLine("--SafeDecodeFromBase64Scalar firing");
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
             uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
@@ -243,6 +252,8 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
+                        Console.WriteLine("Fast path activated");
+
                         if (MatchSystem(Endianness.BIG))
                         {
                             x = SwapBytes(x);
@@ -341,6 +352,8 @@ namespace SimdUnicode
 
                         else if (idx == 1)
                         {
+                            Console.WriteLine ("Error!idx == 1!");
+
 
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
@@ -381,6 +394,7 @@ namespace SimdUnicode
 
         public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
+            Console.WriteLine("--Base64WithWhiteSpaceToBinaryScalar firing");
             int length = input.Length;
             int whiteSpaces = 0;
             while (length > 0 && IsAsciiWhiteSpace((char)input[length - 1]))
@@ -411,6 +425,7 @@ namespace SimdUnicode
                 {
                     bytesConsumed = equallocation;
                     bytesWritten = 0;
+                    Console.WriteLine ("Error!Length = 0 and = signs greater than zero!");
 
                     return OperationStatus.InvalidData;
 
@@ -421,13 +436,18 @@ namespace SimdUnicode
             }
 
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
+            // string decodedString = Encoding.UTF8.GetString(trimmedInput);
+            // Console.WriteLine("Trimmed Input (String): " + decodedString);
+            
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
+            // Console.WriteLine("This is the result of DecodeFromBase64Scalar:", r);
 
             if (r == OperationStatus.Done && equalsigns > 0)
             {
                 //  additional checks
                 if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
                 { 
+                    Console.WriteLine("Additional checks of Whitespace function failed!");
                     return OperationStatus.InvalidData;
                 }
             }

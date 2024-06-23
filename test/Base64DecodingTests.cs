@@ -167,7 +167,7 @@ public class Base64DecodingTests
     {
         List<(string decoded, string base64)> cases = new List<(string, string)>
     {
-        ("abcd", " Y\fW\tJ\njZ A=\r= ")
+        ("abcd", " Y\fW\tJ\njZ A=\r= "),
     };
 
         foreach (var (decoded, base64) in cases)
@@ -178,7 +178,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -205,6 +205,8 @@ public class Base64DecodingTests
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
+
+            
         }
 
     }
@@ -215,6 +217,72 @@ public class Base64DecodingTests
     {
         CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
+
+
+    public void MoreDecodeTests(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    {
+        List<(string decoded, string base64)> cases = new List<(string, string)>
+    {
+        // ("Hello, World!", "SGVsbG8sIFdvcmxkIQ=="),
+        // ("GeeksforGeeks", "R2Vla3Nmb3JHZWVrcw=="),
+        // ("123456", "MTIzNDU2"),
+        // ("Base64 Encoding", "QmFzZTY0IEVuY29kaW5n"),
+        ("!R~J2jL&mI]O)3=c:G3Mo)oqmJdxoprTZDyxEvU0MI.'Ww5H{G>}y;;+B8E_Ah,Ed[ PdBqY'^N>O$4:7LK1<:|7)btV@|{YWR$$Er59-XjVrFl4L}~yzTEd4'E[@k", "IVJ+SjJqTCZtSV1PKTM9YzpHM01vKW9xbUpkeG9wclRaRHl4RXZVME1JLidXdzVIe0c+fXk7OytCOEVfQWgsRWRbIFBkQnFZJ15OPk8kNDo3TEsxPDp8NylidFZAfHtZV1IkJEVyNTktWGpWckZsNEx9fnl6VEVkNCdFW0Br")
+    };
+
+        foreach (var (decoded, base64) in cases)
+        {
+            Console.WriteLine($"----------Starting:{decoded}");
+            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+            int bytesConsumed;
+            int bytesWritten;
+
+            Console.WriteLine($"This is MaxBase64ToBinaryLengthDelegate:{MaxBase64ToBinaryLengthDelegate(base64Span)}");
+            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
+            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
+            Console.WriteLine($"Buffer contents as string:{Encoding.UTF8.GetString(buffer, 0, bytesWritten)}");
+            PrintHexAndBinary(buffer);
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
+        }
+        Console.WriteLine("--Safe version--");
+
+        // foreach (var (decoded, base64) in cases)
+        // {
+        //     byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+        //     ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+        //     int bytesConsumed;
+        //     int bytesWritten;
+
+        //     byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
+        //     var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+        //     Assert.Equal(OperationStatus.Done, result);
+        //     Assert.Equal(decoded.Length, bytesWritten);
+        //     Assert.Equal(base64.Length, bytesConsumed);
+
+        //     for (int i = 0; i < bytesWritten; i++)
+        //     {
+        //         Assert.Equal(decoded[i], (char)buffer[i]);
+        //     }
+        // }
+
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void MoreDecodeTestsScalar()
+    {
+        // MoreDecodeTests(Base64.DecodeFromBase64Scalar, Base64.SafeDecodeFromBase64Scalar, Base64.MaximalBinaryLengthFromBase64Scalar);
+        MoreDecodeTests(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+
 
 
 }

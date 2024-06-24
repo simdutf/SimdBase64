@@ -437,7 +437,7 @@ namespace SimdUnicode
 
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
 
-            
+
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
 
 
@@ -445,7 +445,7 @@ namespace SimdUnicode
             {
                 //  additional checks
                 if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
-                { 
+                {
 
                     return OperationStatus.InvalidData;
                 }

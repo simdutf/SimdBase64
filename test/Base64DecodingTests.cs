@@ -10,7 +10,6 @@ using System.Buffers;
 
 public class Base64DecodingTests
 {
-    int seed = 0;
     Random random = new Random();
 
     // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
@@ -121,6 +120,7 @@ public class Base64DecodingTests
                     return false;
             }
         }
+
     }
 
 
@@ -136,6 +136,7 @@ public class Base64DecodingTests
         }
 
         public Func<bool> Condition { get; }
+        public string SkipReason { get; }
     }
 
     public void DecodeBase64Cases(DecodeFromBase64Delegate DecodeFromBase64Delegate, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
@@ -209,7 +210,7 @@ public class Base64DecodingTests
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
 
-            
+
         }
 
     }
@@ -220,7 +221,6 @@ public class Base64DecodingTests
     {
         CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
-
 
     public void MoreDecodeTests(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
@@ -248,7 +248,6 @@ public class Base64DecodingTests
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
 
-            PrintHexAndBinary(buffer);
             for (int i = 0; i < bytesWritten; i++)
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
@@ -285,7 +284,7 @@ public class Base64DecodingTests
         MoreDecodeTests(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-        public void MoreDecodeTestsUrl(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    public void MoreDecodeTestsUrl(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
         List<(string decoded, string base64)> cases = new List<(string, string)>
     {
@@ -347,9 +346,8 @@ public class Base64DecodingTests
         MoreDecodeTestsUrl(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-
     public void RoundtripBase64(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
-    {        
+    {
         for (int len = 0; len < 2048; len++)
         {
             // Initialize source buffer with random bytes
@@ -365,7 +363,7 @@ public class Base64DecodingTests
             // Call your custom decoding function
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
-                Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(), 
+                Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(),
                 out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
             // Assert that decoding was successful

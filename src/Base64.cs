@@ -264,7 +264,7 @@ namespace SimdUnicode
                             bytesWritten = (int)(dst - dstInit);
                             return OperationStatus.DestinationTooSmall;
                         }
-                        Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
+                        *(uint*)dst = x; // optimization opportunity: copy 4 bytes
                         dst += 3;
                         src += 4;
                     }

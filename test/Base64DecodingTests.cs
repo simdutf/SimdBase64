@@ -223,10 +223,10 @@ public class Base64DecodingTests
     {
         List<(string decoded, string base64)> cases = new List<(string, string)>
     {
-        // ("Hello, World!", "SGVsbG8sIFdvcmxkIQ=="),
-        // ("GeeksforGeeks", "R2Vla3Nmb3JHZWVrcw=="),
-        // ("123456", "MTIzNDU2"),
-        // ("Base64 Encoding", "QmFzZTY0IEVuY29kaW5n"),
+        ("Hello, World!", "SGVsbG8sIFdvcmxkIQ=="),
+        ("GeeksforGeeks", "R2Vla3Nmb3JHZWVrcw=="),
+        ("123456", "MTIzNDU2"),
+        ("Base64 Encoding", "QmFzZTY0IEVuY29kaW5n"),
         ("!R~J2jL&mI]O)3=c:G3Mo)oqmJdxoprTZDyxEvU0MI.'Ww5H{G>}y;;+B8E_Ah,Ed[ PdBqY'^N>O$4:7LK1<:|7)btV@|{YWR$$Er59-XjVrFl4L}~yzTEd4'E[@k", "IVJ+SjJqTCZtSV1PKTM9YzpHM01vKW9xbUpkeG9wclRaRHl4RXZVME1JLidXdzVIe0c+fXk7OytCOEVfQWgsRWRbIFBkQnFZJ15OPk8kNDo3TEsxPDp8NylidFZAfHtZV1IkJEVyNTktWGpWckZsNEx9fnl6VEVkNCdFW0Br")
     };
 
@@ -253,24 +253,24 @@ public class Base64DecodingTests
         }
         Console.WriteLine("--Safe version--");
 
-        // foreach (var (decoded, base64) in cases)
-        // {
-        //     byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-        //     ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-        //     int bytesConsumed;
-        //     int bytesWritten;
+        foreach (var (decoded, base64) in cases)
+        {
+            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+            int bytesConsumed;
+            int bytesWritten;
 
-        //     byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-        //     var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
-        //     Assert.Equal(OperationStatus.Done, result);
-        //     Assert.Equal(decoded.Length, bytesWritten);
-        //     Assert.Equal(base64.Length, bytesConsumed);
+            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
+            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
 
-        //     for (int i = 0; i < bytesWritten; i++)
-        //     {
-        //         Assert.Equal(decoded[i], (char)buffer[i]);
-        //     }
-        // }
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
+        }
 
     }
 

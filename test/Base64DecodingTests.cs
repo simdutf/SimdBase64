@@ -235,26 +235,26 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            Console.WriteLine($"----------Starting:{decoded}");
+
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
 
-            Console.WriteLine($"This is MaxBase64ToBinaryLengthDelegate:{MaxBase64ToBinaryLengthDelegate(base64Span)}");
+
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
-            Console.WriteLine($"Buffer contents as string:{Encoding.UTF8.GetString(buffer, 0, bytesWritten)}");
+
             PrintHexAndBinary(buffer);
             for (int i = 0; i < bytesWritten; i++)
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
         }
-        Console.WriteLine("--Safe version--");
+
 
         foreach (var (decoded, base64) in cases)
         {
@@ -298,26 +298,25 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            Console.WriteLine($"----------Starting:{decoded}");
+
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
 
-            Console.WriteLine($"This is MaxBase64ToBinaryLengthDelegate:{MaxBase64ToBinaryLengthDelegate(base64Span)}");
+
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
-            Console.WriteLine($"Buffer contents as string:{Encoding.UTF8.GetString(buffer, 0, bytesWritten)}");
-            PrintHexAndBinary(buffer);
+
             for (int i = 0; i < bytesWritten; i++)
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
         }
-        Console.WriteLine("--Safe version--");
+
 
         foreach (var (decoded, base64) in cases)
         {
@@ -373,8 +372,7 @@ public class Base64DecodingTests
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(len, bytesWritten);
             Assert.Equal(base64String.Length, bytesConsumed);
-            Assert.Equal(source, decodedBytes.AsSpan().Slice(0, bytesWritten).ToArray());
-            
+            Assert.Equal(source, decodedBytes.AsSpan().ToArray());
         }
     }
 

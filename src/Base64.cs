@@ -97,7 +97,7 @@ namespace SimdUnicode
 
                 while (true)
                 {
-                    // fastpath is wrong, it is converted as is but I am not sure what it is doing
+                    // fastpath
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {

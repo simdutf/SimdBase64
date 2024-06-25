@@ -10,7 +10,7 @@ using System.Buffers;
 
 public class Base64DecodingTests
 {
-    Random random = new Random();
+    Random random = new Random(123456789);
 
     // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
     static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)

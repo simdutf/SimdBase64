@@ -280,7 +280,6 @@ public class Base64DecodingTests
     [Trait("Category", "scalar")]
     public void MoreDecodeTestsScalar()
     {
-        // MoreDecodeTests(Base64.DecodeFromBase64Scalar, Base64.SafeDecodeFromBase64Scalar, Base64.MaximalBinaryLengthFromBase64Scalar);
         MoreDecodeTests(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 

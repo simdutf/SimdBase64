@@ -72,7 +72,7 @@ namespace SimdUnicode
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
-            Console.WriteLine("--DecodeFromBase64Scalar firing");
+//             Console.WriteLine("--DecodeFromBase64Scalar firing");
 
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
@@ -101,7 +101,7 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
-                        // Console.WriteLine("Doing Fastpath! +1");
+//                         // Console.WriteLine("Doing Fastpath! +1");
 
                         if (MatchSystem(Endianness.BIG))
                         {
@@ -114,15 +114,15 @@ namespace SimdUnicode
                     }
                     idx = 0;
 
-                    Console.WriteLine("Going for main routine..");
+//                     Console.WriteLine("Going for main routine..");
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
-                        Console.WriteLine("Main routine! +4");
+//                         Console.WriteLine("Main routine! +4");
 
                         char c = (char)*src;
 
-                        Console.WriteLine($"This is the character under consideration:{c}");
+//                         Console.WriteLine($"This is the character under consideration:{c}");
 
 
                         byte code = toBase64[c];
@@ -134,7 +134,7 @@ namespace SimdUnicode
                         }
                         else if (code > 64)
                         {
-                            Console.WriteLine($"Error! Character {c} converts to {code} which causes Code > 64.");
+//                             Console.WriteLine($"Error! Character {c} converts to {code} which causes Code > 64.");
 
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
@@ -145,7 +145,7 @@ namespace SimdUnicode
                         {
                             // We have a space or a newline. We ignore it.
                         }
-                        Console.WriteLine("Char is good!src is incremented by one");
+//                         Console.WriteLine("Char is good!src is incremented by one");
                         src++;
                     }
 
@@ -257,7 +257,7 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
-                        Console.WriteLine("Fast path activated");
+//                         Console.WriteLine("Fast path activated");
 
                         if (MatchSystem(Endianness.BIG))
                         {
@@ -357,7 +357,7 @@ namespace SimdUnicode
 
                         else if (idx == 1)
                         {
-                            Console.WriteLine ("Error!idx == 1!");
+//                             Console.WriteLine ("Error!idx == 1!");
 
 
                             bytesConsumed = (int)(src - srcInit);
@@ -399,7 +399,7 @@ namespace SimdUnicode
 
         public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
-            Console.WriteLine("--Base64WithWhiteSpaceToBinaryScalar firing");
+//             Console.WriteLine("--Base64WithWhiteSpaceToBinaryScalar firing");
             int length = input.Length;
             int whiteSpaces = 0;
             while (length > 0 && IsAsciiWhiteSpace((char)input[length - 1]))
@@ -430,7 +430,7 @@ namespace SimdUnicode
                 {
                     bytesConsumed = equallocation;
                     bytesWritten = 0;
-                    Console.WriteLine ("Error!Length = 0 and = signs greater than zero!");
+//                     Console.WriteLine ("Error!Length = 0 and = signs greater than zero!");
 
                     return OperationStatus.InvalidData;
 
@@ -442,17 +442,17 @@ namespace SimdUnicode
 
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
             // string decodedString = Encoding.UTF8.GetString(trimmedInput);
-            // Console.WriteLine("Trimmed Input (String): " + decodedString);
+//             // Console.WriteLine("Trimmed Input (String): " + decodedString);
             
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
-            // Console.WriteLine("This is the result of DecodeFromBase64Scalar:", r);
+//             // Console.WriteLine("This is the result of DecodeFromBase64Scalar:", r);
 
             // if (r == OperationStatus.Done && equalsigns > 0)
             // {
             //     //  additional checks
             //     if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
             //     { 
-            //         Console.WriteLine("Additional checks of Whitespace function failed!");
+//             //         Console.WriteLine("Additional checks of Whitespace function failed!");
             //         return OperationStatus.InvalidData;
             //     }
             // }
@@ -465,7 +465,7 @@ namespace SimdUnicode
                     // Additional checks
                     if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
                     {
-                        Console.WriteLine("Additional checks of Whitespace function failed!");
+//                         Console.WriteLine("Additional checks of Whitespace function failed!");
                         return OperationStatus.InvalidData;
                     }
                 }
@@ -570,7 +570,14 @@ namespace SimdUnicode
                 }
             }
 
-            bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
+
+            if (r == OperationStatus.Done)
+            {
+                // Increment bytesConsumed if decoding was successful
+                bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
+            } else {
+                bytesConsumed += tailBytesConsumed;
+            }
             bytesWritten += tailBytesWritten;
             return r;
         }

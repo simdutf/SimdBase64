@@ -10,21 +10,11 @@ using System.Buffers;
 
 public class Base64DecodingTests
 {
-    int seed = 0;
-    Random random = new Random(123456789);
+    Random random = new Random(1234567891987);
 
     private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r' };
 
-    // public static int AddSpace<T>(List<T> list, Random random)
-    // {
-    //     int index = random.Next(list.Count + 1); // Random index to insert at
-    //     int charIndex = random.Next(SpaceCharacters.Length); // Random space character
-    //     T spaceChar = (T)(object)SpaceCharacters[charIndex];
-    //     list.Insert(index, spaceChar);
-    //     return index;
-    // }
-
-        public static void AddSpace(List<byte> list, Random random)
+    public static void AddSpace(List<byte> list, Random random)
     {
         int index = random.Next(list.Count + 1); // Random index to insert at
         int charIndex = random.Next(SpaceCharacters.Length); // Random space character
@@ -32,6 +22,91 @@ public class Base64DecodingTests
         byte[] spaceBytes = Encoding.UTF8.GetBytes(new char[] { spaceChar });
         list.Insert(index, spaceBytes[0]);
     }
+
+    private static void PrintListContents(List<byte> list)
+{
+    Console.WriteLine("List contents:");
+    foreach (var item in list)
+    {
+        Console.Write(item + " ");
+    }
+    Console.WriteLine();
+}
+
+    // public static int AddGarbage(List<byte> v, Random gen)
+    // {
+    //     int len = v.Count;
+    //     int i;
+
+    // //         Console.WriteLine("Before adding garbage:");
+    // // PrintListContents(v);
+
+    //     // Find the position of the first '=' character
+    //     int equalSignIndex = v.FindIndex(c => c == '=');
+    //     if (equalSignIndex != -1)
+    //     {
+    //         len = equalSignIndex; // Adjust the length to before the '='
+    //     }
+
+    //     // Generate a random index to insert at
+    //     i = gen.Next(len + 1);
+
+    //     // Generate a random garbage character not in the base64 character set
+    //     byte c;
+    //     do
+    //     {
+    //         c = (byte)gen.Next(256); // Generate a random byte value
+    //     } while (c == '=' || SimdUnicode.Base64Tables.tables.ToBase64Value[c] != 255);
+
+    //     Console.WriteLine($"inserting garbage {c} rendered {(char)c} with table value {SimdUnicode.Base64Tables.tables.ToBase64Value[c]} at {i})");
+
+    // Console.WriteLine("After adding garbage:");
+    // PrintListContents(v);
+    //     v.Insert(i, c);
+
+    // // Console.WriteLine("After adding garbage:");
+    // // PrintListContents(v);
+
+    //     return i;
+    // }
+
+    public static (byte[] modifiedArray, int location) AddGarbage(byte[] inputArray, Random gen)
+{
+    // Convert byte[] to List<byte>
+    List<byte> v = new List<byte>(inputArray);
+
+    int len = v.Count;
+    int i;
+
+    // Find the position of the first '=' character
+    int equalSignIndex = v.FindIndex(c => c == '=');
+    if (equalSignIndex != -1)
+    {
+        len = equalSignIndex; // Adjust the length to before the '='
+        Console.WriteLine("Found equal signs"); //debug
+    }
+
+    // Generate a random index to insert at
+    i = gen.Next(len + 1);
+
+    // Generate a random garbage character not in the base64 character set
+    byte c;
+    do
+    {
+        c = (byte)gen.Next(256); // Generate a random byte value
+    } while (c == '=' || SimdUnicode.Base64Tables.tables.ToBase64Value[c] != 255);
+
+    Console.WriteLine($"Inserting garbage {c} (rendered as {(char)c}) at index {i}");
+
+    // Insert garbage byte into the List<byte>
+    v.Insert(i, c);
+
+    // Convert List<byte> back to byte[]
+    byte[] modifiedArray = v.ToArray();
+
+    return (modifiedArray, i);
+}
+
 
 
     // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
@@ -197,6 +272,7 @@ public class Base64DecodingTests
         foreach (var (decoded, base64) in cases)
         {
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            // byte[] base64Bytes = Convert.FromBase64String(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
@@ -320,6 +396,7 @@ public class Base64DecodingTests
         {
             Console.WriteLine($"----------Starting:{decoded}");
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            // byte[] base64Bytes = Convert.FromBase64String(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
@@ -536,6 +613,55 @@ public class Base64DecodingTests
     {
         BadPaddingBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
+
+
+    public void DoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    {
+        for (int len = 0; len < 2048; len++)
+        {
+            byte[] source = new byte[len];
+            List<byte> buffer;
+
+            for (int trial = 0; trial < 10; trial++)
+            {
+                Console.WriteLine("-------------------------------");
+                int bytesConsumed =0;
+                int bytesWritten =0;
+
+                random.NextBytes(source); // Generate random bytes for source
+
+                byte[] base64 = Encoding.UTF8.GetBytes(Convert.ToBase64String(source));
+
+                (byte[] base64WithGarbage,int location) = AddGarbage(base64, random);
+
+                // Prepare a buffer for decoding the base64 back to binary
+                byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64)];
+
+                // Attempt to decode base64 back to binary and assert that it fails with INVALID_BASE64_CHARACTER
+                var result = Base64WithWhiteSpaceToBinary(
+                    base64WithGarbage.AsSpan(), back.AsSpan(), 
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+                Assert.Equal(result, OperationStatus.InvalidData);
+                Assert.Equal(location , bytesConsumed);
+                // TODO: Need to validate byteswritten as well?
+                
+                // Also test safe decoding with a specified back_length
+                var safeResult = Base64WithWhiteSpaceToBinary(
+                    base64WithGarbage.AsSpan(), back.AsSpan(), 
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+                Assert.Equal(safeResult, OperationStatus.InvalidData);
+                Assert.Equal(location,bytesConsumed);
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void DoomedBase64RoundtripScalar()
+    {
+        DoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
 
 

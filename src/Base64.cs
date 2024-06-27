@@ -122,6 +122,9 @@ namespace SimdUnicode
 
                         char c = (char)*src;
 
+                        Console.WriteLine($"This is the character under consideration:{c}");
+
+
                         byte code = toBase64[c];
                         buffer[idx] = code;
 
@@ -142,6 +145,7 @@ namespace SimdUnicode
                         {
                             // We have a space or a newline. We ignore it.
                         }
+                        Console.WriteLine("Char is good!src is incremented by one");
                         src++;
                     }
 
@@ -443,16 +447,32 @@ namespace SimdUnicode
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
             // Console.WriteLine("This is the result of DecodeFromBase64Scalar:", r);
 
-            if (r == OperationStatus.Done && equalsigns > 0)
+            // if (r == OperationStatus.Done && equalsigns > 0)
+            // {
+            //     //  additional checks
+            //     if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
+            //     { 
+            //         Console.WriteLine("Additional checks of Whitespace function failed!");
+            //         return OperationStatus.InvalidData;
+            //     }
+            // }
+            // bytesConsumed += equalsigns + whiteSpaces;
+
+            if (r == OperationStatus.Done)
             {
-                //  additional checks
-                if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
-                { 
-                    Console.WriteLine("Additional checks of Whitespace function failed!");
-                    return OperationStatus.InvalidData;
+                if (equalsigns > 0)
+                {
+                    // Additional checks
+                    if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
+                    {
+                        Console.WriteLine("Additional checks of Whitespace function failed!");
+                        return OperationStatus.InvalidData;
+                    }
                 }
+
+                // Only increment bytesConsumed if decoding was successful
+                bytesConsumed += equalsigns + whiteSpaces;
             }
-            bytesConsumed += equalsigns + whiteSpaces;
             return r;
         }
 

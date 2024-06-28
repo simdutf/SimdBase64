@@ -591,7 +591,6 @@ public class Base64DecodingTests
         for (int len = 0; len < 2048; len++)
         {
             byte[] source = new byte[len];
-            List<byte> buffer;
 
             for (int trial = 0; trial < 10; trial++)
             {
@@ -614,9 +613,7 @@ public class Base64DecodingTests
                     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
                 Assert.Equal(result, OperationStatus.InvalidData);
                 Assert.Equal(location , bytesConsumed);
-                // Console.WriteLine("asserting byte written )";
                 Assert.Equal( location / 4 *3  , bytesWritten);
-                // TODO: Need to validate byteswritten as well?
                 
                 // Also test safe decoding with a specified back_length
                 var safeResult = DecodeFromBase64DelegateSafe(
@@ -639,42 +636,40 @@ public class Base64DecodingTests
 
         public void TruncatedDoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
     {
-        for (int len = 0; len < 2048; len++)
+        for (int len = 1; len < 2048; len++)
         {
             byte[] source = new byte[len];
             List<byte> buffer;
 
             for (int trial = 0; trial < 10; trial++)
             {
-                // Console.WriteLine("-------------------------------");
+                // Console.WriteLine("-------------------------------"); //debug
                 int bytesConsumed =0;
                 int bytesWritten =0;
 
                 random.NextBytes(source); // Generate random bytes for source
 
                 byte[] base64 = Encoding.UTF8.GetBytes(Convert.ToBase64String(source));
-
-                (byte[] base64WithGarbage,int location) = AddGarbage(base64, random);
+                
+                byte[] base64Truncated = base64[..^3];  // removing last 3 elements with a view
 
                 // Prepare a buffer for decoding the base64 back to binary
-                byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64)];
+                byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64Truncated)];
 
                 // Attempt to decode base64 back to binary and assert that it fails with INVALID_BASE64_CHARACTER
                 var result = Base64WithWhiteSpaceToBinary(
-                    base64WithGarbage.AsSpan(), back.AsSpan(), 
+                    base64Truncated.AsSpan(), back.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
-                Assert.Equal(result, OperationStatus.InvalidData);
-                Assert.Equal(location , bytesConsumed);
-                // Console.WriteLine("asserting byte written )";
-                Assert.Equal( location / 4 *3  , bytesWritten);
+                Assert.Equal(result, OperationStatus.NeedMoreData);
+                Assert.Equal((base64.Length - 4) /4 *3 , bytesWritten);
+                Assert.Equal(base64Truncated.Length , bytesConsumed);
                 
-                // Also test safe decoding with a specified back_length
                 var safeResult = DecodeFromBase64DelegateSafe(
-                    base64WithGarbage.AsSpan(), back.AsSpan(), 
+                    base64Truncated.AsSpan(), back.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
-                Assert.Equal(safeResult, OperationStatus.InvalidData);
-                Assert.Equal(location,bytesConsumed);
-                Assert.Equal( location / 4 *3  , bytesWritten);
+                Assert.Equal(safeResult, OperationStatus.NeedMoreData);
+                Assert.Equal((base64.Length - 4) /4 *3 , bytesWritten);
+                Assert.Equal(base64Truncated.Length , bytesConsumed);
 
             }
         }
@@ -686,7 +681,6 @@ public class Base64DecodingTests
     {
         TruncatedDoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
-
 
 
 

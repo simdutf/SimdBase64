@@ -682,6 +682,57 @@ public class Base64DecodingTests
         TruncatedDoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+        public void RoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    {        
+        for (int len = 0; len < 2048; len++)
+        {
+            // Initialize source buffer with random bytes
+            byte[] source = new byte[len];
+            random.NextBytes(source);
+
+            // Encode source to Base64
+            string base64String = Convert.ToBase64String(source);
+            byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+
+            for (int i = 0; i < 5; i++) {
+                AddSpace(base64.ToList(),random);
+            }
+
+
+            // Prepare buffer for decoded bytes
+            byte[] decodedBytes = new byte[len];
+
+            // Call your custom decoding function
+            int bytesConsumed, bytesWritten;
+            var result = Base64WithWhiteSpaceToBinary(
+                base64.AsSpan(), decodedBytes.AsSpan(), 
+                out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+            // Assert that decoding was successful
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(len, bytesWritten);
+            Assert.Equal(base64String.Length, bytesConsumed);
+            Assert.Equal(source, decodedBytes.AsSpan().ToArray());
+
+            //  result = Base64WithWhiteSpaceToBinary(
+            //     base64.AsSpan(), decodedBytes.AsSpan(), 
+            //     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+            // // Assert that decoding was successful
+            // Assert.Equal(OperationStatus.Done, result);
+            // Assert.Equal(len, bytesWritten);
+            // Assert.Equal(base64String.Length, bytesConsumed);
+            // Assert.Equal(source, decodedBytes.AsSpan().ToArray());
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void RoundtripBase64WithSpacesScalar()
+    {
+        RoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
 
 

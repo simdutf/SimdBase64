@@ -700,6 +700,7 @@ public class Base64DecodingTests
 
 
             // Prepare buffer for decoded bytes
+            // byte[] decodedBytes = new byte[len];
             byte[] decodedBytes = new byte[len];
 
             // Call your custom decoding function
@@ -714,15 +715,16 @@ public class Base64DecodingTests
             Assert.Equal(base64String.Length, bytesConsumed);
             Assert.Equal(source, decodedBytes.AsSpan().ToArray());
 
-            //  result = Base64WithWhiteSpaceToBinary(
-            //     base64.AsSpan(), decodedBytes.AsSpan(), 
-            //     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+            // Safe version not working
+             result = Base64WithWhiteSpaceToBinary(
+                base64.AsSpan(), decodedBytes.AsSpan(), 
+                out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
-            // // Assert that decoding was successful
-            // Assert.Equal(OperationStatus.Done, result);
-            // Assert.Equal(len, bytesWritten);
-            // Assert.Equal(base64String.Length, bytesConsumed);
-            // Assert.Equal(source, decodedBytes.AsSpan().ToArray());
+            // Assert that decoding was successful
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(len, bytesWritten);
+            Assert.Equal(base64String.Length, bytesConsumed);
+            Assert.Equal(source, decodedBytes.AsSpan().ToArray());
         }
     }
 

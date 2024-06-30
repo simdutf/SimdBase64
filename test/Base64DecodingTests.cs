@@ -413,23 +413,18 @@ public class Base64DecodingTests
     {        
         for (int len = 0; len < 2048; len++)
         {
-            // Initialize source buffer with random bytes
             byte[] source = new byte[len];
             random.NextBytes(source);
 
-            // Encode source to Base64
             string base64String = Convert.ToBase64String(source);
 
-            // Prepare buffer for decoded bytes
             byte[] decodedBytes = new byte[len];
 
-            // Call your custom decoding function
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
                 Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(), 
                 out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
-            // Assert that decoding was successful
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(len, bytesWritten);
             Assert.Equal(base64String.Length, bytesConsumed);
@@ -448,23 +443,18 @@ public class Base64DecodingTests
     {        
         for (int len = 0; len < 2048; len++)
         {
-            // Initialize source buffer with random bytes
             byte[] source = new byte[len];
             random.NextBytes(source);
 
-            // Encode source to Base64
             string base64String = Convert.ToBase64String(source).Replace('+', '-').Replace('/', '_');;
 
-            // Prepare buffer for decoded bytes
             byte[] decodedBytes = new byte[len];
 
-            // Call your custom decoding function
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
                 Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(), 
                 out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: true);
 
-            // Assert that decoding was successful
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(len, bytesWritten);
             Assert.Equal(base64String.Length, bytesConsumed);
@@ -735,9 +725,71 @@ public class Base64DecodingTests
         RoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    public void AbortedSafeRoundtripBase64(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegate MaxBase64ToBinaryLengthDelegate)
+    {
+        for (int offset = 1; offset <= 16; offset+=3) {
+            for (int len = offset; len < 1024; len++) {
+                Console.WriteLine("-------------------------");
+                // Initialize source buffer with random bytes
+                byte[] source = new byte[len];
+                random.NextBytes(source);
 
+                // Encode source to Base64
+                string base64String = Convert.ToBase64String(source);
+                byte[] base64 = Encoding.UTF8.GetBytes(base64String);
 
+                int limitedLength = len - offset; // intentionally too little// Create a new array with the limited length
+                // int limitedLength = MaxBase64ToBinaryLengthDelegate(base64) - offset; // intentionally too little// Create a new array with the limited length
+                byte[] tooSmallArray = new byte[limitedLength];
 
+                Console.WriteLine($"This is limitedLength:{limitedLength}");
+
+                Console.WriteLine($"This is base64.Length:{base64.Length}");
+                Console.WriteLine($"This is tooSmallArray.Length:{tooSmallArray.Length}");
+
+                // Call your custom decoding function
+                int bytesConsumed, bytesWritten;
+                // var result = Base64WithWhiteSpaceToBinary(
+
+                var result = DecodeFromBase64DelegateSafe(
+                    base64.AsSpan(), tooSmallArray.AsSpan(), 
+                    out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
+                Assert.Equal(OperationStatus.DestinationTooSmall, result);
+                // Assert.Equal(source, tooSmallArray.AsSpan().ToArray());
+
+                // Now let us decode the rest !!!
+                // byte[] decodedRemains = new byte[MaxBase64ToBinaryLengthDelegate(base64) - bytesConsumed];
+
+                // result = DecodeFromBase64DelegateSafe(
+                //     base64.AsSpan().Slice(bytesConsumed), decodedRemains.AsSpan(), 
+                //     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+                // Assert.Equal(OperationStatus.Done, result);
+                // Assert.Equal(limitedLength, bytesWritten);
+                // Assert.Equal(decodedRemains.Length + limitedLength, bytesConsumed);
+                // Assert.Equal(source, decodedRemains.AsSpan().ToArray());
+
+                // ASSERT_EQUAL(r.error, simdutf::error_code::SUCCESS);
+                // decodedRemains.resize(decodedRemains.Length);
+                // ASSERT_EQUAL(decodedRemains.Length + limitedLength, len);
+
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void AbortedSafeRoundtripBase64Scalar()
+    {
+        AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+    
 }
+
+
+
+
+
+
 
 

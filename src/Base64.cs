@@ -72,7 +72,7 @@ namespace SimdUnicode
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
-//             Console.WriteLine("--DecodeFromBase64Scalar firing");
+            Console.WriteLine("--DecodeFromBase64Scalar firing");
 
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
@@ -97,7 +97,7 @@ namespace SimdUnicode
 
                 while (true)
                 {
-                    // fastpath is wrong, it is converted as is but I am not sure what it is doing
+                    // fastpath
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
@@ -234,6 +234,9 @@ namespace SimdUnicode
             uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
 
             int length = source.Length;
+            Console.WriteLine($"This is source.Length:{source.Length}");
+            Console.WriteLine($"This is dest.Length:{dest.Length}");
+
 
             // Define pointers within the fixed blocks
             fixed (byte* srcInit = source)
@@ -257,7 +260,7 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
-//                         Console.WriteLine("Fast path activated");
+                        Console.WriteLine("Fast path activated");
 
                         if (MatchSystem(Endianness.BIG))
                         {
@@ -278,6 +281,7 @@ namespace SimdUnicode
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
+                        Console.WriteLine("Firing one line of main routine");
 
                         char c = (char)*src;
                         byte code = toBase64[c];
@@ -301,6 +305,10 @@ namespace SimdUnicode
                         }
                         src++;
                     }
+
+                    Console.WriteLine("Checking reminder");
+                    Console.WriteLine($"idx value:{idx}");
+                    
 
                     // deals with reminder
                     if (idx != 4)
@@ -369,8 +377,9 @@ namespace SimdUnicode
                         return OperationStatus.Done;//SUCCESS
                     }
 
-                    if (dst + 3 > dstEnd)
+                    if (dst + 3 >= dstEnd)
                     {
+                        Console.WriteLine("dst + 3 >= dstEnd");
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
                         return OperationStatus.DestinationTooSmall;
@@ -496,13 +505,17 @@ namespace SimdUnicode
             if (output.Length >= maxLength)
             {
                 // fast path
+                Console.WriteLine("Super fast path:output.Length >= maxLength");
                 OperationStatus fastPathResult = Base64.Base64WithWhiteSpaceToBinaryScalar(input, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
                 return fastPathResult;
             }
             // The output buffer is maybe too small. We will decode a truncated version of the input.
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
-            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, safeInputLength - 1), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
+            Console.WriteLine($"This is safeInputLength:{safeInputLength}");//DEBUG: 0
+            Console.WriteLine($"This is length of input.Slice(0, Math.Max(0, safeInputLength - 1)):{input.Slice(0, Math.Max(0, safeInputLength - 1)).Length}");
+            
+            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength - 1)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
 
 
             if (r == OperationStatus.InvalidData)
@@ -512,6 +525,9 @@ namespace SimdUnicode
             int offset = (r == OperationStatus.NeedMoreData) ? 1 :
                 ((bytesConsumed % 3) == 0 ?
                         0 : (bytesConsumed % 3) + 1);
+            
+            Console.WriteLine($"This is offset:{offset}");
+            //Debug status:aka it in this particular case , it does nothing
             int outputIndex = bytesConsumed - (bytesConsumed % 3);
             int inputIndex = safeInputLength;
             int whiteSpaces = 0;
@@ -533,9 +549,11 @@ namespace SimdUnicode
                     whiteSpaces++;
                 }
             }
-            int remainingOut = output.Length - outputIndex;
-            ReadOnlySpan<byte> tailInput = input.Slice(inputIndex, remainingOut);
+            //DEBUG:This is really sketch here   , resume here tomorrow
+            ReadOnlySpan<byte> tailInput = input.Slice(inputIndex);
+            // int remainingOut = output.Length - outputIndex;
             int RemainingInputLength = tailInput.Length;
+            Console.WriteLine($"RemainingInputLength before white space removal:{RemainingInputLength}");
             while (RemainingInputLength > 0 && IsAsciiWhiteSpace((char)tailInput[RemainingInputLength - 1]))
             {
                 RemainingInputLength--;
@@ -556,10 +574,23 @@ namespace SimdUnicode
                     paddingCharacts++;
                 }
             }
+            Console.WriteLine($"Deleted {whiteSpaces} whiteSpaces and {paddingCharacts} paddingCharacts from RemainingInputLength");
+
             int tailBytesConsumed;
             int tailBytesWritten;
-            r = SafeDecodeFromBase64Scalar(tailInput.Slice(RemainingInputLength), output.Slice(outputIndex), out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
-            int outlen = output.Slice(outputIndex).Length;
+            Console.WriteLine($"RemainingInputLength passed on to SafeDecode:{RemainingInputLength}");
+            Console.WriteLine($"outputIndex passed on to SafeDecode:{outputIndex}");
+            Console.WriteLine($"This is output passed on to SafeDecode:{outputIndex}");
+
+
+
+            // Console.WriteLine($"output.Slice(outputIndex).Length:{output.Slice(outputIndex).Length}");
+            // Console.WriteLine($"tailInput.Slice(RemainingInputLength):{tailInput.Slice(RemainingInputLength).Length}");
+
+            // r = SafeDecodeFromBase64Scalar(tailInput.Slice(RemainingInputLength), output.Slice(outputIndex), out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
+
+            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0,RemainingInputLength), output.Slice(Math.Min(output.Length,outputIndex)), out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
+            int outlen = output.Slice(Math.Min(output.Length,outputIndex)).Length;
 
             if (r == OperationStatus.Done && paddingCharacts > 0)
             {

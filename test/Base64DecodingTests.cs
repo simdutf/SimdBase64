@@ -738,8 +738,8 @@ public class Base64DecodingTests
                 string base64String = Convert.ToBase64String(source);
                 byte[] base64 = Encoding.UTF8.GetBytes(base64String);
 
-                int limitedLength = len - offset; // intentionally too little// Create a new array with the limited length
-                // int limitedLength = MaxBase64ToBinaryLengthDelegate(base64) - offset; // intentionally too little// Create a new array with the limited length
+                int limitedLength = len - offset; // intentionally too little
+                // int limitedLength = MaxBase64ToBinaryLengthDelegate(base64) - offset; 
                 byte[] tooSmallArray = new byte[limitedLength];
 
                 Console.WriteLine($"This is limitedLength:{limitedLength}");
@@ -754,14 +754,22 @@ public class Base64DecodingTests
                 var result = DecodeFromBase64DelegateSafe(
                     base64.AsSpan(), tooSmallArray.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
+                Console.WriteLine($"DecodeFromBase64DelegateSafe have consumed {bytesConsumed} bytes and written {bytesWritten} bytes");
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
-                // Assert.Equal(source, tooSmallArray.AsSpan().ToArray());
+
+                // Assert.Equal(source.Take(limitedLength).ToArray(), tooSmallArray.ToArray());
+                Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
+
+
 
                 // Now let us decode the rest !!!
-                // byte[] decodedRemains = new byte[MaxBase64ToBinaryLengthDelegate(base64) - bytesConsumed];
+                // ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesWritten);
+
+                // Console.WriteLine($"*****MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten:{MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten}");
+                // byte[] decodedRemains = new byte[MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten];
 
                 // result = DecodeFromBase64DelegateSafe(
-                //     base64.AsSpan().Slice(bytesConsumed), decodedRemains.AsSpan(), 
+                //     base64Remains, decodedRemains.AsSpan(), 
                 //     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
                 // Assert.Equal(OperationStatus.Done, result);

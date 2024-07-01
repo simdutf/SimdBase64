@@ -278,6 +278,9 @@ namespace SimdUnicode
                     }
                     idx = 0;
 
+                    byte* srcCurrent = src;
+
+
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
@@ -286,6 +289,8 @@ namespace SimdUnicode
                         char c = (char)*src;
                         byte code = toBase64[c];
                         buffer[idx] = code;
+
+                        Console.WriteLine($"This is the character under consideration:{c}");
 
                         if (code <= 63)
                         {
@@ -308,7 +313,7 @@ namespace SimdUnicode
 
                     Console.WriteLine("Checking reminder");
                     Console.WriteLine($"idx value:{idx}");
-                    
+
 
                     // deals with reminder
                     if (idx != 4)
@@ -317,7 +322,8 @@ namespace SimdUnicode
                         {
                             if (dst == dstEnd)
                             {
-                                bytesConsumed = (int)(src - srcInit);
+                                // bytesConsumed = (int)(src - srcInit);
+                                bytesConsumed = (int)(srcCurrent - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
@@ -342,7 +348,8 @@ namespace SimdUnicode
                         {
                             if (dst + 2 > dstEnd)
                             {
-                                bytesConsumed = (int)(src - srcInit);
+                                // bytesConsumed = (int)(src - srcInit);
+                                bytesConsumed = (int)(srcCurrent - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
@@ -380,7 +387,8 @@ namespace SimdUnicode
                     if (dst + 3 >= dstEnd)
                     {
                         Console.WriteLine("dst + 3 >= dstEnd");
-                        bytesConsumed = (int)(src - srcInit);
+                        // bytesConsumed = (int)(src - srcInit);
+                        bytesConsumed = (int)(srcCurrent - srcInit);
                         bytesWritten = (int)(dst - dstInit);
                         return OperationStatus.DestinationTooSmall;
                     }
@@ -456,17 +464,6 @@ namespace SimdUnicode
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
 //             // Console.WriteLine("This is the result of DecodeFromBase64Scalar:", r);
 
-            // if (r == OperationStatus.Done && equalsigns > 0)
-            // {
-            //     //  additional checks
-            //     if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
-            //     { 
-//             //         Console.WriteLine("Additional checks of Whitespace function failed!");
-            //         return OperationStatus.InvalidData;
-            //     }
-            // }
-            // bytesConsumed += equalsigns + whiteSpaces;
-
             if (r == OperationStatus.Done)
             {
                 if (equalsigns > 0)
@@ -512,7 +509,7 @@ namespace SimdUnicode
             // The output buffer is maybe too small. We will decode a truncated version of the input.
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
-            Console.WriteLine($"This is safeInputLength:{safeInputLength}");//DEBUG: 0
+            Console.WriteLine($"This is safeInputLength:{safeInputLength}");
             Console.WriteLine($"This is length of input.Slice(0, Math.Max(0, safeInputLength - 1)):{input.Slice(0, Math.Max(0, safeInputLength - 1)).Length}");
             
             OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength - 1)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here

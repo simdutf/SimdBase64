@@ -589,7 +589,6 @@ public class Base64DecodingTests
 
 
             // Prepare buffer for decoded bytes
-            // byte[] decodedBytes = new byte[len];
             byte[] decodedBytes = new byte[len];
 
             // Call your custom decoding function

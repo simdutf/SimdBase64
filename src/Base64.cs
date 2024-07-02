@@ -72,7 +72,7 @@ namespace SimdUnicode
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
-            Console.WriteLine("--DecodeFromBase64Scalar firing");
+
 
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
@@ -214,7 +214,7 @@ namespace SimdUnicode
         // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
         public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
-            Console.WriteLine("--SafeDecodeFromBase64Scalar firing");
+
             byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
             uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
             uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
@@ -222,8 +222,8 @@ namespace SimdUnicode
             uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
 
             int length = source.Length;
-            Console.WriteLine($"This is source.Length:{source.Length}");
-            Console.WriteLine($"This is dest.Length:{dest.Length}");
+
+
 
 
             // Define pointers within the fixed blocks
@@ -248,7 +248,7 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
-                        Console.WriteLine("Fast path activated");
+
 
                         if (MatchSystem(Endianness.BIG))
                         {
@@ -271,13 +271,13 @@ namespace SimdUnicode
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
-                        Console.WriteLine("Firing one line of main routine");
+
 
                         char c = (char)*src;
                         byte code = toBase64[c];
                         buffer[idx] = code;
 
-                        Console.WriteLine($"This is the character under consideration:{c}");
+
 
                         if (code <= 63)
                         {
@@ -297,10 +297,6 @@ namespace SimdUnicode
                         }
                         src++;
                     }
-
-                    Console.WriteLine("Checking reminder");
-                    Console.WriteLine($"idx value:{idx}");
-
 
                     // deals with reminder
                     if (idx != 4)
@@ -446,7 +442,6 @@ namespace SimdUnicode
                     // Additional checks
                     if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
                     {
-                        Console.WriteLine($"Additional checks of Whitespace function failed! (((bytesWritten % 3) + 1 + equalsigns) != 4): {(((bytesWritten % 3) + 1 + equalsigns) )}");
                         return OperationStatus.InvalidData;
                     }
                 }
@@ -477,7 +472,6 @@ namespace SimdUnicode
             if (output.Length >= maxLength)
             {
                 // fast path
-                Console.WriteLine("Super fast path:output.Length >= maxLength");
                 OperationStatus fastPathResult = Base64.Base64WithWhiteSpaceToBinaryScalar(input, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
                 return fastPathResult;
             }
@@ -552,8 +546,6 @@ namespace SimdUnicode
                 // additional checks
                 if ((outlen % 3 == 0) || ((outlen % 3) + 1 + paddingCharacts != 4))
                 {
-                    Console.WriteLine($"Safe retruns Done but check failed!(outlen % 3 == 0):{(outlen % 3 == 0)}");
-
                     r = OperationStatus.InvalidData;
                 }
             }

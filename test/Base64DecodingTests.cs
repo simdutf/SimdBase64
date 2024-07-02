@@ -394,13 +394,11 @@ public class Base64DecodingTests
                 int padding = base64.EndsWith("=") ? 1 : 0;
                 padding += base64.EndsWith("==") ? 1 : 0;
 
-                Console.WriteLine($"Padding is {padding}");
-
                 if (padding != 0)
                 {
                     try
                     {
-                        Console.WriteLine("Adding one padding");
+
                         // Test adding padding characters should break decoding
                         byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64 + "=");
                         byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(modifiedBase64)]; 
@@ -427,7 +425,7 @@ public class Base64DecodingTests
                     {
                         try
                         {
-                            Console.WriteLine("Removing one padding");
+
                             // removing one padding characters should break decoding
                             byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64.Substring(0, base64.Length - 1));
                             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(modifiedBase64)]; 
@@ -449,7 +447,7 @@ public class Base64DecodingTests
                 } else {
                     try
                     {
-                        Console.WriteLine("Adding one padding");
+
                         // Test adding padding characters should break decoding
                         byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64 + "=");
                         byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(modifiedBase64)]; 
@@ -537,7 +535,7 @@ public class Base64DecodingTests
 
             for (int trial = 0; trial < 10; trial++)
             {
-                // Console.WriteLine("-------------------------------"); //debug
+
                 int bytesConsumed =0;
                 int bytesWritten =0;
 
@@ -633,16 +631,14 @@ public class Base64DecodingTests
     {
         for (int offset = 1; offset <= 16; offset+=3) {
             for (int len = offset; len < 1024; len++) {
-                Console.WriteLine($"-----------{len}--------------");
                 byte[] source = new byte[len];
                 random.NextBytes(source); // Initialize source buffer with random bytes
 
                 string base64String = Convert.ToBase64String(source);
-                Console.WriteLine("This is base64String:" + base64String);//6Q==
+
                 byte[] base64 = Encoding.UTF8.GetBytes(base64String);
                 
                 int limitedLength = len - offset; // intentionally too little
-                Console.WriteLine($"limitedLingth:{limitedLength}");
                 byte[] tooSmallArray = new byte[limitedLength];
 
                 int bytesConsumed, bytesWritten;
@@ -652,19 +648,22 @@ public class Base64DecodingTests
                     out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
 
+
                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
                 Assert.True(bytesConsumed % 3 == 0);
 
                 // Now let us decode the rest !!!
                 ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+
                 byte[] decodedRemains = new byte[base64Remains.Length];
 
                 result = DecodeFromBase64DelegateSafe(
                     base64Remains, decodedRemains.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
-                Assert.Equal( len,decodedRemains.Length + bytesConsumed);
                 Assert.Equal(OperationStatus.Done, result);
+                Assert.Equal( len,decodedRemains.Length + bytesWritten);
+
                 // Assert.Equal(limitedLength, bytesWritten);
                 // Assert.Equal(source, decodedRemains.AsSpan().ToArray());
 

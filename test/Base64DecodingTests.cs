@@ -152,7 +152,6 @@ public class Base64DecodingTests
         foreach (var (decoded, base64) in cases)
         {
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-            // byte[] base64Bytes = Convert.FromBase64String(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
@@ -270,7 +269,6 @@ public class Base64DecodingTests
         foreach (var (decoded, base64) in cases)
         {
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-            // byte[] base64Bytes = Convert.FromBase64String(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;

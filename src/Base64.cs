@@ -545,7 +545,6 @@ namespace SimdUnicode
 
             Span<byte> remainingOut = output.Slice(Math.Min(output.Length,outputIndex));
             r = SafeDecodeFromBase64Scalar(tailInput.Slice(0,RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
-            // int outlen = output.Slice(Math.Min(output.Length,outputIndex)).Length;
             int outlen = output.Slice(Math.Min(output.Length,outputIndex)).Length;
 
             if (r == OperationStatus.Done && paddingCharacts > 0)

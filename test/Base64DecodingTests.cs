@@ -10,7 +10,7 @@ using System.Buffers;
 
 public class Base64DecodingTests
 {
-    Random random = new Random(1234567891987);
+    Random random = new Random(12345);
 
     private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r' };
 

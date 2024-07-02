@@ -23,33 +23,19 @@ public class Base64DecodingTests
         list.Insert(index, spaceBytes[0]);
     }
 
-    private static void PrintListContents(List<byte> list)
-{
-    // Console.WriteLine("List contents:");
-    foreach (var item in list)
-    {
-        Console.Write(item + " ");
-    }
-    // Console.WriteLine();
-}
-
     public static (byte[] modifiedArray, int location) AddGarbage(byte[] inputArray, Random gen)
 {
-    // Convert byte[] to List<byte>
     List<byte> v = new List<byte>(inputArray);
 
     int len = v.Count;
     int i;
 
-    // Find the position of the first '=' character
     int equalSignIndex = v.FindIndex(c => c == '=');
     if (equalSignIndex != -1)
     {
         len = equalSignIndex; // Adjust the length to before the '='
-        // Console.WriteLine("Found equal signs"); //debug
     }
 
-    // Generate a random index to insert at
     i = gen.Next(len + 1);
 
     // Generate a random garbage character not in the base64 character set
@@ -59,81 +45,12 @@ public class Base64DecodingTests
         c = (byte)gen.Next(256); // Generate a random byte value
     } while (c == '=' || SimdUnicode.Base64Tables.tables.ToBase64Value[c] != 255);
 
-    // Console.WriteLine($"Inserting garbage {c} (rendered as {(char)c}) at index {i}");
-
-    // Insert garbage byte into the List<byte>
     v.Insert(i, c);
 
-    // Convert List<byte> back to byte[]
     byte[] modifiedArray = v.ToArray();
 
     return (modifiedArray, i);
 }
-
-
-
-    // helper function for debugging: it prints a green byte every 32 bytes and a red byte at a given index 
-    static void PrintHexAndBinary(byte[] bytes, int highlightIndex = -1)
-    {
-        int chunkSize = 16; // 128 bits = 16 bytes
-
-        // Process each chunk for hexadecimal
-        Console.Write("Hex: ");
-        for (int i = 0; i < bytes.Length; i++)
-        {
-            if (i > 0 && i % chunkSize == 0)
-                Console.WriteLine(); // New line after every 16 bytes
-
-            if (i == highlightIndex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"{bytes[i]:X2} ");
-                Console.ResetColor();
-            }
-            else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($"{bytes[i]:X2} ");
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.Write($"{bytes[i]:X2} ");
-            }
-
-            if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
-        }
-        Console.WriteLine("\n"); // New line for readability and to separate hex from binary
-
-        // Process each chunk for binary
-        Console.Write("Binary: ");
-        for (int i = 0; i < bytes.Length; i++)
-        {
-            if (i > 0 && i % chunkSize == 0)
-                Console.WriteLine(); // New line after every 16 bytes
-
-            string binaryString = Convert.ToString(bytes[i], 2).PadLeft(8, '0');
-            if (i == highlightIndex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"{binaryString} ");
-                Console.ResetColor();
-            }
-            else if (i % (chunkSize * 2) == 0) // print green every 256 bytes
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($"{binaryString} ");
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.Write($"{binaryString} ");
-            }
-
-            if ((i + 1) % chunkSize != 0) Console.Write(" "); // Add space between bytes but not at the end of the line
-        }
-        Console.WriteLine(); // New line for readability
-    }
 
     [Flags]
     public enum TestSystemRequirements
@@ -295,26 +212,21 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            // Console.WriteLine($"----------Starting:{decoded}");
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
 
-            // Console.WriteLine($"This is MaxBase64ToBinaryLengthDelegate:{MaxBase64ToBinaryLengthDelegate(base64Span)}");
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
-            // Console.WriteLine($"Buffer contents as string:{Encoding.UTF8.GetString(buffer, 0, bytesWritten)}");
-            // PrintHexAndBinary(buffer); //debug
             for (int i = 0; i < bytesWritten; i++)
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
         }
-        // Console.WriteLine("--Safe version--");
 
         foreach (var (decoded, base64) in cases)
         {
@@ -357,27 +269,22 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            // Console.WriteLine($"----------Starting:{decoded}");
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             // byte[] base64Bytes = Convert.FromBase64String(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
             int bytesWritten;
 
-            // Console.WriteLine($"This is MaxBase64ToBinaryLengthDelegate:{MaxBase64ToBinaryLengthDelegate(base64Span)}");
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
-            // Console.WriteLine($"Buffer contents as string:{Encoding.UTF8.GetString(buffer, 0, bytesWritten)}");
-            // PrintHexAndBinary(buffer); //debug
             for (int i = 0; i < bytesWritten; i++)
             {
                 Assert.Equal(decoded[i], (char)buffer[i]);
             }
         }
-        // Console.WriteLine("--Safe version--");
 
         foreach (var (decoded, base64) in cases)
         {
@@ -481,7 +388,6 @@ public class Base64DecodingTests
 
             for (int trial = 0; trial < 10; trial++)
             {
-                Console.WriteLine("----------------------------");
                 random.NextBytes(source); // Generate random bytes for source
 
                 string base64 = Convert.ToBase64String(source); // Encode source bytes to Base64
@@ -560,7 +466,6 @@ public class Base64DecodingTests
                     catch (FormatException)
                     {
                         Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding charater");
-                        // Expected behavior: Invalid padding characters should throw FormatException
                     }
                 }
 
@@ -584,7 +489,6 @@ public class Base64DecodingTests
 
             for (int trial = 0; trial < 10; trial++)
             {
-                // Console.WriteLine("-------------------------------");
                 int bytesConsumed =0;
                 int bytesWritten =0;
 
@@ -729,57 +633,40 @@ public class Base64DecodingTests
     {
         for (int offset = 1; offset <= 16; offset+=3) {
             for (int len = offset; len < 1024; len++) {
-                Console.WriteLine("-------------------------");
-                // Initialize source buffer with random bytes
+                Console.WriteLine($"-----------{len}--------------");
                 byte[] source = new byte[len];
-                random.NextBytes(source);
+                random.NextBytes(source); // Initialize source buffer with random bytes
 
-                // Encode source to Base64
                 string base64String = Convert.ToBase64String(source);
+                Console.WriteLine("This is base64String:" + base64String);//6Q==
                 byte[] base64 = Encoding.UTF8.GetBytes(base64String);
-
+                
                 int limitedLength = len - offset; // intentionally too little
-                // int limitedLength = MaxBase64ToBinaryLengthDelegate(base64) - offset; 
+                Console.WriteLine($"limitedLingth:{limitedLength}");
                 byte[] tooSmallArray = new byte[limitedLength];
 
-                Console.WriteLine($"This is limitedLength:{limitedLength}");
-
-                Console.WriteLine($"This is base64.Length:{base64.Length}");
-                Console.WriteLine($"This is tooSmallArray.Length:{tooSmallArray.Length}");
-
-                // Call your custom decoding function
                 int bytesConsumed, bytesWritten;
-                // var result = Base64WithWhiteSpaceToBinary(
 
                 var result = DecodeFromBase64DelegateSafe(
                     base64.AsSpan(), tooSmallArray.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
-                Console.WriteLine($"DecodeFromBase64DelegateSafe have consumed {bytesConsumed} bytes and written {bytesWritten} bytes");
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
 
-                // Assert.Equal(source.Take(limitedLength).ToArray(), tooSmallArray.ToArray());
                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
-
-
+                Assert.True(bytesConsumed % 3 == 0);
 
                 // Now let us decode the rest !!!
-                // ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesWritten);
+                ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+                byte[] decodedRemains = new byte[base64Remains.Length];
 
-                // Console.WriteLine($"*****MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten:{MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten}");
-                // byte[] decodedRemains = new byte[MaxBase64ToBinaryLengthDelegate(base64Remains) - bytesWritten];
+                result = DecodeFromBase64DelegateSafe(
+                    base64Remains, decodedRemains.AsSpan(), 
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
 
-                // result = DecodeFromBase64DelegateSafe(
-                //     base64Remains, decodedRemains.AsSpan(), 
-                //     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
-
-                // Assert.Equal(OperationStatus.Done, result);
+                Assert.Equal( len,decodedRemains.Length + bytesConsumed);
+                Assert.Equal(OperationStatus.Done, result);
                 // Assert.Equal(limitedLength, bytesWritten);
-                // Assert.Equal(decodedRemains.Length + limitedLength, bytesConsumed);
                 // Assert.Equal(source, decodedRemains.AsSpan().ToArray());
-
-                // ASSERT_EQUAL(r.error, simdutf::error_code::SUCCESS);
-                // decodedRemains.resize(decodedRemains.Length);
-                // ASSERT_EQUAL(decodedRemains.Length + limitedLength, len);
 
             }
         }

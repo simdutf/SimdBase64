@@ -287,8 +287,6 @@ namespace SimdUnicode
                         {
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
-
-
                             return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
                         }
                         else
@@ -355,6 +353,7 @@ namespace SimdUnicode
                         {
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
+
                             return OperationStatus.InvalidData;// The base64 input terminates with a single character, excluding padding.
                         }
                         bytesConsumed = (int)(src - srcInit);
@@ -479,18 +478,19 @@ namespace SimdUnicode
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
             
-            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength - 1)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
+            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
 
 
             if (r == OperationStatus.InvalidData)
             {
                 return r;
             }
+            // OperationStatus.NeedMoreData is not treated nescessarily as an error: the bytesWritten should not automatically be thrown away
             int offset = (r == OperationStatus.NeedMoreData) ? 1 :
-                ((bytesConsumed % 3) == 0 ?
-                        0 : (bytesConsumed % 3) + 1);
+                ((bytesWritten % 3) == 0 ?
+                        0 : (bytesWritten % 3) + 1);
             
-            int outputIndex = bytesConsumed - (bytesConsumed % 3);
+            int outputIndex = bytesWritten - (bytesWritten % 3);
             int inputIndex = safeInputLength;
             int whiteSpaces = 0;
             // offset is a value that is no larger than 3. We backtrack
@@ -539,12 +539,11 @@ namespace SimdUnicode
 
             Span<byte> remainingOut = output.Slice(Math.Min(output.Length,outputIndex));
             r = SafeDecodeFromBase64Scalar(tailInput.Slice(0,RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
-            int outlen = output.Slice(Math.Min(output.Length,outputIndex)).Length;
 
             if (r == OperationStatus.Done && paddingCharacts > 0)
             {
-                // additional checks
-                if ((outlen % 3 == 0) || ((outlen % 3) + 1 + paddingCharacts != 4))
+                // additional checks: 
+                if   ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
                 {
                     r = OperationStatus.InvalidData;
                 }
@@ -561,10 +560,6 @@ namespace SimdUnicode
             bytesWritten += tailBytesWritten;
             return r;
         }
-
-
-
-
     }
 
 }

@@ -637,32 +637,30 @@ public class Base64DecodingTests
                 int limitedLength = len - offset; // intentionally too little
                 byte[] tooSmallArray = new byte[limitedLength];
 
-                int bytesConsumed, bytesWritten;
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
 
                 var result = DecodeFromBase64DelegateSafe(
                     base64.AsSpan(), tooSmallArray.AsSpan(), 
                     out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
-
-
                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
-                Assert.True(bytesConsumed % 3 == 0);
 
                 // Now let us decode the rest !!!
                 ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
 
-                byte[] decodedRemains = new byte[base64Remains.Length];
+                byte[] decodedRemains = new byte[len - bytesWritten];
+
+                int remainingBytesConsumed = 0; 
+                int remainingBytesWritten = 0;
 
                 result = DecodeFromBase64DelegateSafe(
                     base64Remains, decodedRemains.AsSpan(), 
-                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+                    out remainingBytesConsumed, out remainingBytesWritten, isFinalBlock: true, isUrl: false);
 
                 Assert.Equal(OperationStatus.Done, result);
-                // Assert.Equal( len,decodedRemains.Length + bytesWritten);
-
-                // Assert.Equal(limitedLength, bytesWritten);
-                // Assert.Equal(source, decodedRemains.AsSpan().ToArray());
-
+                Assert.Equal( len,bytesWritten + remainingBytesWritten);
+                Assert.Equal(source.Skip(bytesWritten).ToArray(), decodedRemains.ToArray());
             }
         }
     }

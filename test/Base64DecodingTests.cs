@@ -755,6 +755,67 @@ public class Base64DecodingTests
         AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    protected void AbortedSafeRoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+        if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
+        {
+#pragma warning disable CA2208
+            throw new ArgumentNullException("Unexpected null parameter");
+        }
+        for (int offset = 1; offset <= 16; offset += 3)
+        {
+            for (int len = offset; len < 1024; len++)
+            {
+                byte[] source = new byte[len];
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Initialize source buffer with random bytes
+
+                string base64String = Convert.ToBase64String(source);
+
+                byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+                for (int i = 0; i < 5; i++)
+                {
+                    AddSpace(base64.ToList(), random);
+                }
+
+                int limitedLength = len - offset; // intentionally too little
+                byte[] tooSmallArray = new byte[limitedLength];
+
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+
+                var result = DecodeFromBase64DelegateSafe(
+                    base64.AsSpan(), tooSmallArray.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
+                Assert.Equal(OperationStatus.DestinationTooSmall, result);
+                Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
+
+                // Now let us decode the rest !!!
+                ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+
+                byte[] decodedRemains = new byte[len - bytesWritten];
+
+                int remainingBytesConsumed = 0;
+                int remainingBytesWritten = 0;
+
+                result = DecodeFromBase64DelegateSafe(
+                    base64Remains, decodedRemains.AsSpan(),
+                    out remainingBytesConsumed, out remainingBytesWritten, isFinalBlock: true, isUrl: false);
+
+                Assert.Equal(OperationStatus.Done, result);
+                Assert.Equal(len, bytesWritten + remainingBytesWritten);
+                Assert.Equal(source.Skip(bytesWritten).ToArray(), decodedRemains.ToArray());
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void AbortedSafeRoundtripBase64WithSpacesScalar()
+    {
+        AbortedSafeRoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 }
 
 

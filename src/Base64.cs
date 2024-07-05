@@ -8,7 +8,7 @@ using System.Buffers;
 using System.IO.Pipes;
 using System.Text;
 
-namespace SimdUnicode
+namespace SimdBase64
 {
     public static class Base64
     {
@@ -74,11 +74,11 @@ namespace SimdUnicode
 
 
 
-            byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
-            uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
-            uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
-            uint[] d2 = isUrl != false ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
-            uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
+            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
+            uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
+            uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
+            uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
 
             int length = source.Length;
 
@@ -215,11 +215,11 @@ namespace SimdUnicode
         public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
-            byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
-            uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
-            uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
-            uint[] d2 = isUrl != false ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
-            uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
+            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
+            uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
+            uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
+            uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
 
             int length = source.Length;
 
@@ -431,7 +431,7 @@ namespace SimdUnicode
             }
 
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
-            
+
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
 
             if (r == OperationStatus.Done)
@@ -477,7 +477,7 @@ namespace SimdUnicode
             // The output buffer is maybe too small. We will decode a truncated version of the input.
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
-            
+
             OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
 
 
@@ -489,7 +489,7 @@ namespace SimdUnicode
             int offset = (r == OperationStatus.NeedMoreData) ? 1 :
                 ((bytesWritten % 3) == 0 ?
                         0 : (bytesWritten % 3) + 1);
-            
+
             int outputIndex = bytesWritten - (bytesWritten % 3);
             int inputIndex = safeInputLength;
             int whiteSpaces = 0;
@@ -537,13 +537,13 @@ namespace SimdUnicode
             int tailBytesConsumed;
             int tailBytesWritten;
 
-            Span<byte> remainingOut = output.Slice(Math.Min(output.Length,outputIndex));
-            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0,RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
+            Span<byte> remainingOut = output.Slice(Math.Min(output.Length, outputIndex));
+            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
 
             if (r == OperationStatus.Done && paddingCharacts > 0)
             {
                 // additional checks: 
-                if   ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
+                if ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
                 {
                     r = OperationStatus.InvalidData;
                 }
@@ -554,7 +554,9 @@ namespace SimdUnicode
             {
                 // Increment bytesConsumed if decoding was successful
                 bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
-            } else {
+            }
+            else
+            {
                 bytesConsumed += tailBytesConsumed;
             }
             bytesWritten += tailBytesWritten;

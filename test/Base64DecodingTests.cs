@@ -816,6 +816,62 @@ public class Base64DecodingTests
         AbortedSafeRoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    protected void StreamingBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+        int len = 2048;
+            byte[] source = new byte[len];
+#pragma warning disable CA5394 // Do not use insecure randomness
+            random.NextBytes(source); // Initialize source buffer with random bytes
+
+            string base64String = Convert.ToBase64String(source);
+
+            byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+
+        for (int window = 16; window <= 2048; window += 7) {
+            // build a buffer with enough space to receive the decoded base64
+            int bytesConsumed =0;
+            int bytesWritten = 0;
+
+            byte[] decodedBytes = new byte[len];
+            int outpos = 0;
+            for (int pos = 0; pos < base64.Length; pos += window) {
+                int windowsBytes = Math.Min(window, base64.Length - pos); 
+
+                var result = Base64WithWhiteSpaceToBinary(
+                    base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+                Assert.True(result != OperationStatus.InvalidData);
+
+                if (windowsBytes + pos == base64.Length) {
+                    // We must check that the last call to base64_to_binary did not
+                    // end with an OperationStatus.NeedMoreData error.
+                    Assert.Equal(result, OperationStatus.Done);
+                } else {
+                    int tailBytesToReprocess = 0;
+                    if (result == OperationStatus.NeedMoreData){
+                        tailBytesToReprocess = 1;
+                    } 
+                    else {
+                        tailBytesToReprocess = (bytesWritten % 3) == 0 ? 0 : (bytesWritten % 3) + 1;
+                    }
+                    pos -= tailBytesToReprocess;
+                    bytesWritten -= bytesWritten % 3;
+                }
+                outpos += bytesWritten;
+            }
+            // back.resize(outpos);
+            Assert.Equal(decodedBytes,source);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void StreamingBase64RoundtripScalar()
+    {
+        StreamingBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 }
 
 

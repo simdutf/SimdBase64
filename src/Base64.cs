@@ -8,7 +8,7 @@ using System.Buffers;
 using System.IO.Pipes;
 using System.Text;
 
-namespace SimdUnicode
+namespace SimdBase64
 {
     public static class Base64
     {
@@ -74,11 +74,11 @@ namespace SimdUnicode
 
 
 
-            byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
-            uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
-            uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
-            uint[] d2 = isUrl != false ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
-            uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
+            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
+            uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
+            uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
+            uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
 
             int length = source.Length;
 
@@ -101,26 +101,21 @@ namespace SimdUnicode
                     while (src + 4 <= srcEnd &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
-
-
                         if (MatchSystem(Endianness.BIG))
                         {
                             x = SwapBytes(x);
                         }
+
                         *(uint*)dst = x;// optimization opportunity: copy 4 bytes
                         dst += 3;
                         src += 4;
                     }
                     idx = 0;
 
-
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
-
-
                         char c = (char)*src;
-
                         byte code = toBase64[c];
                         buffer[idx] = code;
 
@@ -130,8 +125,6 @@ namespace SimdUnicode
                         }
                         else if (code > 64)
                         {
-
-
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
 
@@ -222,13 +215,16 @@ namespace SimdUnicode
         public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
 
-            byte[] toBase64 = isUrl != false ? Base64Tables.tables.ToBase64UrlValue : Base64Tables.tables.ToBase64Value;
-            uint[] d0 = isUrl != false ? Base64Tables.tables.Url.d0 : Base64Tables.tables.Default.d0;
-            uint[] d1 = isUrl != false ? Base64Tables.tables.Url.d1 : Base64Tables.tables.Default.d1;
-            uint[] d2 = isUrl != false ? Base64Tables.tables.Url.d2 : Base64Tables.tables.Default.d2;
-            uint[] d3 = isUrl != false ? Base64Tables.tables.Url.d3 : Base64Tables.tables.Default.d3;
+            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
+            uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
+            uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
+            uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
 
             int length = source.Length;
+
+
+
 
             // Define pointers within the fixed blocks
             fixed (byte* srcInit = source)
@@ -264,19 +260,24 @@ namespace SimdUnicode
                             bytesWritten = (int)(dst - dstInit);
                             return OperationStatus.DestinationTooSmall;
                         }
-                        *(uint*)dst = x; // optimization opportunity: copy 4 bytes
+                        Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
                         dst += 3;
                         src += 4;
                     }
                     idx = 0;
 
+                    byte* srcCurrent = src;
+
                     // We need at least four characters.
                     while (idx < 4 && src < srcEnd)
                     {
 
+
                         char c = (char)*src;
                         byte code = toBase64[c];
                         buffer[idx] = code;
+
+
 
                         if (code <= 63)
                         {
@@ -286,8 +287,6 @@ namespace SimdUnicode
                         {
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
-
-
                             return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
                         }
                         else
@@ -304,7 +303,7 @@ namespace SimdUnicode
                         {
                             if (dst == dstEnd)
                             {
-                                bytesConsumed = (int)(src - srcInit);
+                                bytesConsumed = (int)(srcCurrent - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
@@ -329,7 +328,7 @@ namespace SimdUnicode
                         {
                             if (dst + 2 > dstEnd)
                             {
-                                bytesConsumed = (int)(src - srcInit);
+                                bytesConsumed = (int)(srcCurrent - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
@@ -352,11 +351,9 @@ namespace SimdUnicode
 
                         else if (idx == 1)
                         {
-
-
-
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
+
                             return OperationStatus.InvalidData;// The base64 input terminates with a single character, excluding padding.
                         }
                         bytesConsumed = (int)(src - srcInit);
@@ -364,9 +361,9 @@ namespace SimdUnicode
                         return OperationStatus.Done;//SUCCESS
                     }
 
-                    if (dst + 3 > dstEnd)
+                    if (dst + 3 >= dstEnd)
                     {
-                        bytesConsumed = (int)(src - srcInit);
+                        bytesConsumed = (int)(srcCurrent - srcInit);
                         bytesWritten = (int)(dst - dstInit);
                         return OperationStatus.DestinationTooSmall;
                     }
@@ -394,7 +391,6 @@ namespace SimdUnicode
 
         public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true, bool isUrl = false)
         {
-
             int length = input.Length;
             int whiteSpaces = 0;
             while (length > 0 && IsAsciiWhiteSpace((char)input[length - 1]))
@@ -426,7 +422,6 @@ namespace SimdUnicode
                     bytesConsumed = equallocation;
                     bytesWritten = 0;
 
-
                     return OperationStatus.InvalidData;
 
                 }
@@ -437,20 +432,22 @@ namespace SimdUnicode
 
             ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
 
-
             OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl);
 
-
-            if (r == OperationStatus.Done && equalsigns > 0)
+            if (r == OperationStatus.Done)
             {
-                //  additional checks
-                if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
+                if (equalsigns > 0)
                 {
-
-                    return OperationStatus.InvalidData;
+                    // Additional checks
+                    if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
+                    {
+                        return OperationStatus.InvalidData;
+                    }
                 }
+
+                // Only increment bytesConsumed if decoding was successful
+                bytesConsumed += equalsigns + whiteSpaces;
             }
-            bytesConsumed += equalsigns + whiteSpaces;
             return r;
         }
 
@@ -480,17 +477,20 @@ namespace SimdUnicode
             // The output buffer is maybe too small. We will decode a truncated version of the input.
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
-            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, safeInputLength - 1), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
+
+            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isFinalBlock, isUrl); // there might be a -1 error here
 
 
             if (r == OperationStatus.InvalidData)
             {
                 return r;
             }
+            // OperationStatus.NeedMoreData is not treated nescessarily as an error: the bytesWritten should not automatically be thrown away
             int offset = (r == OperationStatus.NeedMoreData) ? 1 :
-                ((bytesConsumed % 3) == 0 ?
-                        0 : (bytesConsumed % 3) + 1);
-            int outputIndex = bytesConsumed - (bytesConsumed % 3);
+                ((bytesWritten % 3) == 0 ?
+                        0 : (bytesWritten % 3) + 1);
+
+            int outputIndex = bytesWritten - (bytesWritten % 3);
             int inputIndex = safeInputLength;
             int whiteSpaces = 0;
             // offset is a value that is no larger than 3. We backtrack
@@ -511,8 +511,7 @@ namespace SimdUnicode
                     whiteSpaces++;
                 }
             }
-            int remainingOut = output.Length - outputIndex;
-            ReadOnlySpan<byte> tailInput = input.Slice(inputIndex, remainingOut);
+            ReadOnlySpan<byte> tailInput = input.Slice(inputIndex);
             int RemainingInputLength = tailInput.Length;
             while (RemainingInputLength > 0 && IsAsciiWhiteSpace((char)tailInput[RemainingInputLength - 1]))
             {
@@ -534,28 +533,35 @@ namespace SimdUnicode
                     paddingCharacts++;
                 }
             }
+
             int tailBytesConsumed;
             int tailBytesWritten;
-            r = SafeDecodeFromBase64Scalar(tailInput.Slice(RemainingInputLength), output.Slice(outputIndex), out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
-            int outlen = output.Slice(outputIndex).Length;
+
+            Span<byte> remainingOut = output.Slice(Math.Min(output.Length, outputIndex));
+            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isFinalBlock, isUrl);
 
             if (r == OperationStatus.Done && paddingCharacts > 0)
             {
-                // additional checks
-                if ((outlen % 3 == 0) || ((outlen % 3) + 1 + paddingCharacts != 4))
+                // additional checks: 
+                if ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
                 {
                     r = OperationStatus.InvalidData;
                 }
             }
 
-            bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
+
+            if (r == OperationStatus.Done)
+            {
+                // Increment bytesConsumed if decoding was successful
+                bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
+            }
+            else
+            {
+                bytesConsumed += tailBytesConsumed;
+            }
             bytesWritten += tailBytesWritten;
             return r;
         }
-
-
-
-
     }
 
 }

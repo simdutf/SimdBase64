@@ -837,6 +837,7 @@ public class Base64DecodingTests
             for (int pos = 0; pos < base64.Length; pos += window) {
                 int windowsBytes = Math.Min(window, base64.Length - pos); 
 
+            #pragma warning disable CA1062
                 var result = Base64WithWhiteSpaceToBinary(
                     base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
                     out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);

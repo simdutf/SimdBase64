@@ -485,7 +485,6 @@ namespace SimdBase64
             {
                 return r;
             }
-            // OperationStatus.NeedMoreData is not treated nescessarily as an error: the bytesWritten should not automatically be thrown away
             int offset = (r == OperationStatus.NeedMoreData) ? 1 :
                 ((bytesWritten % 3) == 0 ?
                         0 : (bytesWritten % 3) + 1);
@@ -552,7 +551,6 @@ namespace SimdBase64
 
             if (r == OperationStatus.Done)
             {
-                // Increment bytesConsumed if decoding was successful
                 bytesConsumed += tailBytesConsumed + paddingCharacts + whiteSpaces;
             }
             else

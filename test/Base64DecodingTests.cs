@@ -755,6 +755,220 @@ public class Base64DecodingTests
         AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    protected void AbortedSafeRoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+        if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
+        {
+#pragma warning disable CA2208
+            throw new ArgumentNullException("Unexpected null parameter");
+        }
+        for (int offset = 1; offset <= 16; offset += 3)
+        {
+            for (int len = offset; len < 1024; len++)
+            {
+                byte[] source = new byte[len];
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Initialize source buffer with random bytes
+
+                string base64String = Convert.ToBase64String(source);
+
+                byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+                for (int i = 0; i < 5; i++)
+                {
+                    AddSpace(base64.ToList(), random);
+                }
+
+                int limitedLength = len - offset; // intentionally too little
+                byte[] tooSmallArray = new byte[limitedLength];
+
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+
+                var result = DecodeFromBase64DelegateSafe(
+                    base64.AsSpan(), tooSmallArray.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isFinalBlock: false, isUrl: false);
+                Assert.Equal(OperationStatus.DestinationTooSmall, result);
+                Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
+
+                // Now let us decode the rest !!!
+                ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+
+                byte[] decodedRemains = new byte[len - bytesWritten];
+
+                int remainingBytesConsumed = 0;
+                int remainingBytesWritten = 0;
+
+                result = DecodeFromBase64DelegateSafe(
+                    base64Remains, decodedRemains.AsSpan(),
+                    out remainingBytesConsumed, out remainingBytesWritten, isFinalBlock: true, isUrl: false);
+
+                Assert.Equal(OperationStatus.Done, result);
+                Assert.Equal(len, bytesWritten + remainingBytesWritten);
+                Assert.Equal(source.Skip(bytesWritten).ToArray(), decodedRemains.ToArray());
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void AbortedSafeRoundtripBase64WithSpacesScalar()
+    {
+        AbortedSafeRoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    protected void StreamingBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+        int len = 2048;
+            byte[] source = new byte[len];
+#pragma warning disable CA5394 // Do not use insecure randomness
+            random.NextBytes(source); // Initialize source buffer with random bytes
+
+            string base64String = Convert.ToBase64String(source);
+
+            byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+
+        for (int window = 16; window <= 2048; window += 7) {
+            // build a buffer with enough space to receive the decoded base64
+            int bytesConsumed =0;
+            int bytesWritten = 0;
+
+            byte[] decodedBytes = new byte[len];
+            int outpos = 0;
+            for (int pos = 0; pos < base64.Length; pos += window) {
+                int windowsBytes = Math.Min(window, base64.Length - pos); 
+
+            #pragma warning disable CA1062
+                var result = Base64WithWhiteSpaceToBinary(
+                    base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+                Assert.True(result != OperationStatus.InvalidData);
+
+                if (windowsBytes + pos == base64.Length) {
+                    // We must check that the last call to base64_to_binary did not
+                    // end with an OperationStatus.NeedMoreData error.
+                    Assert.Equal( OperationStatus.Done,result);
+                } else {
+                    int tailBytesToReprocess = 0;
+                    if (result == OperationStatus.NeedMoreData){
+                        tailBytesToReprocess = 1;
+                    } 
+                    else {
+                        tailBytesToReprocess = (bytesWritten % 3) == 0 ? 0 : (bytesWritten % 3) + 1;
+                    }
+                    pos -= tailBytesToReprocess;
+                    bytesWritten -= bytesWritten % 3;
+                }
+                outpos += bytesWritten;
+            }
+            Assert.Equal(decodedBytes,source);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void StreamingBase64RoundtripScalar()
+    {
+        StreamingBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    protected static void ReadmeTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate) 
+    {
+        int len = 2048;
+        string source = new string('a', len);
+        byte[] base64 = Encoding.UTF8.GetBytes(source);
+
+        // Calculate the required size for 'decoded' to accommodate Base64 decoding
+        byte[] decodedBytes = new byte[(len + 3) / 4 * 3];
+        int outpos = 0;
+        int window = 512;
+
+        for (int pos = 0; pos < base64.Length; pos += window) {
+                int bytesConsumed = 0; 
+                int bytesWritten = 0;
+
+                // how many base64 characters we can process in this iteration
+                int windowsBytes = Math.Min(window, base64.Length - pos);
+            #pragma warning disable CA1062 //validate parameter 'Base64WithWhiteSpaceToBinary' is non-null before using it.
+                var result = Base64WithWhiteSpaceToBinary(
+                    base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
+                    out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+
+                Assert.True(result != OperationStatus.InvalidData, $"Invalid base64 character at position {pos + bytesConsumed}" );
+                
+                // If we arrived at the end of the base64 input, we must check that the
+                // number of characters processed is a multiple of 4, or that we have a
+                // remainder of 0, 2 or 3.                    
+                // Eg we must check that the last call to base64_to_binary did not
+                // end with an OperationStatus.NeedMoreData error.
+
+                if (windowsBytes + pos == base64.Length) {
+                    Assert.Equal(OperationStatus.Done,result);
+                } else {
+                // If we are not at the end, we may have to reprocess either 1, 2 or 3
+                // bytes, and to drop the last 0, 2 or 3 bytes decoded.
+                int tailBytesToReprocess = 0;
+                if (result == OperationStatus.NeedMoreData) {
+                    tailBytesToReprocess = 1;
+                } else {
+                    tailBytesToReprocess = (bytesWritten % 3) == 0 ? 0 : (bytesWritten % 3) + 1;
+                }
+                pos -= tailBytesToReprocess;
+                bytesWritten -= bytesWritten % 3;
+                outpos += bytesWritten;
+                }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void ReadmeTestScalar()
+    {
+        ReadmeTest(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+protected static void ReadmeTestSafe(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate) {
+        int len = 72;
+        string source = new string('a', len);
+        byte[] base64 = Encoding.UTF8.GetBytes(source);
+
+        byte[] decodedBytesTooSmall = new byte[MaxBase64ToBinaryLengthDelegate(base64)/2]; // Intentionally too small
+
+        int bytesConsumed= 0;
+        int bytesWritten = 0;
+
+        var result = DecodeFromBase64DelegateSafe(
+            base64.AsSpan(), decodedBytesTooSmall.AsSpan(),
+            out bytesConsumed, out bytesWritten, isFinalBlock: true, isUrl: false);
+        Assert.Equal(OperationStatus.DestinationTooSmall,result);
+
+        // We decoded 'limited_length' bytes to back.
+        // Now let us decode the rest !!!        
+        byte[] decodedRemains = new byte[len - bytesWritten];
+        ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+
+        int remainingBytesConsumed = 0;
+        int remainingBytesWritten = 0;
+
+        result = DecodeFromBase64DelegateSafe(
+            base64Remains, decodedRemains.AsSpan(),
+            out remainingBytesConsumed, out remainingBytesWritten, isFinalBlock: true, isUrl: false);
+
+        Assert.Equal(OperationStatus.Done,result );
+        Assert.Equal(MaxBase64ToBinaryLengthDelegate(base64),remainingBytesWritten + bytesWritten);
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void ReadmeTestSafeScalar()
+    {
+        ReadmeTestSafe(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+
+
+
+
 }
 
 

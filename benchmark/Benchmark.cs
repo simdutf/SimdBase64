@@ -183,7 +183,7 @@ namespace SimdUnicodeBenchmarks
                 Span<byte> output = stackalloc byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten,  true,  false);
+                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten,  false);
             }
         }
 

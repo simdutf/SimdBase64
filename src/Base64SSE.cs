@@ -37,10 +37,10 @@ namespace SimdBase64
         public static unsafe ulong ToBase64Mask(bool base64Url, Block64* b, out bool error)
         {
             error = false;
-            ulong m0 = ToBase64Mask(base64Url, &b->chunk0, out error);
-            ulong m1 = ToBase64Mask(base64Url, &b->chunk1, out error);
-            ulong m2 = ToBase64Mask(base64Url, &b->chunk2, out error);
-            ulong m3 = ToBase64Mask(base64Url, &b->chunk3, out error);
+            ulong m0 = ToBase64Mask(base64Url,ref b->chunk0, out error);
+            ulong m1 = ToBase64Mask(base64Url,ref b->chunk1, out error);
+            ulong m2 = ToBase64Mask(base64Url,ref b->chunk2, out error);
+            ulong m3 = ToBase64Mask(base64Url,ref b->chunk3, out error);
             return m0 | (m1 << 16) | (m2 << 32) | (m3 << 48);
         }
 
@@ -165,240 +165,274 @@ namespace SimdBase64
             src = outVector;
             return (ushort)mask;
             }
-        }
 
-
-        public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
-        {
-
-            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
-
-
-
-            // Define pointers within the fixed blocks
-            fixed (byte* srcInit = source)
-            fixed (byte* dstInit = dest)
-
+            public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, Span<byte> output)
             {
-                byte* srcEnd = srcInit + source.Length;
-                byte* src = srcInit;
-                byte* dst = dstInit;
-                byte* dstEnd = dstInit + dest.Length;
+                // Assuming Compress is a method that can handle Vector128<byte>, ushort mask, and ref to output
+                ulong nmask = ~mask;
 
-                int bytesToProcess = source.Length;
-                int whiteSpaces = 0;
-                // skip trailing spaces
-                while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                fixed (byte* outputPtr = output)
                 {
-                    bytesToProcess--;
-                    whiteSpaces++;
+                    // Compress each chunk, increment output offset by number of elements not masked (popcount of not masked parts)
+                    Compress(b.chunk0, (ushort)(mask), outputPtr );
+                    Compress(b.chunk1, (ushort)(mask >> 16), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFF));
+                    Compress(b.chunk2, (ushort)(mask >> 32), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
+                    Compress(b.chunk3, (ushort)(mask >> 48), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
                 }
 
-                int equallocation = bytesToProcess; // location of the first padding character if any
-                int equalsigns = 0;
-                if (bytesToProcess > 0 && source[bytesToProcess - 1] == '=')
+                // Return the total number of unmasked bytes in all chunks, indicating how many bytes were written to the output
+                return Popcnt.X64.PopCount(nmask);    
+            }
+
+                public static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output)
                 {
-                    bytesToProcess -= 1;
-                    equalsigns++;
+                    if (mask == 0)
+                    {
+                        Sse2.Store(output, data);
+                    }
+                }
+
+
+
+            public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
+            {
+
+                byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+
+
+
+                // Define pointers within the fixed blocks
+                fixed (byte* srcInit = source)
+                fixed (byte* dstInit = dest)
+
+                {
+                    byte* srcEnd = srcInit + source.Length;
+                    byte* src = srcInit;
+                    byte* dst = dstInit;
+                    byte* dstEnd = dstInit + dest.Length;
+
+                    int bytesToProcess = source.Length;
+                    int whiteSpaces = 0;
+                    // skip trailing spaces
                     while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
                         whiteSpaces++;
                     }
+
+                    int equallocation = bytesToProcess; // location of the first padding character if any
+                    int equalsigns = 0;
                     if (bytesToProcess > 0 && source[bytesToProcess - 1] == '=')
                     {
-                        equalsigns++;
                         bytesToProcess -= 1;
+                        equalsigns++;
+                        while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                        {
+                            bytesToProcess--;
+                            whiteSpaces++;
+                        }
+                        if (bytesToProcess > 0 && source[bytesToProcess - 1] == '=')
+                        {
+                            equalsigns++;
+                            bytesToProcess -= 1;
+                        }
                     }
-                }
 
-        byte *endOfSafe64ByteZone =
-            // round up to the nearest multiple of 4, then multiplied by 3
-            (bytesToProcess + 3) / 4 * 3 >= 63 ? 
-                    dst + (bytesToProcess + 3) / 4 * 3 - 63 :
-                    dst;
+            byte *endOfSafe64ByteZone =
+                // round up to the nearest multiple of 4, then multiplied by 3
+                (bytesToProcess + 3) / 4 * 3 >= 63 ? 
+                        dst + (bytesToProcess + 3) / 4 * 3 - 63 :
+                        dst;
 
-        // DEBUG:this is probalby unnescessary
-        // byte* srcend = srcInit + bytesToProcess; // Assuming srclen is defined elsewhere
+            // DEBUG:this is probalby unnescessary
+            // byte* srcend = srcInit + bytesToProcess; // Assuming srclen is defined elsewhere
 
-        const int blockSize = 6;
-        Debug.Equals(blockSize >= 2, "block should of size 2 or more");
-        byte[] buffer = new byte[blockSize * 64];
-        // DEBUG: probably unnescessary
-        // char *bufferptr = buffer; 
-        if (bytesToProcess >= 64) {
-            //rigth here src is at the very beginning so this is taking it
-            byte* srcend64 = srcInit + bytesToProcess - 64;
-            while (src <= srcend64) {
-                Base64.Block64 b; //DEBUG: TODO
-                Base64.LoadBlock(&b, src);//DEBUG: TODO
-                src += 64;
-                bool error = false;
-                UInt64 badcharmask = Base64.ToBase64Mask(isUrl,&b, out error);//DEBUG: TODO
-                if (error) {
-                    src -= 64;
-                    while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64) {
-                        src++;
+            const int blockSize = 6;
+            Debug.Equals(blockSize >= 2, "block should of size 2 or more");
+            byte[] buffer = new byte[blockSize * 64];
+            // DEBUG: probably unnescessary
+            // char *bufferptr = buffer; 
+        fixed (byte* startOfBuffer = buffer)
+        {
+            byte* bufferPtr = startOfBuffer;
+            if (bytesToProcess >= 64) {
+                //rigth here src is at the very beginning so this is taking it
+                byte* srcend64 = srcInit + bytesToProcess - 64;
+                while (src <= srcend64) {
+                    Base64.Block64 b; //DEBUG: TODO
+                    Base64.LoadBlock(&b, src);//DEBUG: TODO
+                    src += 64;
+                    bool error = false;
+                    UInt64 badCharMask = Base64.ToBase64Mask(isUrl,&b, out error);//DEBUG: TODO
+                    if (error) {
+                        src -= 64;
+                        while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64) {
+                            src++;
+                        }
+                        bytesConsumed = (int)(src - srcInit);
+                        bytesWritten = ; // TODO
+                        return OperationStatus.InvalidData;
                     }
-                    bytesConsumed = (int)(src - srcInit);
-                    bytesWritten = ; // TODO
-                    return OperationStatus.InvalidData;
-                }
-                if (badcharmask != 0) {
-                    // optimization opportunity: check for simple masks like those made of
-                    // continuous 1s followed by continuous 0s. And masks containing a
-                    // single bad character.
-                    bufferptr += compress_block(&b, badcharmask, bufferptr);
-                } else if (bufferptr != buffer) {
-                    copy_block(&b, bufferptr);
-                    bufferptr += 64;
-                } else {
-                    if (dst >= end_of_safe_64byte_zone) {
-                    base64_decode_block_safe(dst, &b);
+                    // DEBUG: What does badCharMask do? What is the diff between this and error?
+                    if (badCharMask != 0) {
+                        // optimization opportunity: check for simple masks like those made of
+                        // continuous 1s followed by continuous 0s. And masks containing a
+                        // single bad character.
+                        bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
+                    } else if (bufferptr != buffer) {
+                        copy_block(&b, bufferptr);
+                        bufferptr += 64;
                     } else {
-                    base64_decode_block(dst, &b);
+                        if (dst >= end_of_safe_64byte_zone) {
+                        base64_decode_block_safe(dst, &b);
+                        } else {
+                        base64_decode_block(dst, &b);
+                        }
+                        dst += 48;
                     }
-                    dst += 48;
+                    if (bufferptr >= (block_size - 1) * 64 + buffer) {
+                        for (size_t i = 0; i < (block_size - 2); i++) {
+                        base64_decode_block(dst, buffer + i * 64);
+                        dst += 48;
+                        }
+                        if (dst >= end_of_safe_64byte_zone) {
+                        base64_decode_block_safe(dst, buffer + (block_size - 2) * 64);
+                        } else {
+                        base64_decode_block(dst, buffer + (block_size - 2) * 64);
+                        }
+                        dst += 48;
+                        std::memcpy(buffer, buffer + (block_size - 1) * 64,
+                                    64); // 64 might be too much
+                        bufferptr -= (block_size - 1) * 64;
+                    }
                 }
-                if (bufferptr >= (block_size - 1) * 64 + buffer) {
-                    for (size_t i = 0; i < (block_size - 2); i++) {
-                    base64_decode_block(dst, buffer + i * 64);
-                    dst += 48;
-                    }
-                    if (dst >= end_of_safe_64byte_zone) {
-                    base64_decode_block_safe(dst, buffer + (block_size - 2) * 64);
-                    } else {
-                    base64_decode_block(dst, buffer + (block_size - 2) * 64);
-                    }
-                    dst += 48;
-                    std::memcpy(buffer, buffer + (block_size - 1) * 64,
-                                64); // 64 might be too much
-                    bufferptr -= (block_size - 1) * 64;
-                }
             }
-        }
 
-        char *buffer_start = buffer;
-        // Optimization note: if this is almost full, then it is worth our
-        // time, otherwise, we should just decode directly.
-        int last_block = (int)((bufferptr - buffer_start) % 64);
-        if (last_block != 0 && srcend - src + last_block >= 64) {
-            while ((bufferptr - buffer_start) % 64 != 0 && src < srcend) {
-            uint8_t val = to_base64[uint8_t(*src)];
-            *bufferptr = char(val);
-            if (val > 64) {
-                return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
-            }
-            bufferptr += (val <= 63);
-            src++;
-            }
-        }
-
-        for (; buffer_start + 64 <= bufferptr; buffer_start += 64) {
-            if (dst >= end_of_safe_64byte_zone) {
-            base64_decode_block_safe(dst, buffer_start);
-            } else {
-            base64_decode_block(dst, buffer_start);
-            }
-            dst += 48;
-        }
-        if ((bufferptr - buffer_start) % 64 != 0) {
-            while (buffer_start + 4 < bufferptr) {
-            uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                << 8;
-            triple = scalar::utf32::swap_bytes(triple);
-            std::memcpy(dst, &triple, 4);
-
-            dst += 3;
-            buffer_start += 4;
-            }
-            if (buffer_start + 4 <= bufferptr) {
-            uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                << 8;
-            triple = scalar::utf32::swap_bytes(triple);
-            std::memcpy(dst, &triple, 3);
-
-            dst += 3;
-            buffer_start += 4;
-            }
-            // we may have 1, 2 or 3 bytes left and we need to decode them so let us
-            // bring in src content
-            int leftover = int(bufferptr - buffer_start);
-            if (leftover > 0) {
-            while (leftover < 4 && src < srcend) {
+            char *buffer_start = buffer;
+            // Optimization note: if this is almost full, then it is worth our
+            // time, otherwise, we should just decode directly.
+            int last_block = (int)((bufferptr - buffer_start) % 64);
+            if (last_block != 0 && srcend - src + last_block >= 64) {
+                while ((bufferptr - buffer_start) % 64 != 0 && src < srcend) {
                 uint8_t val = to_base64[uint8_t(*src)];
+                *bufferptr = char(val);
                 if (val > 64) {
-                return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
+                    return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
                 }
-                buffer_start[leftover] = char(val);
-                leftover += (val <= 63);
+                bufferptr += (val <= 63);
                 src++;
+                }
             }
 
-            if (leftover == 1) {
-                return {BASE64_INPUT_REMAINDER, size_t(dst - dstinit)};
+            for (; buffer_start + 64 <= bufferptr; buffer_start += 64) {
+                if (dst >= end_of_safe_64byte_zone) {
+                base64_decode_block_safe(dst, buffer_start);
+                } else {
+                base64_decode_block(dst, buffer_start);
+                }
+                dst += 48;
             }
-            if (leftover == 2) {
-                uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
-                                (uint32_t(buffer_start[1]) << 2 * 6);
-                triple = scalar::utf32::swap_bytes(triple);
-                triple >>= 8;
-                std::memcpy(dst, &triple, 1);
-                dst += 1;
-            } else if (leftover == 3) {
-                uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
-                                (uint32_t(buffer_start[1]) << 2 * 6) +
-                                (uint32_t(buffer_start[2]) << 1 * 6);
-                triple = scalar::utf32::swap_bytes(triple);
-
-                triple >>= 8;
-
-                std::memcpy(dst, &triple, 2);
-                dst += 2;
-            } else {
+            if ((bufferptr - buffer_start) % 64 != 0) {
+                while (buffer_start + 4 < bufferptr) {
                 uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                << 8;
+                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
+                                    << 8;
+                triple = scalar::utf32::swap_bytes(triple);
+                std::memcpy(dst, &triple, 4);
+
+                dst += 3;
+                buffer_start += 4;
+                }
+                if (buffer_start + 4 <= bufferptr) {
+                uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
+                                    << 8;
                 triple = scalar::utf32::swap_bytes(triple);
                 std::memcpy(dst, &triple, 3);
+
                 dst += 3;
+                buffer_start += 4;
+                }
+                // we may have 1, 2 or 3 bytes left and we need to decode them so let us
+                // bring in src content
+                int leftover = int(bufferptr - buffer_start);
+                if (leftover > 0) {
+                while (leftover < 4 && src < srcend) {
+                    uint8_t val = to_base64[uint8_t(*src)];
+                    if (val > 64) {
+                    return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
+                    }
+                    buffer_start[leftover] = char(val);
+                    leftover += (val <= 63);
+                    src++;
+                }
+
+                if (leftover == 1) {
+                    return {BASE64_INPUT_REMAINDER, size_t(dst - dstinit)};
+                }
+                if (leftover == 2) {
+                    uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
+                                    (uint32_t(buffer_start[1]) << 2 * 6);
+                    triple = scalar::utf32::swap_bytes(triple);
+                    triple >>= 8;
+                    std::memcpy(dst, &triple, 1);
+                    dst += 1;
+                } else if (leftover == 3) {
+                    uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
+                                    (uint32_t(buffer_start[1]) << 2 * 6) +
+                                    (uint32_t(buffer_start[2]) << 1 * 6);
+                    triple = scalar::utf32::swap_bytes(triple);
+
+                    triple >>= 8;
+
+                    std::memcpy(dst, &triple, 2);
+                    dst += 2;
+                } else {
+                    uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
+                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
+                                    << 8;
+                    triple = scalar::utf32::swap_bytes(triple);
+                    std::memcpy(dst, &triple, 3);
+                    dst += 3;
+                }
+                }
             }
+            if (src < srcend + equalsigns) {
+                result r =
+                    scalar::base64::base64_tail_decode(dst, src, srcend - src, options);
+                if (r.error == error_code::INVALID_BASE64_CHARACTER) {
+                r.count += size_t(src - srcinit);
+                return r;
+                } else {
+                r.count += size_t(dst - dstinit);
+                }
+                if(r.error == error_code::SUCCESS && equalsigns > 0) {
+                // additional checks
+                if((r.count % 3 == 0) || ((r.count % 3) + 1 + equalsigns != 4)) {
+                    r.error = error_code::INVALID_BASE64_CHARACTER;
+                }
+                }
+                return r;
             }
+            if(equalsigns > 0) {
+                if((size_t(dst - dstinit) % 3 == 0) || ((size_t(dst - dstinit) % 3) + 1 + equalsigns != 4)) {
+                return {INVALID_BASE64_CHARACTER, size_t(dst - dstinit)};
+                }
+            }
+            return {SUCCESS, size_t(dst - dstinit)};
+            }
+
         }
-        if (src < srcend + equalsigns) {
-            result r =
-                scalar::base64::base64_tail_decode(dst, src, srcend - src, options);
-            if (r.error == error_code::INVALID_BASE64_CHARACTER) {
-            r.count += size_t(src - srcinit);
-            return r;
-            } else {
-            r.count += size_t(dst - dstinit);
-            }
-            if(r.error == error_code::SUCCESS && equalsigns > 0) {
-            // additional checks
-            if((r.count % 3 == 0) || ((r.count % 3) + 1 + equalsigns != 4)) {
-                r.error = error_code::INVALID_BASE64_CHARACTER;
-            }
-            }
-            return r;
-        }
-        if(equalsigns > 0) {
-            if((size_t(dst - dstinit) % 3 == 0) || ((size_t(dst - dstinit) % 3) + 1 + equalsigns != 4)) {
-            return {INVALID_BASE64_CHARACTER, size_t(dst - dstinit)};
-            }
-        }
-        return {SUCCESS, size_t(dst - dstinit)};
         }
 
-    }
+
+
 
 }
 

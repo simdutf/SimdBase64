@@ -198,6 +198,37 @@ namespace SimdBase64
                     Sse2.Store(output + 48, b->chunk3);
                 }
 
+                public static unsafe void Base64DecodeBlockSafe(byte* outPtr, Block64* b)
+                {
+                    Base64Decode(outPtr, b->chunk0);
+                    Base64Decode(outPtr + 12, b->chunk1);
+                    Base64Decode(outPtr + 24, b->chunk2);
+                }
+
+                // Function to decode Base64-encoded data using SIMD operations in C#.
+                public unsafe static void Base64Decode(byte* output, Vector128<byte> input)
+                {
+                    // Define the shuffle pattern to reorder bytes after decoding.
+                    // This pattern corresponds to the one in the C++ code but in C# the invalid bytes set to 0xFF (255) by default.
+                    Vector128<byte> packShuffle = Vector128.Create((byte)2, (byte)1, (byte)0, (byte)6, (byte)5, (byte)4,
+                                                                 (byte)10, (byte)9, (byte)8, (byte)14, (byte)13, (byte)12,
+                                                                 (byte)255, (byte)255, (byte)255, (byte)255);//255 corresponds to -1
+
+                    // Perform the initial multiply and add operation across unsigned 8-bit integers.
+                    // DEBUG:This looks sus?
+                    Vector128<int> t0 = Sse3.MultiplyAddAdjacent(input.AsInt16(), Vector128.Create(0x01400140).AsInt16());
+
+                    // Perform another multiply and add to finalize the byte positions.
+                    Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0.AsInt16(), Vector128.Create(0x00011000).AsInt16());
+
+                    // Shuffle the bytes according to the packShuffle pattern.
+                    Vector128<byte> t2 = Ssse3.Shuffle(t1.AsByte(), packShuffle);
+
+                    // Store the output. This writes 16 bytes, but we only need 12.
+                    // This behavior is the same as in the C++ example, where 16 bytes are written but only 12 are valid.
+                    Sse2.Store(output, t2);
+                }
+
 
 
             public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
@@ -287,12 +318,12 @@ namespace SimdBase64
                         bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
                     } else if (bufferPtr != startOfBuffer) {
                         CopyBlock(&b, bufferPtr);
-                        bufferptr += 64;
+                        bufferPtr += 64;
                     } else {
-                        if (dst >= end_of_safe_64byte_zone) {
-                        base64_decode_block_safe(dst, &b);
+                        if (dst >= endOfSafe64ByteZone) {
+                            Base64DecodeBlockSafe(dst, &b);
                         } else {
-                        base64_decode_block(dst, &b);
+                            base64_decode_block(dst, &b);
                         }
                         dst += 48;
                     }

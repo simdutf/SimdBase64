@@ -229,8 +229,15 @@ namespace SimdBase64
                     Sse2.Store(output, t2);
                 }
 
-
-
+                // Function to decode a Base64 block into binary data.
+                public static unsafe void Base64DecodeBlock(byte* output, Block64* block)
+                {
+                    Base64Decode(output, block-> chunk0);
+                    Base64Decode(output + 12, block->chunk1);
+                    Base64Decode(output + 24, block->chunk2);
+                    Base64Decode(output + 36, block->chunk3);
+                }
+                
             public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
             {
 

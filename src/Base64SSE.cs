@@ -166,20 +166,17 @@ namespace SimdBase64
             return (ushort)mask;
             }
 
-            public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, Span<byte> output)
+            public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
             {
                 // Assuming Compress is a method that can handle Vector128<byte>, ushort mask, and ref to output
                 ulong nmask = ~mask;
 
-                fixed (byte* outputPtr = output)
-                {
-                    // Compress each chunk, increment output offset by number of elements not masked (popcount of not masked parts)
-                    Compress(b.chunk0, (ushort)(mask), outputPtr );
-                    Compress(b.chunk1, (ushort)(mask >> 16), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFF));
-                    Compress(b.chunk2, (ushort)(mask >> 32), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
-                    Compress(b.chunk3, (ushort)(mask >> 48), outputPtr + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
-                }
-
+                // Compress each chunk, increment output offset by number of elements not masked (popcount of not masked parts)
+                Compress(b.chunk0, (ushort)(mask), output );
+                Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF));
+                Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
+                Compress(b.chunk3, (ushort)(mask >> 48), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
+            
                 // Return the total number of unmasked bytes in all chunks, indicating how many bytes were written to the output
                 return Popcnt.X64.PopCount(nmask);    
             }
@@ -190,6 +187,15 @@ namespace SimdBase64
                     {
                         Sse2.Store(output, data);
                     }
+                }
+
+                public static unsafe void CopyBlock(Block64* b, byte* output)
+                {
+                    // Directly store each 128-bit chunk to the output buffer using SSE2
+                    Sse2.Store(output, b->chunk0);
+                    Sse2.Store(output + 16, b->chunk1);
+                    Sse2.Store(output + 32, b->chunk2);
+                    Sse2.Store(output + 48, b->chunk3);
                 }
 
 
@@ -279,8 +285,8 @@ namespace SimdBase64
                         // continuous 1s followed by continuous 0s. And masks containing a
                         // single bad character.
                         bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
-                    } else if (bufferptr != buffer) {
-                        copy_block(&b, bufferptr);
+                    } else if (bufferPtr != startOfBuffer) {
+                        CopyBlock(&b, bufferPtr);
                         bufferptr += 64;
                     } else {
                         if (dst >= end_of_safe_64byte_zone) {

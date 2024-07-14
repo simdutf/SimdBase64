@@ -69,10 +69,10 @@ public class Base64DecodingTests
         X64Sse = 8,
     }
 
-    public delegate OperationStatus DecodeFromBase64DelegateFnc(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl);
-    public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl);
+    public delegate OperationStatus DecodeFromBase64DelegateFnc(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
+    public delegate OperationStatus DecodeFromBase64DelegateSafe(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
     public delegate int MaxBase64ToBinaryLengthDelegateFnc(ReadOnlySpan<byte> input);
-    public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl);
+    public delegate OperationStatus Base64WithWhiteSpaceToBinary(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
 
 
 
@@ -194,7 +194,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten,  false);
+            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -241,7 +241,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten,  false);
+            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -259,7 +259,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten,  false);
+            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -303,7 +303,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten,  true);
+            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -321,7 +321,7 @@ public class Base64DecodingTests
             int bytesWritten;
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten,  true);
+            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
@@ -362,7 +362,7 @@ public class Base64DecodingTests
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
                 Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(),
-                out bytesConsumed, out bytesWritten,  isUrl: false);
+                out bytesConsumed, out bytesWritten, isUrl: false);
 
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(len, bytesWritten);
@@ -398,7 +398,7 @@ public class Base64DecodingTests
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
                 Encoding.UTF8.GetBytes(base64String).AsSpan(), decodedBytes.AsSpan(),
-                out bytesConsumed, out bytesWritten,  isUrl: true);
+                out bytesConsumed, out bytesWritten, isUrl: true);
 
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(len, bytesWritten);
@@ -486,7 +486,7 @@ public class Base64DecodingTests
 
                             var result = Base64WithWhiteSpaceToBinary(
                                 modifiedBase64.AsSpan(), buffer.AsSpan(),
-                                out bytesConsumed, out bytesWritten,  isUrl: false);
+                                out bytesConsumed, out bytesWritten, isUrl: false);
 
                             Assert.Equal(OperationStatus.InvalidData, result);
                         }
@@ -512,7 +512,7 @@ public class Base64DecodingTests
 
                         var result = Base64WithWhiteSpaceToBinary(
                             modifiedBase64.AsSpan(), buffer.AsSpan(),
-                            out bytesConsumed, out bytesWritten,  isUrl: false);
+                            out bytesConsumed, out bytesWritten, isUrl: false);
 
                         Assert.Equal(OperationStatus.InvalidData, result);
                     }
@@ -571,7 +571,7 @@ public class Base64DecodingTests
                 // Also test safe decoding with a specified back_length
                 var safeResult = DecodeFromBase64DelegateSafe(
                     base64WithGarbage.AsSpan(), back.AsSpan(),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.InvalidData, safeResult);
                 Assert.Equal(location, bytesConsumed);
                 Assert.Equal(location / 4 * 3, bytesWritten);
@@ -616,14 +616,14 @@ public class Base64DecodingTests
                 // Attempt to decode base64 back to binary and assert that it fails with INVALID_BASE64_CHARACTER
                 var result = Base64WithWhiteSpaceToBinary(
                     base64Truncated.AsSpan(), back.AsSpan(),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.NeedMoreData, result);
                 Assert.Equal((base64.Length - 4) / 4 * 3, bytesWritten);
                 Assert.Equal(base64Truncated.Length, bytesConsumed);
 
                 var safeResult = DecodeFromBase64DelegateSafe(
                     base64Truncated.AsSpan(), back.AsSpan(),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.NeedMoreData, safeResult);
                 Assert.Equal((base64.Length - 4) / 4 * 3, bytesWritten);
                 Assert.Equal(base64Truncated.Length, bytesConsumed);
@@ -670,7 +670,7 @@ public class Base64DecodingTests
             int bytesConsumed, bytesWritten;
             var result = Base64WithWhiteSpaceToBinary(
                 base64.AsSpan(), decodedBytes.AsSpan(),
-                out bytesConsumed, out bytesWritten,  isUrl: false);
+                out bytesConsumed, out bytesWritten, isUrl: false);
 
             // Assert that decoding was successful
             Assert.Equal(OperationStatus.Done, result);
@@ -681,7 +681,7 @@ public class Base64DecodingTests
             // Safe version not working
             result = Base64WithWhiteSpaceToBinary(
                base64.AsSpan(), decodedBytes.AsSpan(),
-               out bytesConsumed, out bytesWritten,  isUrl: false);
+               out bytesConsumed, out bytesWritten, isUrl: false);
 
             // Assert that decoding was successful
             Assert.Equal(OperationStatus.Done, result);
@@ -725,7 +725,7 @@ public class Base64DecodingTests
 
                 var result = DecodeFromBase64DelegateSafe(
                     base64.AsSpan(), tooSmallArray.AsSpan(),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
 
@@ -739,7 +739,7 @@ public class Base64DecodingTests
 
                 result = DecodeFromBase64DelegateSafe(
                     base64Remains, decodedRemains.AsSpan(),
-                    out remainingBytesConsumed, out remainingBytesWritten,  isUrl: false);
+                    out remainingBytesConsumed, out remainingBytesWritten, isUrl: false);
 
                 Assert.Equal(OperationStatus.Done, result);
                 Assert.Equal(len, bytesWritten + remainingBytesWritten);
@@ -786,7 +786,7 @@ public class Base64DecodingTests
 
                 var result = DecodeFromBase64DelegateSafe(
                     base64.AsSpan(), tooSmallArray.AsSpan(),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
 
@@ -800,7 +800,7 @@ public class Base64DecodingTests
 
                 result = DecodeFromBase64DelegateSafe(
                     base64Remains, decodedRemains.AsSpan(),
-                    out remainingBytesConsumed, out remainingBytesWritten,  isUrl: false);
+                    out remainingBytesConsumed, out remainingBytesWritten, isUrl: false);
 
                 Assert.Equal(OperationStatus.Done, result);
                 Assert.Equal(len, bytesWritten + remainingBytesWritten);
@@ -819,41 +819,48 @@ public class Base64DecodingTests
     protected void StreamingBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         int len = 2048;
-            byte[] source = new byte[len];
+        byte[] source = new byte[len];
 #pragma warning disable CA5394 // Do not use insecure randomness
-            random.NextBytes(source); // Initialize source buffer with random bytes
+        random.NextBytes(source); // Initialize source buffer with random bytes
 
-            string base64String = Convert.ToBase64String(source);
+        string base64String = Convert.ToBase64String(source);
 
-            byte[] base64 = Encoding.UTF8.GetBytes(base64String);
+        byte[] base64 = Encoding.UTF8.GetBytes(base64String);
 
-        for (int window = 16; window <= 2048; window += 7) {
+        for (int window = 16; window <= 2048; window += 7)
+        {
             // build a buffer with enough space to receive the decoded base64
-            int bytesConsumed =0;
+            int bytesConsumed = 0;
             int bytesWritten = 0;
 
             byte[] decodedBytes = new byte[len];
             int outpos = 0;
-            for (int pos = 0; pos < base64.Length; pos += window) {
-                int windowsBytes = Math.Min(window, base64.Length - pos); 
+            for (int pos = 0; pos < base64.Length; pos += window)
+            {
+                int windowsBytes = Math.Min(window, base64.Length - pos);
 
-            #pragma warning disable CA1062
+#pragma warning disable CA1062
                 var result = Base64WithWhiteSpaceToBinary(
-                    base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
-                    out bytesConsumed, out bytesWritten,  isUrl: false);
+                    base64.AsSpan().Slice(pos, windowsBytes), decodedBytes.AsSpan().Slice(outpos),
+                    out bytesConsumed, out bytesWritten, isUrl: false);
 
                 Assert.True(result != OperationStatus.InvalidData);
 
-                if (windowsBytes + pos == base64.Length) {
+                if (windowsBytes + pos == base64.Length)
+                {
                     // We must check that the last call to base64_to_binary did not
                     // end with an OperationStatus.NeedMoreData error.
-                    Assert.Equal( OperationStatus.Done,result);
-                } else {
+                    Assert.Equal(OperationStatus.Done, result);
+                }
+                else
+                {
                     int tailBytesToReprocess = 0;
-                    if (result == OperationStatus.NeedMoreData){
+                    if (result == OperationStatus.NeedMoreData)
+                    {
                         tailBytesToReprocess = 1;
-                    } 
-                    else {
+                    }
+                    else
+                    {
                         tailBytesToReprocess = (bytesWritten % 3) == 0 ? 0 : (bytesWritten % 3) + 1;
                     }
                     pos -= tailBytesToReprocess;
@@ -861,7 +868,7 @@ public class Base64DecodingTests
                 }
                 outpos += bytesWritten;
             }
-            Assert.Equal(decodedBytes,source);
+            Assert.Equal(decodedBytes, source);
         }
     }
 
@@ -872,7 +879,7 @@ public class Base64DecodingTests
         StreamingBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    protected static void ReadmeTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate) 
+    protected static void ReadmeTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         int len = 2048;
         string source = new string('a', len);
@@ -883,40 +890,47 @@ public class Base64DecodingTests
         int outpos = 0;
         int window = 512;
 
-        for (int pos = 0; pos < base64.Length; pos += window) {
-                int bytesConsumed = 0; 
-                int bytesWritten = 0;
+        for (int pos = 0; pos < base64.Length; pos += window)
+        {
+            int bytesConsumed = 0;
+            int bytesWritten = 0;
 
-                // how many base64 characters we can process in this iteration
-                int windowsBytes = Math.Min(window, base64.Length - pos);
-            #pragma warning disable CA1062 //validate parameter 'Base64WithWhiteSpaceToBinary' is non-null before using it.
-                var result = Base64WithWhiteSpaceToBinary(
-                    base64.AsSpan().Slice(pos,windowsBytes), decodedBytes.AsSpan().Slice(outpos),
-                    out bytesConsumed, out bytesWritten, isUrl: false);
+            // how many base64 characters we can process in this iteration
+            int windowsBytes = Math.Min(window, base64.Length - pos);
+#pragma warning disable CA1062 //validate parameter 'Base64WithWhiteSpaceToBinary' is non-null before using it.
+            var result = Base64WithWhiteSpaceToBinary(
+                base64.AsSpan().Slice(pos, windowsBytes), decodedBytes.AsSpan().Slice(outpos),
+                out bytesConsumed, out bytesWritten, isUrl: false);
 
-                Assert.True(result != OperationStatus.InvalidData, $"Invalid base64 character at position {pos + bytesConsumed}" );
-                
-                // If we arrived at the end of the base64 input, we must check that the
-                // number of characters processed is a multiple of 4, or that we have a
-                // remainder of 0, 2 or 3.                    
-                // Eg we must check that the last call to base64_to_binary did not
-                // end with an OperationStatus.NeedMoreData error.
+            Assert.True(result != OperationStatus.InvalidData, $"Invalid base64 character at position {pos + bytesConsumed}");
 
-                if (windowsBytes + pos == base64.Length) {
-                    Assert.Equal(OperationStatus.Done,result);
-                } else {
+            // If we arrived at the end of the base64 input, we must check that the
+            // number of characters processed is a multiple of 4, or that we have a
+            // remainder of 0, 2 or 3.                    
+            // Eg we must check that the last call to base64_to_binary did not
+            // end with an OperationStatus.NeedMoreData error.
+
+            if (windowsBytes + pos == base64.Length)
+            {
+                Assert.Equal(OperationStatus.Done, result);
+            }
+            else
+            {
                 // If we are not at the end, we may have to reprocess either 1, 2 or 3
                 // bytes, and to drop the last 0, 2 or 3 bytes decoded.
                 int tailBytesToReprocess = 0;
-                if (result == OperationStatus.NeedMoreData) {
+                if (result == OperationStatus.NeedMoreData)
+                {
                     tailBytesToReprocess = 1;
-                } else {
+                }
+                else
+                {
                     tailBytesToReprocess = (bytesWritten % 3) == 0 ? 0 : (bytesWritten % 3) + 1;
                 }
                 pos -= tailBytesToReprocess;
                 bytesWritten -= bytesWritten % 3;
                 outpos += bytesWritten;
-                }
+            }
         }
     }
 
@@ -927,20 +941,21 @@ public class Base64DecodingTests
         ReadmeTest(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-protected static void ReadmeTestSafe(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate) {
+    protected static void ReadmeTestSafe(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
         int len = 72;
         string source = new string('a', len);
         byte[] base64 = Encoding.UTF8.GetBytes(source);
 
-        byte[] decodedBytesTooSmall = new byte[MaxBase64ToBinaryLengthDelegate(base64)/2]; // Intentionally too small
+        byte[] decodedBytesTooSmall = new byte[MaxBase64ToBinaryLengthDelegate(base64) / 2]; // Intentionally too small
 
-        int bytesConsumed= 0;
+        int bytesConsumed = 0;
         int bytesWritten = 0;
 
         var result = DecodeFromBase64DelegateSafe(
             base64.AsSpan(), decodedBytesTooSmall.AsSpan(),
-            out bytesConsumed, out bytesWritten,  isUrl: false);
-        Assert.Equal(OperationStatus.DestinationTooSmall,result);
+            out bytesConsumed, out bytesWritten, isUrl: false);
+        Assert.Equal(OperationStatus.DestinationTooSmall, result);
 
         // We decoded 'limited_length' bytes to back.
         // Now let us decode the rest !!!        
@@ -952,10 +967,10 @@ protected static void ReadmeTestSafe(Base64WithWhiteSpaceToBinary Base64WithWhit
 
         result = DecodeFromBase64DelegateSafe(
             base64Remains, decodedRemains.AsSpan(),
-            out remainingBytesConsumed, out remainingBytesWritten,  isUrl: false);
+            out remainingBytesConsumed, out remainingBytesWritten, isUrl: false);
 
-        Assert.Equal(OperationStatus.Done,result );
-        Assert.Equal(MaxBase64ToBinaryLengthDelegate(base64),remainingBytesWritten + bytesWritten);
+        Assert.Equal(OperationStatus.Done, result);
+        Assert.Equal(MaxBase64ToBinaryLengthDelegate(base64), remainingBytesWritten + bytesWritten);
     }
 
     [Fact]

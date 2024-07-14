@@ -205,7 +205,7 @@ namespace SimdBase64
         }
 
         // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
-        public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
+        public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
 
             byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
@@ -382,7 +382,7 @@ namespace SimdBase64
         }
 
 
-        public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
+        public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
             int length = input.Length;
             int whiteSpaces = 0;
@@ -455,7 +455,7 @@ namespace SimdBase64
             return (length + 2) / 3 * 4;
         }
 
-        public unsafe static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
+        public unsafe static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
             // The implementation could be nicer, but we expect that most times, the user
             // will provide us with a buffer that is large enough.
@@ -464,14 +464,14 @@ namespace SimdBase64
             if (output.Length >= maxLength)
             {
                 // fast path
-                OperationStatus fastPathResult = Base64.Base64WithWhiteSpaceToBinaryScalar(input, output, out bytesConsumed, out bytesWritten,  isUrl);
+                OperationStatus fastPathResult = Base64.Base64WithWhiteSpaceToBinaryScalar(input, output, out bytesConsumed, out bytesWritten, isUrl);
                 return fastPathResult;
             }
             // The output buffer is maybe too small. We will decode a truncated version of the input.
             int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
             int safeInputLength = Base64LengthFromBinary(outlen3);
 
-            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten,  isUrl); // there might be a -1 error here
+            OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isUrl); // there might be a -1 error here
 
 
             if (r == OperationStatus.InvalidData)
@@ -530,7 +530,7 @@ namespace SimdBase64
             int tailBytesWritten;
 
             Span<byte> remainingOut = output.Slice(Math.Min(output.Length, outputIndex));
-            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten,  isUrl);
+            r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isUrl);
 
             if (r == OperationStatus.Done && paddingCharacts > 0)
             {

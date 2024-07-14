@@ -256,12 +256,14 @@ public class Base64DecodingTests
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
-            Assert.Equal(OperationStatus.Done, result);
+            // Assert.Equal(OperationStatus.Done, result);
+            Assert.True(OperationStatus.Done == result,$"Decoding string {decoded} went wrong");
             Assert.Equal(decoded.Length, bytesWritten);
             Assert.Equal(base64.Length, bytesConsumed);
             for (int i = 0; i < bytesWritten; i++)
             {
-                Assert.Equal(decoded[i], (char)buffer[i]);
+                // Assert.Equal(decoded[i], (char)buffer[i]);
+                Assert.True(decoded[i] == (char)buffer[i],$"Decoding string {decoded} went wrong at position {i}, expected: {buffer[i]} but function gives:{decoded[i]}");
             }
         }
 

@@ -91,29 +91,6 @@ namespace SimdBase64
                );
             }
 
-            // DEBUG : in the C++ code, Vector128.Create is 
-            // __m128i _mm_setr_epi8 (char e15, char e14, char e13, char e12, char e11, char e10, char e9, char e8, char e7, char e6, char e5, char e4, char e3, char e2, char e1, char e0)
-            // #include <emmintrin.h>
-            // Instruction: Sequence
-            // CPUID Flags: SSE2
-            // Description
-            // Set packed 8-bit integers in dst with the supplied values in reverse order.
-            //             dst[7:0] := e15
-            // dst[15:8] := e14
-            // dst[23:16] := e13
-            // dst[31:24] := e12
-            // dst[39:32] := e11
-            // dst[47:40] := e10
-            // dst[55:48] := e9
-            // dst[63:56] := e8
-            // dst[71:64] := e7
-            // dst[79:72] := e6
-            // dst[87:80] := e5
-            // dst[95:88] := e4
-            // dst[103:96] := e3
-            // dst[111:104] := e2
-            // dst[119:112] := e1
-            // dst[127:120] := e0
             Vector128<byte> deltaValues;
             if (base64Url)
             {
@@ -169,7 +146,6 @@ namespace SimdBase64
                 );
             }
 
-            // Assuming delta_asso, delta_values, check_asso, check_values, and ascii_space_tbl are already defined
             Vector128<byte> shifted = Sse2.ShiftRightLogical(src.AsUInt16(), 3).AsByte();
 
             Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso.AsByte(), src), shifted);
@@ -191,16 +167,13 @@ namespace SimdBase64
 
         public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
         {
-            // Assuming Compress is a method that can handle Vector128<byte>, ushort mask, and ref to output
             ulong nmask = ~mask;
 
-            // Compress each chunk, increment output offset by number of elements not masked (popcount of not masked parts)
-            Compress(b.chunk0, (ushort)(mask), output);
+            Compress(b.chunk0, (ushort)mask, output);
             Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF));
             Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
             Compress(b.chunk3, (ushort)(mask >> 48), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
 
-            // Return the total number of unmasked bytes in all chunks, indicating how many bytes were written to the output
             return Popcnt.X64.PopCount(nmask);
         }
 
@@ -228,11 +201,8 @@ namespace SimdBase64
             Base64Decode(outPtr + 24, b->chunk2);
         }
 
-        // Function to decode Base64-encoded data using SIMD operations in C#.
         public unsafe static void Base64Decode(byte* output, Vector128<byte> input)
         {
-            // Define the shuffle pattern to reorder bytes after decoding.
-            // This pattern corresponds to the one in the C++ code but in C# the invalid bytes set to 0xFF (255) by default.
             Vector128<byte> packShuffle = Vector128.Create((byte)2, (byte)1, (byte)0, (byte)6, (byte)5, (byte)4,
                                                          (byte)10, (byte)9, (byte)8, (byte)14, (byte)13, (byte)12,
                                                          (byte)255, (byte)255, (byte)255, (byte)255);//255 corresponds to -1
@@ -248,7 +218,6 @@ namespace SimdBase64
             Vector128<byte> t2 = Ssse3.Shuffle(t1.AsByte(), packShuffle);
 
             // Store the output. This writes 16 bytes, but we only need 12.
-            // This behavior is the same as in the C++ example, where 16 bytes are written but only 12 are valid.
             Sse2.Store(output, t2);
         }
 
@@ -271,16 +240,9 @@ namespace SimdBase64
 
         public static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
         {
-            // Decode the first block directly into the output buffer.
             Base64Decode(outPtr, Sse2.LoadVector128(srcPtr));
-
-            // Decode the second block directly into the output buffer, offset by 12 bytes.
             Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
-
-            // Decode the third block directly into the output buffer, offset by 24 bytes.
             Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
-
-            // Decode the fourth block into a temporary buffer first.
             Vector128<byte> tempBlock = Sse2.LoadVector128(srcPtr + 48);
             byte[] buffer = new byte[16];
             fixed (byte* bufferPtr = buffer)
@@ -295,7 +257,7 @@ namespace SimdBase64
 
         public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
-
+            // translation from ASCII to 6 bit values
             byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
 
             bytesConsumed = 0;
@@ -345,28 +307,22 @@ namespace SimdBase64
                             dst + (bytesToProcess + 3) / 4 * 3 - 63 :
                             dst;
 
-                // DEBUG:this is probalby unnescessary
-                // byte* srcend = srcInit + bytesToProcess; // Assuming srclen is defined elsewhere
-
                 const int blockSize = 6;
                 Debug.Equals(blockSize >= 2, "block should of size 2 or more");
                 byte[] buffer = new byte[blockSize * 64];
-                // DEBUG: probably unnescessary
-                // char *bufferptr = buffer; 
                 fixed (byte* startOfBuffer = buffer)
                 {
                     byte* bufferPtr = startOfBuffer;
                     if (bytesToProcess >= 64)
                     {
-                        //rigth here src is at the very beginning so this is taking it
                         byte* srcend64 = srcInit + bytesToProcess - 64;
                         while (src <= srcend64)
                         {
-                            Base64.Block64 b; //DEBUG: TODO
-                            Base64.LoadBlock(&b, src);//DEBUG: TODO
+                            Base64.Block64 b; 
+                            Base64.LoadBlock(&b, src);
                             src += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);//DEBUG: TODO
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
                             if (error)
                             {
                                 src -= 64;
@@ -374,11 +330,10 @@ namespace SimdBase64
                                 {
                                     src++;
                                 }
-                                bytesConsumed = (int)(src - srcInit);
-                                bytesWritten = (int)(dst - dstInit); // TODO
+                                bytesConsumed = (int)(src - srcInit); 
+                                bytesWritten = (int)(dst - dstInit);// sus
                                 return OperationStatus.InvalidData;
                             }
-                            // DEBUG: What does badCharMask do? What is the diff between this and error?
                             if (badCharMask != 0)
                             {
                                 // optimization opportunity: check for simple masks like those made of
@@ -419,16 +374,12 @@ namespace SimdBase64
                                     Base64DecodeBlock(dst, startOfBuffer + (blockSize - 2) * 64);
                                 }
                                 dst += 48;
-                                // std::memcpy(buffer, buffer + (blockSize - 1) * 64,
-                                //             64); // 64 might be too much
-                                // Copying 64 bytes from 'buffer + (blockSize - 1) * 64' to 'buffer'
                                 Buffer.MemoryCopy(bufferPtr + (blockSize - 1) * 64, bufferPtr, 64, 64);
                                 bufferPtr -= (blockSize - 1) * 64;
                             }
                         }
                     }
 
-                    // char *buffer_start = buffer; //DEBUG: I think? that buffer did not move at all since the beginning? not sure
                     // Optimization note: if this is almost full, then it is worth our
                     // time, otherwise, we should just decode directly.
                     int lastBlock = (int)((bufferPtr - startOfBuffer) % 64);
@@ -441,7 +392,7 @@ namespace SimdBase64
                             if (val > 64)
                             {
                                 bytesConsumed = (int)(src - srcInit);
-                                bytesWritten = (int)(dst - dstInit); // TODO
+                                bytesWritten = (int)(dst - dstInit); 
                                 return OperationStatus.InvalidData;
                             }
                             bufferPtr += (val <= 63) ? 1 : 0;
@@ -503,7 +454,7 @@ namespace SimdBase64
                                 if (val > 64)
                                 {
                                     bytesConsumed = (int)(src - srcInit);
-                                    bytesWritten = (int)(dst - dstInit); // TODO
+                                    bytesWritten = (int)(dst - dstInit); 
                                     return OperationStatus.InvalidData;
                                 }
                                 subBufferPtr[leftover] = (byte)(val);
@@ -562,13 +513,13 @@ namespace SimdBase64
                         if (result == OperationStatus.InvalidData)
                         {
                             bytesConsumed += remainderBytesConsumed;
-                            bytesWritten += remainderBytesWritten; // TODO
+                            bytesWritten += remainderBytesWritten;
                             return result;
                         }
                         else
                         {
                             bytesConsumed += remainderBytesConsumed;
-                            bytesWritten += remainderBytesWritten; // TODO
+                            bytesWritten += remainderBytesWritten;
                         }
                         if (result == OperationStatus.Done && equalsigns > 0)
                         {

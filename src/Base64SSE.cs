@@ -229,6 +229,14 @@ namespace SimdBase64
                     Sse2.Store(output, t2);
                 }
 
+                public static unsafe void Base64DecodeBlock(byte* outPtr, byte* srcPtr)
+                {
+                    Base64Decode(outPtr, Sse2.LoadVector128(srcPtr));
+                    Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
+                    Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
+                    Base64Decode(outPtr + 36, Sse2.LoadVector128(srcPtr + 48));
+                }
+
                 // Function to decode a Base64 block into binary data.
                 public static unsafe void Base64DecodeBlock(byte* output, Block64* block)
                 {
@@ -237,12 +245,38 @@ namespace SimdBase64
                     Base64Decode(output + 24, block->chunk2);
                     Base64Decode(output + 36, block->chunk3);
                 }
-                
+
+                public static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
+                {
+                    // Decode the first block directly into the output buffer.
+                    Base64Decode(outPtr, Sse2.LoadVector128(srcPtr));
+
+                    // Decode the second block directly into the output buffer, offset by 12 bytes.
+                    Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
+
+                    // Decode the third block directly into the output buffer, offset by 24 bytes.
+                    Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
+
+                    // Decode the fourth block into a temporary buffer first.
+                    Vector128<byte> tempBlock = Sse2.LoadVector128(srcPtr + 48);
+                    byte[] buffer = new byte[16];
+                    fixed (byte* bufferPtr = buffer)
+                    {
+                        Base64Decode(bufferPtr, tempBlock);
+
+                        // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
+                        // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
+                        Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);
+                    }
+                }
+
             public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten,  bool isUrl = false)
             {
 
                 byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
 
+                bytesConsumed = 0;
+                bytesWritten = 0;
 
 
                 // Define pointers within the fixed blocks
@@ -314,7 +348,7 @@ namespace SimdBase64
                             src++;
                         }
                         bytesConsumed = (int)(src - srcInit);
-                        bytesWritten = ; // TODO
+                        bytesWritten = (int)(dst - dstInit); // TODO
                         return OperationStatus.InvalidData;
                     }
                     // DEBUG: What does badCharMask do? What is the diff between this and error?
@@ -330,153 +364,169 @@ namespace SimdBase64
                         if (dst >= endOfSafe64ByteZone) {
                             Base64DecodeBlockSafe(dst, &b);
                         } else {
-                            base64_decode_block(dst, &b);
+                            Base64DecodeBlock(dst, &b);
                         }
                         dst += 48;
                     }
-                    if (bufferptr >= (block_size - 1) * 64 + buffer) {
-                        for (size_t i = 0; i < (block_size - 2); i++) {
-                        base64_decode_block(dst, buffer + i * 64);
-                        dst += 48;
+                    if (bufferPtr >= (blockSize - 1) * 64 + startOfBuffer) {
+                        for (int i = 0; i < (blockSize - 2); i++) {
+                            Base64DecodeBlock(dst, startOfBuffer + i * 64);
+                            dst += 48;
                         }
-                        if (dst >= end_of_safe_64byte_zone) {
-                        base64_decode_block_safe(dst, buffer + (block_size - 2) * 64);
+                        if (dst >= endOfSafe64ByteZone) {
+                            Base64DecodeBlockSafe(dst, startOfBuffer + (blockSize - 2) * 64);
                         } else {
-                        base64_decode_block(dst, buffer + (block_size - 2) * 64);
+                            Base64DecodeBlock(dst, startOfBuffer + (blockSize - 2) * 64);
                         }
                         dst += 48;
-                        std::memcpy(buffer, buffer + (block_size - 1) * 64,
-                                    64); // 64 might be too much
-                        bufferptr -= (block_size - 1) * 64;
+                        // std::memcpy(buffer, buffer + (blockSize - 1) * 64,
+                        //             64); // 64 might be too much
+                       // Copying 64 bytes from 'buffer + (blockSize - 1) * 64' to 'buffer'
+                        Buffer.MemoryCopy(bufferPtr + (blockSize - 1) * 64, bufferPtr, 64, 64);
+                        bufferPtr -= (blockSize - 1) * 64;
                     }
                 }
             }
 
-            char *buffer_start = buffer;
+            // char *buffer_start = buffer; //DEBUG: I think? that buffer did not move at all since the beginning? not sure
             // Optimization note: if this is almost full, then it is worth our
             // time, otherwise, we should just decode directly.
-            int last_block = (int)((bufferptr - buffer_start) % 64);
-            if (last_block != 0 && srcend - src + last_block >= 64) {
-                while ((bufferptr - buffer_start) % 64 != 0 && src < srcend) {
-                uint8_t val = to_base64[uint8_t(*src)];
-                *bufferptr = char(val);
+            int lastBlock = (int)((bufferPtr - startOfBuffer) % 64);
+            if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) {
+                while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd) {
+                byte val = toBase64[(int)*src];
+                *bufferPtr = val;
                 if (val > 64) {
-                    return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
+                    bytesConsumed = (int)(src - srcInit);
+                    bytesWritten = (int)(dst - dstInit); // TODO
+                    return OperationStatus.InvalidData;
                 }
-                bufferptr += (val <= 63);
-                src++;
+                    bufferPtr += (val <= 63) ? 1 : 0;
+                    src++;
                 }
+
+
             }
 
-            for (; buffer_start + 64 <= bufferptr; buffer_start += 64) {
-                if (dst >= end_of_safe_64byte_zone) {
-                base64_decode_block_safe(dst, buffer_start);
+            byte *subBufferPtr = startOfBuffer;
+            for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64) {
+                if (dst >= endOfSafe64ByteZone) {
+                    Base64DecodeBlockSafe(dst, subBufferPtr);
                 } else {
-                base64_decode_block(dst, buffer_start);
+                    Base64DecodeBlock(dst, subBufferPtr);
                 }
                 dst += 48;
             }
-            if ((bufferptr - buffer_start) % 64 != 0) {
-                while (buffer_start + 4 < bufferptr) {
-                uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                    << 8;
-                triple = scalar::utf32::swap_bytes(triple);
-                std::memcpy(dst, &triple, 4);
+            if ((bufferPtr - subBufferPtr) % 64 != 0) {
+                while (subBufferPtr + 4 < bufferPtr) {
+                    UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
+                                        << 8;
+                    triple = SwapBytes(triple);
+                    Buffer.MemoryCopy(&triple, dst, 4, 4);
 
-                dst += 3;
-                buffer_start += 4;
+                    dst += 3;
+                    subBufferPtr += 4;
                 }
-                if (buffer_start + 4 <= bufferptr) {
-                uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                    << 8;
-                triple = scalar::utf32::swap_bytes(triple);
-                std::memcpy(dst, &triple, 3);
+                if (subBufferPtr + 4 <= bufferPtr) {
+                    UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
+                                        << 8;
+                    triple = SwapBytes(triple);
+                    Buffer.MemoryCopy(&triple, dst, 3, 3);
 
                 dst += 3;
-                buffer_start += 4;
+                subBufferPtr += 4;
                 }
                 // we may have 1, 2 or 3 bytes left and we need to decode them so let us
                 // bring in src content
-                int leftover = int(bufferptr - buffer_start);
+                int leftover = (int)(bufferPtr - subBufferPtr);
                 if (leftover > 0) {
-                while (leftover < 4 && src < srcend) {
-                    uint8_t val = to_base64[uint8_t(*src)];
+                while (leftover < 4 && src < srcEnd) {
+                    byte val = toBase64[(byte)*src];
                     if (val > 64) {
-                    return {error_code::INVALID_BASE64_CHARACTER, size_t(src - srcinit)};
+                        bytesConsumed = (int)(src - srcInit);
+                        bytesWritten = (int)(dst - dstInit); // TODO
+                        return OperationStatus.InvalidData;
                     }
-                    buffer_start[leftover] = char(val);
-                    leftover += (val <= 63);
+                    subBufferPtr[leftover] = (byte)(val);
+                    leftover += (val <= 63) ? 1:0;
                     src++;
                 }
 
                 if (leftover == 1) {
-                    return {BASE64_INPUT_REMAINDER, size_t(dst - dstinit)};
+                    bytesConsumed = (int)(src - srcInit);
+                    bytesWritten = (int)(dst - dstInit); // TODO
+                    return OperationStatus.NeedMoreData;
                 }
                 if (leftover == 2) {
-                    uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
-                                    (uint32_t(buffer_start[1]) << 2 * 6);
-                    triple = scalar::utf32::swap_bytes(triple);
+                    UInt32 triple = ((UInt32)(subBufferPtr[0]) << 3 * 6) +
+                                    ((UInt32)(subBufferPtr[1]) << 2 * 6);
+                    triple = SwapBytes(triple);
                     triple >>= 8;
-                    std::memcpy(dst, &triple, 1);
+                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                     dst += 1;
                 } else if (leftover == 3) {
-                    uint32_t triple = (uint32_t(buffer_start[0]) << 3 * 6) +
-                                    (uint32_t(buffer_start[1]) << 2 * 6) +
-                                    (uint32_t(buffer_start[2]) << 1 * 6);
-                    triple = scalar::utf32::swap_bytes(triple);
+                    UInt32 triple = ((UInt32)(subBufferPtr[0]) << 3 * 6) +
+                                    ((UInt32)(subBufferPtr[1]) << 2 * 6) +
+                                    ((UInt32)(subBufferPtr[2]) << 1 * 6);
+                    triple = SwapBytes(triple);
 
                     triple >>= 8;
 
-                    std::memcpy(dst, &triple, 2);
+                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                     dst += 2;
                 } else {
-                    uint32_t triple = ((uint32_t(uint8_t(buffer_start[0])) << 3 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[1])) << 2 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[2])) << 1 * 6) +
-                                    (uint32_t(uint8_t(buffer_start[3])) << 0 * 6))
-                                    << 8;
-                    triple = scalar::utf32::swap_bytes(triple);
-                    std::memcpy(dst, &triple, 3);
+                    UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
+                                        ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
+                                        << 8;
+                    triple = SwapBytes(triple);
+                    Buffer.MemoryCopy(&triple, dst, 3, 3);
+
                     dst += 3;
                 }
                 }
             }
-            if (src < srcend + equalsigns) {
-                result r =
-                    scalar::base64::base64_tail_decode(dst, src, srcend - src, options);
-                if (r.error == error_code::INVALID_BASE64_CHARACTER) {
-                r.count += size_t(src - srcinit);
-                return r;
+            if (src < srcEnd + equalsigns) {
+                int remainderBytesConsumed =0;
+                int remainderBytesWritten =0;
+
+                OperationStatus result =
+                    Base64WithWhiteSpaceToBinaryScalar( source.Slice((int)(src - srcInit)), dest.Slice((int)(dst- dstInit)),out remainderBytesConsumed,out remainderBytesWritten, isUrl);
+                if (result == OperationStatus.InvalidData) {
+                    bytesConsumed += remainderBytesConsumed;
+                    bytesWritten += remainderBytesWritten; // TODO
+                    return result;
                 } else {
-                r.count += size_t(dst - dstinit);
+                    bytesConsumed += remainderBytesConsumed;
+                    bytesWritten += remainderBytesWritten; // TODO
                 }
-                if(r.error == error_code::SUCCESS && equalsigns > 0) {
+                if(result == OperationStatus.Done && equalsigns > 0) {
                 // additional checks
-                if((r.count % 3 == 0) || ((r.count % 3) + 1 + equalsigns != 4)) {
-                    r.error = error_code::INVALID_BASE64_CHARACTER;
+                if((remainderBytesWritten % 3 == 0) || ((remainderBytesWritten % 3) + 1 + equalsigns != 4)) {
+                    result = OperationStatus.InvalidData;
                 }
                 }
-                return r;
+                return result;
             }
             if(equalsigns > 0) {
-                if((size_t(dst - dstinit) % 3 == 0) || ((size_t(dst - dstinit) % 3) + 1 + equalsigns != 4)) {
-                return {INVALID_BASE64_CHARACTER, size_t(dst - dstinit)};
+                if(((int)(dst - dstInit) % 3 == 0) || (((int)(dst - dstInit) % 3) + 1 + equalsigns != 4)) {
+                    return OperationStatus.InvalidData;
                 }
             }
-            return {SUCCESS, size_t(dst - dstinit)};
+            return OperationStatus.Done;
             }
 
         }
         }
-
 
 
 
 }
-
+}

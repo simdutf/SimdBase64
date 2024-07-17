@@ -17,7 +17,7 @@ namespace SimdBase64
     {
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct Block64
+        public struct Block64 : IEquatable<Block64>
         {
             public Vector128<byte> chunk0;
             public Vector128<byte> chunk1;
@@ -42,6 +42,11 @@ namespace SimdBase64
             public static bool operator !=(Block64 left, Block64 right)
             {
                 return !(left == right);
+            }
+
+            public bool Equals(Block64 other)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -78,7 +83,7 @@ namespace SimdBase64
             Vector128<sbyte> deltaAsso;
             if (base64Url)
             {
-                deltaAsso = Vector128.Create(   0x1, 0x1, 0x1, 0x1,
+                deltaAsso = Vector128.Create(0x1, 0x1, 0x1, 0x1,
                                                 0x1, 0x1, 0x1, 0x1,
                                                 0x0, 0x0, 0x0, 0x0,
                                                 0x0, 0xF, 0x0, 0xF);
@@ -103,7 +108,7 @@ namespace SimdBase64
                     // (byte)0xBF, (byte)0xE0, (byte)0xB9, (byte)0xB9
 
                     0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
-                    0x04, 0xBF,0xBF, 0xB9,
+                    0x04, 0xBF, 0xBF, 0xB9,
                     0xB9, 0x00, 0x11, 0xC3,
                     0xBF, 0xE0, 0xB9, 0xB9
                 ).AsSByte();
@@ -157,7 +162,7 @@ namespace SimdBase64
 
             Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso, src.AsSByte()).AsByte(), shifted.AsByte());
             Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso, src.AsSByte()).AsByte(), shifted.AsByte());
-// You were here
+            // You were here
             Vector128<sbyte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues, deltaHash.AsSByte()), src.AsSByte());
             Vector128<sbyte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues, checkHash.AsSByte()), src.AsSByte());
 
@@ -168,12 +173,12 @@ namespace SimdBase64
                 Vector128<sbyte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsSByte(), src.AsSByte());
                 // Movemask extract the MSB from each byte of asciispace
                 // if the mask is not the same as the movemask extract, signal an error
-                        // Print the vectors and mask
+                // Print the vectors and mask
 
                 error |= mask != Sse2.MoveMask(asciiSpace);
             }
 
-            
+
 
             src = outVector.AsByte();
             return (ushort)mask;
@@ -217,19 +222,20 @@ namespace SimdBase64
 
         public unsafe static void Base64Decode(byte* output, Vector128<byte> input)
         {
-            Vector128<byte> packShuffle = Vector128.Create((byte)2, (byte)1, (byte)0, (byte)6, (byte)5, (byte)4,
-                                                         (byte)10, (byte)9, (byte)8, (byte)14, (byte)13, (byte)12,
-                                                         (byte)255, (byte)255, (byte)255, (byte)255);//255 corresponds to -1
+            // credit: aqrit
+            Vector128<sbyte> packShuffle = Vector128.Create(2, 1, 0, 6,
+                                                            5, 4, 10, 9,
+                                                            8, 14, 13, 12,
+                                                           -1, -1, -1, -1);
 
             // Perform the initial multiply and add operation across unsigned 8-bit integers.
-            // DEBUG:This looks sus?
-            Vector128<int> t0 = Sse3.MultiplyAddAdjacent(input.AsInt16(), Vector128.Create(0x01400140).AsInt16());
+            Vector128<short> t0 = Ssse3.MultiplyAddAdjacent(input, Vector128.Create((Int32)0x01400140).AsSByte());
 
             // Perform another multiply and add to finalize the byte positions.
-            Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0.AsInt16(), Vector128.Create(0x00011000).AsInt16());
+            Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0, Vector128.Create((Int32)0x00011000).AsInt16());
 
             // Shuffle the bytes according to the packShuffle pattern.
-            Vector128<byte> t2 = Ssse3.Shuffle(t1.AsByte(), packShuffle);
+            Vector128<byte> t2 = Ssse3.Shuffle(t1.AsSByte(), packShuffle).AsByte();
 
             // Store the output. This writes 16 bytes, but we only need 12.
             Sse2.Store(output, t2);
@@ -334,11 +340,11 @@ namespace SimdBase64
                         byte* srcend64 = srcInit + bytesToProcess - 64;
                         while (src <= srcend64)
                         {
-                            Base64.Block64 b; 
+                            Base64.Block64 b;
                             Base64.LoadBlock(&b, src);
                             src += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error); 
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
                             // badchar indicate an error but at a later date: it is fed into the CompressBlock function later on.
                             // error indicates that a particular error: TODO 
                             if (error)
@@ -349,12 +355,13 @@ namespace SimdBase64
                                 {
                                     src++;
                                 }
-                                bytesConsumed = (int)(src - srcInit); 
+                                bytesConsumed = (int)(src - srcInit);
                                 bytesWritten = (int)(dst - dstInit);// TODO: this and its other brethen when an error occurs is likely wrong
                                 return OperationStatus.InvalidData;
                             }
                             if (badCharMask != 0)
                             {
+                                Console.WriteLine($"Bad CharMask != 0: {badCharMask})");
                                 // optimization opportunity: check for simple masks like those made of
                                 // continuous 1s followed by continuous 0s. And masks containing a
                                 // single bad character.
@@ -363,6 +370,7 @@ namespace SimdBase64
                             }
                             else if (bufferPtr != startOfBuffer)
                             {
+                                Console.WriteLine("bufferPtr != startOfBuffer");
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
                             }
@@ -370,10 +378,14 @@ namespace SimdBase64
                             {
                                 if (dst >= endOfSafe64ByteZone)
                                 {
+                                    Console.WriteLine("dst >= endOfSafe64ByteZone");
+
                                     Base64DecodeBlockSafe(dst, &b);
                                 }
                                 else
                                 {
+                                    Console.WriteLine("dst >= endOfSafe64ByteZone is not true,Base64DecodeBlock firing");
+
                                     Base64DecodeBlock(dst, &b);
                                 }
                                 dst += 48;
@@ -412,7 +424,7 @@ namespace SimdBase64
                             if (val > 64)
                             {
                                 bytesConsumed = (int)(src - srcInit);
-                                bytesWritten = (int)(dst - dstInit); 
+                                bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.InvalidData;
                             }
                             bufferPtr += (val <= 63) ? 1 : 0;
@@ -474,7 +486,7 @@ namespace SimdBase64
                                 if (val > 64)
                                 {
                                     bytesConsumed = (int)(src - srcInit);
-                                    bytesWritten = (int)(dst - dstInit); 
+                                    bytesWritten = (int)(dst - dstInit);
                                     return OperationStatus.InvalidData;
                                 }
                                 subBufferPtr[leftover] = (byte)(val);

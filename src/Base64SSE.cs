@@ -67,39 +67,46 @@ namespace SimdBase64
         public static ushort ToBase64Mask(bool base64Url, ref Vector128<byte> src, out bool error)
         {
             error = false;
-            Vector128<byte> asciiSpaceTbl = Vector128.Create(
-                (byte)0x20, (byte)0x0, (byte)0x0, (byte)0x0,
-                (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0,
-                (byte)0x0, (byte)0x9, (byte)0xa, (byte)0x0,
-                (byte)0xc, (byte)0xd, (byte)0x0, (byte)0x0
+            Vector128<sbyte> asciiSpaceTbl = Vector128.Create(
+                0x20, 0x0, 0x0, 0x0,
+                0x0, 0x0, 0x0, 0x0,
+                0x0, 0x9, 0xa, 0x0,
+                0xc, 0xd, 0x0, 0x0
             );
 
             // credit: aqrit
-            Vector128<byte> deltaAsso;
+            Vector128<sbyte> deltaAsso;
             if (base64Url)
             {
-                deltaAsso = Vector128.Create((byte)0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0,
-                                                    0x0, 0x0, 0x0, 0xF, 0x0, 0xF);
+                deltaAsso = Vector128.Create(   0x1, 0x1, 0x1, 0x1,
+                                                0x1, 0x1, 0x1, 0x1,
+                                                0x0, 0x0, 0x0, 0x0,
+                                                0x0, 0xF, 0x0, 0xF);
             }
             else
             {
                 deltaAsso = Vector128.Create(
-                   (byte)0x1, (byte)0x1, (byte)0x1, (byte)0x1,
-                   (byte)0x1, (byte)0x1, (byte)0x1, (byte)0x1,
-                   (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0,
-                   (byte)0x0, (byte)0xF, (byte)0x0, (byte)0xF
+                   0x1, 0x1, 0x1, 0x1,
+                   0x1, 0x1, 0x1, 0x1,
+                   0x0, 0x0, 0x0, 0x0,
+                   0x0, 0xF, 0x0, 0xF
                );
             }
 
-            Vector128<byte> deltaValues;
+            Vector128<sbyte> deltaValues;
             if (base64Url)
             {
                 deltaValues = Vector128.Create(
-                    (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
-                    (byte)0x04, (byte)0xBF, (byte)0xBF, (byte)0xB9,
-                    (byte)0xB9, (byte)0x00, (byte)0x11, (byte)0xC3,
-                    (byte)0xBF, (byte)0xE0, (byte)0xB9, (byte)0xB9
-                );
+                    // 0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
+                    // 0x04, (byte)0xBF, (byte)0xBF, (byte)0xB9,
+                    // (byte)0xB9, 0x00, 0x11, (byte)0xC3,
+                    // (byte)0xBF, (byte)0xE0, (byte)0xB9, (byte)0xB9
+
+                    0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
+                    0x04, 0xBF,0xBF, 0xB9,
+                    0xB9, 0x00, 0x11, 0xC3,
+                    0xBF, 0xE0, 0xB9, 0xB9
+                ).AsSByte();
             }
             else
             {
@@ -108,34 +115,34 @@ namespace SimdBase64
                     (byte)0x04, (byte)0xBF, (byte)0xBF, (byte)0xB9,
                     (byte)0xB9, (byte)0x00, (byte)0x10, (byte)0xC3,
                     (byte)0xBF, (byte)0xBF, (byte)0xB9, (byte)0xB9
-                );
+                ).AsSByte();
             }
-            Vector128<byte> checkAsso;
-            Vector128<byte> checkValues;
+            Vector128<sbyte> checkAsso;
+            Vector128<sbyte> checkValues;
 
             if (base64Url)
             {
                 checkAsso = Vector128.Create(
-                    (byte)0x0D, (byte)0x01, (byte)0x01, (byte)0x01,
-                    (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x01,
-                    (byte)0x01, (byte)0x01, (byte)0x03, (byte)0x07,
-                    (byte)0x0B, (byte)0x06, (byte)0x0B, (byte)0x12
+                    0x0D, 0x01, 0x01, 0x01,
+                    0x01, 0x01, 0x01, 0x01,
+                    0x01, 0x01, 0x03, 0x07,
+                    0x0B, 0x06, 0x0B, 0x12
                 );
 
                 checkValues = Vector128.Create(
-                    (byte)0x00, (byte)0x80, (byte)0x80, (byte)0x80,
-                    (byte)0xCF, (byte)0xBF, (byte)0xD3, (byte)0xA6,
-                    (byte)0xB5, (byte)0x86, (byte)0xD0, (byte)0x80,
-                    (byte)0xB0, (byte)0x80, (byte)0x00, (byte)0x00
-                );
+                    0x00, 0x80, 0x80, 0x80,
+                    0xCF, 0xBF, 0xD3, 0xA6,
+                    0xB5, 0x86, 0xD0, 0x80,
+                    0xB0, 0x80, 0x00, 0x00
+                ).AsSByte();
             }
             else
             {
                 checkAsso = Vector128.Create(
-                    (byte)0x0D, (byte)0x01, (byte)0x01, (byte)0x01,
-                    (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x01,
-                    (byte)0x01, (byte)0x01, (byte)0x03, (byte)0x07,
-                    (byte)0x0B, (byte)0x0B, (byte)0x0B, (byte)0x0F
+                    0x0D, 0x01, 0x01, 0x01,
+                    0x01, 0x01, 0x01, 0x01,
+                    0x01, 0x01, 0x03, 0x07,
+                    0x0B, 0x0B, 0x0B, 0x0F
                 );
 
                 checkValues = Vector128.Create(
@@ -143,21 +150,24 @@ namespace SimdBase64
                     (byte)0xCF, (byte)0xBF, (byte)0xD5, (byte)0xA6,
                     (byte)0xB5, (byte)0x86, (byte)0xD1, (byte)0x80,
                     (byte)0xB1, (byte)0x80, (byte)0x91, (byte)0x80
-                );
+                ).AsSByte();
             }
 
-            Vector128<byte> shifted = Sse2.ShiftRightLogical(src.AsUInt16(), 3).AsByte();
+            Vector128<sbyte> shifted = Sse2.ShiftRightLogical(src.AsUInt32(), 3).AsSByte();
 
-            Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso.AsByte(), src), shifted);
-            Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso.AsByte(), src), shifted);
+            Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso, src.AsSByte()).AsByte(), shifted.AsByte());
+            Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso, src.AsSByte()).AsByte(), shifted.AsByte());
 
-            Vector128<byte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues, deltaHash), src);
-            Vector128<byte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues, checkHash), src);
+            Vector128<byte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues.AsByte(), deltaHash), src);
+            Vector128<byte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues.AsByte(), checkHash), src);
 
             int mask = Sse2.MoveMask(chkVector);
             if (mask != 0)
             {
-                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl, src), src);
+                // indicates which bytes of the src is ASCII and which isnt 
+                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src), src);
+                // Movemask extract the MSB from each byte of asciispace
+                // if the mask is not the same as the movemask extract, signal an error
                 error |= mask != Sse2.MoveMask(asciiSpace);
             }
 
@@ -258,7 +268,7 @@ namespace SimdBase64
         public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
             // translation from ASCII to 6 bit values
-            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            byte[] toBase64 = isUrl == true ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
 
             bytesConsumed = 0;
             bytesWritten = 0;
@@ -301,6 +311,8 @@ namespace SimdBase64
                     }
                 }
 
+                // Console.WriteLine("Skipped white spaces:", equallocation,); //DEBUG
+
                 byte* endOfSafe64ByteZone =
                     // round up to the nearest multiple of 4, then multiplied by 3
                     (bytesToProcess + 3) / 4 * 3 >= 63 ?
@@ -322,16 +334,19 @@ namespace SimdBase64
                             Base64.LoadBlock(&b, src);
                             src += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error); 
+                            // badchar indicate an error but at a later date: it is fed into the CompressBlock function later on.
+                            // error indicates that a particular error: TODO 
                             if (error)
                             {
+                                Console.WriteLine("Error found in 4x Vector128 block!");
                                 src -= 64;
                                 while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64)
                                 {
                                     src++;
                                 }
                                 bytesConsumed = (int)(src - srcInit); 
-                                bytesWritten = (int)(dst - dstInit);// sus
+                                bytesWritten = (int)(dst - dstInit);// TODO: this and its other brethen when an error occurs is likely wrong
                                 return OperationStatus.InvalidData;
                             }
                             if (badCharMask != 0)
@@ -340,6 +355,7 @@ namespace SimdBase64
                                 // continuous 1s followed by continuous 0s. And masks containing a
                                 // single bad character.
                                 bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
+                                // Compressblock only stores 
                             }
                             else if (bufferPtr != startOfBuffer)
                             {

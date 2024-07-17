@@ -168,8 +168,12 @@ namespace SimdBase64
                 Vector128<sbyte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsSByte(), src.AsSByte());
                 // Movemask extract the MSB from each byte of asciispace
                 // if the mask is not the same as the movemask extract, signal an error
+                        // Print the vectors and mask
+
                 error |= mask != Sse2.MoveMask(asciiSpace);
             }
+
+            
 
             src = outVector.AsByte();
             return (ushort)mask;

@@ -130,7 +130,7 @@ namespace SimdBase64
                 );
 
                 checkValues = Vector128.Create(
-                    0x00, 0x80, 0x80, 0x80,
+                    0x00, 0x80, 0x80, 0x80,// explcitly cast as uint8_t in the C++
                     0xCF, 0xBF, 0xD3, 0xA6,
                     0xB5, 0x86, 0xD0, 0x80,
                     0xB0, 0x80, 0x00, 0x00
@@ -153,25 +153,25 @@ namespace SimdBase64
                 ).AsSByte();
             }
 
-            Vector128<sbyte> shifted = Sse2.ShiftRightLogical(src.AsUInt32(), 3).AsSByte();
+            Vector128<sbyte> shifted = Sse2.ShiftRightLogical(src.AsInt32(), 3).AsSByte();
 
             Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso, src.AsSByte()).AsByte(), shifted.AsByte());
             Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso, src.AsSByte()).AsByte(), shifted.AsByte());
-
-            Vector128<byte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues.AsByte(), deltaHash), src);
-            Vector128<byte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues.AsByte(), checkHash), src);
+// You were here
+            Vector128<sbyte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues, deltaHash.AsSByte()), src.AsSByte());
+            Vector128<sbyte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues, checkHash.AsSByte()), src.AsSByte());
 
             int mask = Sse2.MoveMask(chkVector);
             if (mask != 0)
             {
                 // indicates which bytes of the src is ASCII and which isnt 
-                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src), src);
+                Vector128<sbyte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsSByte(), src.AsSByte());
                 // Movemask extract the MSB from each byte of asciispace
                 // if the mask is not the same as the movemask extract, signal an error
                 error |= mask != Sse2.MoveMask(asciiSpace);
             }
 
-            src = outVector;
+            src = outVector.AsByte();
             return (ushort)mask;
         }
 

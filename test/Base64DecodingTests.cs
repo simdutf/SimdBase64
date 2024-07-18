@@ -249,6 +249,8 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
+            Console.WriteLine("----------------------------------------");
+
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
@@ -256,15 +258,15 @@ public class Base64DecodingTests
 
             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
             var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
-            // Assert.Equal(OperationStatus.Done, result);
-            Assert.True(OperationStatus.Done == result,$"Decoding string {decoded} went wrong");
-            Assert.Equal(decoded.Length, bytesWritten);
-            Assert.Equal(base64.Length, bytesConsumed);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.True(OperationStatus.Done == result, $"Decoding string {decoded} with Length {decoded.Length} bytes went wrong");
             for (int i = 0; i < bytesWritten; i++)
             {
-                // Assert.Equal(decoded[i], (char)buffer[i]);
-                Assert.True(decoded[i] == (char)buffer[i],$"Decoding string {decoded} went wrong at position {i}, expected: {buffer[i]} but function gives:{decoded[i]}");
+                Assert.True(decoded[i] == (char)buffer[i], $"Decoded character not equal to source at location {i}: \n Actual: {(char)buffer[i]} ,\n Expected: {decoded[i]},\n Actual string: {BitConverter.ToString(buffer)},\n Expected string :{decoded} ");
             }
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
+
         }
 
         foreach (var (decoded, base64) in cases)
@@ -321,6 +323,7 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
+            Console.WriteLine("----------------------------------------");
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
@@ -362,7 +365,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void MoreDecodeTestsUrlSSE()
     {
-        MoreDecodeTestsUrl(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        MoreDecodeTestsUrl(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     [Fact]
@@ -829,7 +832,7 @@ public class Base64DecodingTests
         AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-        [Fact]
+    [Fact]
     [Trait("Category", "sse")]
     public void AbortedSafeRoundtripBase64SSE()
     {

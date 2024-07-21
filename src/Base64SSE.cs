@@ -224,7 +224,7 @@ namespace SimdBase64
             // Safe memory copy for the last part of the data
             fixed (byte* bufferPtr = buffer)
             {
-                Base64Decode(bufferPtr, b->chunk3);
+                    Base64Decode(bufferPtr, b->chunk3);
                 Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);
             }
         }
@@ -612,6 +612,9 @@ namespace SimdBase64
                             return OperationStatus.InvalidData;
                         }
                     }
+                    
+                    bytesConsumed = (int)(src - srcInit);
+                    bytesWritten = (int)(dst - dstInit);
                     return OperationStatus.Done;
                 }
 

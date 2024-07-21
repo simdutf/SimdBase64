@@ -249,7 +249,7 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            Console.WriteLine("----------------------------------------");
+            // Console.WriteLine("----------------------------------------");
 
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
@@ -323,7 +323,7 @@ public class Base64DecodingTests
 
         foreach (var (decoded, base64) in cases)
         {
-            Console.WriteLine("----------------------------------------");
+            // Console.WriteLine("----------------------------------------");
             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
             int bytesConsumed;
@@ -384,6 +384,7 @@ public class Base64DecodingTests
         }
         for (int len = 0; len < 2048; len++)
         {
+            Console.WriteLine($"-----------------len: {len}--------------------------");
             byte[] source = new byte[len];
 #pragma warning disable CA5394 // Do not use insecure randomness
             random.NextBytes(source);
@@ -398,9 +399,9 @@ public class Base64DecodingTests
                 out bytesConsumed, out bytesWritten, isUrl: false);
 
             Assert.Equal(OperationStatus.Done, result);
-            Assert.Equal(len, bytesWritten);
-            Assert.Equal(base64String.Length, bytesConsumed);
             Assert.Equal(source, decodedBytes.AsSpan().ToArray());
+            Assert.True(len == bytesWritten , $" Expected bytesWritten: {len} , Actual: {bytesWritten}");
+            Assert.True(base64String.Length == bytesConsumed, $" Expected bytesConsumed: {base64String.Length} , Actual: {bytesConsumed}");
         }
     }
 
@@ -929,6 +930,8 @@ public class Base64DecodingTests
             int outpos = 0;
             for (int pos = 0; pos < base64.Length; pos += window)
             {
+                // Console.WriteLine($"---------Window: {window}, pos: {pos}, base64.Length ---------------");
+
                 int windowsBytes = Math.Min(window, base64.Length - pos);
 
 #pragma warning disable CA1062
@@ -940,6 +943,7 @@ public class Base64DecodingTests
 
                 if (windowsBytes + pos == base64.Length)
                 {
+                    // Console.WriteLine("windowsBytes + pos == base64.Length!");
                     // We must check that the last call to base64_to_binary did not
                     // end with an OperationStatus.NeedMoreData error.
                     Assert.Equal(OperationStatus.Done, result);
@@ -958,9 +962,9 @@ public class Base64DecodingTests
                     pos -= tailBytesToReprocess;
                     bytesWritten -= bytesWritten % 3;
                 }
-                outpos += bytesWritten;
+                outpos += bytesWritten; // DEBUG: If you fix ByteWritten, you should be good to go !
             }
-            Assert.Equal(decodedBytes, source);
+            Assert.Equal(source,decodedBytes);
         }
     }
 

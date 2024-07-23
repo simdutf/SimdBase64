@@ -102,11 +102,6 @@ namespace SimdBase64
             if (base64Url)
             {
                 deltaValues = Vector128.Create(
-                    // 0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
-                    // 0x04, (byte)0xBF, (byte)0xBF, (byte)0xB9,
-                    // (byte)0xB9, 0x00, 0x11, (byte)0xC3,
-                    // (byte)0xBF, (byte)0xE0, (byte)0xB9, (byte)0xB9
-
                     0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
                     0x04, 0xBF, 0xBF, 0xB9,
                     0xB9, 0x00, 0x11, 0xC3,
@@ -166,19 +161,18 @@ namespace SimdBase64
             Vector128<sbyte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues, deltaHash.AsSByte()), src.AsSByte());
             Vector128<sbyte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues, checkHash.AsSByte()), src.AsSByte());
 
-            int mask = Sse2.MoveMask(chkVector);
+            int mask = Sse2.MoveMask(chkVector.AsDouble());
             if (mask != 0)
             {
+                Console.WriteLine("mask!=0");
                 // indicates which bytes of the src is ASCII and which isnt 
-                Vector128<sbyte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsSByte(), src.AsSByte());
+                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsByte(), src.AsByte());
                 // Movemask extract the MSB from each byte of asciispace
                 // if the mask is not the same as the movemask extract, signal an error
                 // Print the vectors and mask
 
-                error |= mask != Sse2.MoveMask(asciiSpace);
+                error |= mask != Sse2.MoveMask(asciiSpace.AsDouble());
             }
-
-
 
             src = outVector.AsByte();
             return (ushort)mask;
@@ -201,6 +195,41 @@ namespace SimdBase64
             if (mask == 0)
             {
                 Sse2.Store(output, data);
+                return;
+            }
+
+            // this particular implementation was inspired by work done by @animetosho
+            // we do it in two steps, first 8 bytes and then second 8 bytes
+            byte mask1 = (byte)mask;      // least significant 8 bits
+            byte mask2 = (byte)(mask >> 8); // most significant 8 bits
+            // next line just loads the 64-bit values thintable_epi8[mask1] and
+            // thintable_epi8[mask2] into a 128-bit register, using only
+            // two instructions on most compilers.
+
+            ulong value1 = Tables.thintableEpi8[mask1]; // Adjust according to actual implementation
+            ulong value2 = Tables.thintableEpi8[mask2]; // Adjust according to actual implementation
+
+            Vector128<sbyte> shufmask = Vector128.Create(value2, value1).AsSByte();    
+
+            // Increment by 0x08 the second half of the mask
+            shufmask = Sse2.Add(shufmask, Vector128.Create(0x08080808, 0x08080808, 0, 0).AsSByte());
+
+            // this is the version "nearly pruned"
+            Vector128<sbyte> pruned = Ssse3.Shuffle(data.AsSByte(), shufmask);
+            // we still need to put the two halves together.
+            // we compute the popcount of the first half:
+            int pop1 = Tables.BitsSetTable256mul2[mask1];
+            // then load the corresponding mask, what it does is to write
+            // only the first pop1 bytes from the first 8 bytes, and then
+            // it fills in with the bytes from the second 8 bytes + some filling
+            // at the end.
+            
+            fixed (byte* tablePtr = Tables.pshufbCombineTable)
+            {
+                Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
+
+                Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
+                Sse2.Store(output, answer);            
             }
         }
 
@@ -360,10 +389,9 @@ namespace SimdBase64
                             src += 64;
                             bool error = false;
                             UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
-                            // badCharMask indicate an error but at a later date: it is fed into the CompressBlock function later on.
                             if (error)
                             {
-                            //   Console.WriteLine("Error found in 4x Vector128 block!");
+                              Console.WriteLine("Error found in 4x Vector128 block!");
                                 src -= 64;
                                 while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64)
                                 {
@@ -443,6 +471,9 @@ namespace SimdBase64
                         Console.WriteLine("lastBlock != 0 && srcEnd - src + lastBlock >= 64");
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
+                            int whereWeAre = (int)(src - srcInit);
+                            // Corrected syntax for string interpolation
+                            Console.WriteLine($"whereWeAre: {whereWeAre} bits;");
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
                             if (val > 64)

@@ -102,7 +102,7 @@ namespace SimdBase64
             if (base64Url)
             {
                 deltaValues = Vector128.Create(
-                    0x00, 0x00, 0x00, 0x13, // DEBUG: Potentially an error? the first row is not explicitly cast in the C++
+                    0x00, 0x00, 0x00, 0x13, 
                     0x04, 0xBF, 0xBF, 0xB9,
                     0xB9, 0x00, 0x11, 0xC3,
                     0xBF, 0xE0, 0xB9, 0xB9

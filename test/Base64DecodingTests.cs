@@ -294,7 +294,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void CompleteDecodeBase64CasesSSE()
     {
-        CompleteDecodeBase64Cases(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        CompleteDecodeBase64Cases(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 
@@ -369,7 +369,7 @@ public class Base64DecodingTests
     [Trait("Category", "SSE")]
     public void MoreDecodeTestsSSE()
     {
-        MoreDecodeTests(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        MoreDecodeTests(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected static void MoreDecodeTestsUrl(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -528,7 +528,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void RoundtripBase64UrlSSE()
     {
-        RoundtripBase64Url(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        RoundtripBase64Url(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected static void BadPaddingBase64(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -655,7 +655,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void BadPaddingBase64SSE()
     {
-        BadPaddingBase64(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        BadPaddingBase64(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 
@@ -717,7 +717,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void DoomedBase64RoundtripSSE()
     {
-        DoomedBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        DoomedBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void TruncatedDoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -776,7 +776,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void TruncatedDoomedBase64RoundtripSSE()
     {
-        TruncatedDoomedBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        TruncatedDoomedBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void RoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -842,7 +842,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void RoundtripBase64WithSpacesSSE()
     {
-        RoundtripBase64WithSpaces(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        RoundtripBase64WithSpaces(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void AbortedSafeRoundtripBase64(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -906,7 +906,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void AbortedSafeRoundtripBase64SSE()
     {
-        AbortedSafeRoundtripBase64(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        AbortedSafeRoundtripBase64(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void AbortedSafeRoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -975,7 +975,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void AbortedSafeRoundtripBase64WithSpacesSSE()
     {
-        AbortedSafeRoundtripBase64WithSpaces(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        AbortedSafeRoundtripBase64WithSpaces(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void StreamingBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -1049,7 +1049,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void StreamingBase64RoundtripSSE()
     {
-        StreamingBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        StreamingBase64Roundtrip(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected static void ReadmeTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -1119,7 +1119,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void ReadmeTestSSE()
     {
-        ReadmeTest(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        ReadmeTest(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected static void ReadmeTestSafe(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -1166,7 +1166,7 @@ public class Base64DecodingTests
     [Trait("Category", "sse")]
     public void ReadmeTestSafeSSE()
     {
-        ReadmeTestSafe(Base64.SafeDecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        ReadmeTestSafe(Base64.SafeDecodeFromBase64SSE, Base64.SafeDecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 

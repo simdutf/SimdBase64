@@ -164,7 +164,7 @@ namespace SimdBase64
             int mask = Sse2.MoveMask(chkVector.AsDouble());
             if (mask != 0)
             {
-                Console.WriteLine("mask!=0");
+
                 // indicates which bytes of the src is ASCII and which isnt 
                 Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsByte(), src.AsByte());
                 // Movemask extract the MSB from each byte of asciispace
@@ -360,7 +360,7 @@ namespace SimdBase64
                     }
                 }
 
-                Console.WriteLine("Skipped white spaces:", equallocation); //DEBUG
+
 
                 // round up to the nearest multiple of 4, then multiply by 3
                 int decoded3bitsChunksToProcess = (bytesToProcess + 3) / 4 * 3;
@@ -379,11 +379,11 @@ namespace SimdBase64
 
                     if (bytesToProcess >= 64) //Start the main routine if there is atleast 64 bits (one block)
                     {
-                        Console.WriteLine("bytesToProcess >= 64");
+
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
-                            Console.WriteLine("src pointer <= srcEnd64. Processing 64-bit block....");
+
                             Base64.Block64 b;
                             Base64.LoadBlock(&b, src);
                             src += 64;
@@ -391,7 +391,7 @@ namespace SimdBase64
                             UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
                             if (error)
                             {
-                              Console.WriteLine("Error found in 4x Vector128 block!");
+
                                 src -= 64;
                                 while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64)
                                 {
@@ -403,7 +403,7 @@ namespace SimdBase64
                             }
                             if (badCharMask != 0)
                             {
-                                Console.WriteLine($"Bad CharMask != 0: {badCharMask}). Compressing...");
+
                                 // optimization opportunity: check for simple masks like those made of
                                 // continuous 1s followed by continuous 0s. And masks containing a
                                 // single bad character.
@@ -412,35 +412,35 @@ namespace SimdBase64
                             }
                             else if (bufferPtr != startOfBuffer)
                             {
-                                Console.WriteLine("bufferPtr != startOfBuffer. Copying Block...");
+
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
                             }
                             else
                             {
-                                Console.WriteLine("bufferPtr == startOfBuffer. Checking if *dst pointer is outside the safe zone:");
+
                                 if (dst >= endOfSafe64ByteZone)
                                 {
-                                    Console.WriteLine("dst >= endOfSafe64ByteZone is True: Base64DecodeBlockSafe triggering");
+
 
                                     Base64DecodeBlockSafe(dst, &b);
                                 }
                                 else
                                 {
-                                    Console.WriteLine("dst >= endOfSafe64ByteZone is NOT True,Base64DecodeBlock firing");
+
 
                                     Base64DecodeBlock(dst, &b);
                                 }
-//                                 Console.WriteLine("Adding +48 to *dst");
+
                                 dst += 48;
                             }
                             if (bufferPtr >= (blocksSize - 1) * 64 + startOfBuffer) // We treat the last block separately later on
                             {
-                                Console.WriteLine("bufferPtr >= (blocksSize - 1) * 64 + startOfBuffer");
+
                                 for (int i = 0; i < (blocksSize - 2); i++) // We also treat the second to last block differently! Until then it is safe to proceed:
                                 {
                                     Base64DecodeBlock(dst, startOfBuffer + i * 64);
-//                                     // Console.WriteLine("Adding +48 to *dst");
+
 
                                     dst += 48;
                                 }
@@ -452,7 +452,7 @@ namespace SimdBase64
                                 {
                                     Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
                                 }
-//                                 // Console.WriteLine("Adding +48 to *dst");
+
 
                                 dst += 48;
                                 Buffer.MemoryCopy(bufferPtr + (blocksSize - 1) * 64, bufferPtr, 64, 64);
@@ -468,12 +468,12 @@ namespace SimdBase64
                     // There is at some bytes remaining beyond the last 64 bit block remaining
                     if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) // We first check if there is any error and eliminate white spaces?:
                     {
-                        Console.WriteLine("lastBlock != 0 && srcEnd - src + lastBlock >= 64");
+
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
                             int whereWeAre = (int)(src - srcInit);
                             // Corrected syntax for string interpolation
-                            Console.WriteLine($"whereWeAre: {whereWeAre} bits;");
+
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
                             if (val > 64)
@@ -495,7 +495,7 @@ namespace SimdBase64
                     byte* subBufferPtr = startOfBuffer;
                     for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64) //  decode by chunks of 64 bits blocks
                     {
-                        Console.WriteLine("Decoding 64 bit of last block");
+
                         if (dst >= endOfSafe64ByteZone) // check if there is enough room in the destination
                         {
                             Base64DecodeBlockSafe(dst, subBufferPtr);
@@ -504,13 +504,13 @@ namespace SimdBase64
                         {
                             Base64DecodeBlock(dst, subBufferPtr);
                         }
-//                         // Console.WriteLine("Adding +48 to *dst");
+
                         dst += 48;// 64 bits of base64 decodes to 48 bits 
                     }
                     if ((bufferPtr - subBufferPtr) % 64 != 0) // after decoding the chunks, thers still bits remaining in the buffer
                     {
-                        Console.WriteLine("bufferPtr - subBufferPtr) % 64 != 0");
-//                         Console.WriteLine("after decoding the 64-bit blocks, there are still bits remaining in the buffer");
+
+
                         while (subBufferPtr + 4 < bufferPtr) // we decode one base64 element (4 bit) at a time
                         {
                             UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
@@ -520,7 +520,7 @@ namespace SimdBase64
                                                 << 8;
                             triple = SwapBytes(triple);
                             Buffer.MemoryCopy(&triple, dst, 4, 4);
-//                             // Console.WriteLine("Adding +3 to *dst");
+
                             dst += 3;
                             subBufferPtr += 4;
                         }
@@ -535,7 +535,7 @@ namespace SimdBase64
                                                 << 8;
                             triple = SwapBytes(triple);
                             Buffer.MemoryCopy(&triple, dst, 3, 3);
-//                             // Console.WriteLine("Adding +3 to *dst");
+
                             dst += 3;
                             subBufferPtr += 4;
                         }
@@ -544,7 +544,7 @@ namespace SimdBase64
                         int leftover = (int)(bufferPtr - subBufferPtr);
                         if (leftover > 0) 
                         {
-//                             // Console.WriteLine($"There remains {leftover} Leftover bytes ");
+
                             // we check each leftover byte one by one for error
                             while (leftover < 4 && src < srcEnd) //makes sure we dont go over boundaries
                             {
@@ -573,7 +573,7 @@ namespace SimdBase64
                                 triple = SwapBytes(triple);
                                 triple >>= 8;
                                 Buffer.MemoryCopy(&triple, dst, 1, 1);
-//                                 // Console.WriteLine("Adding +1 to *dst");
+
                                 dst += 1;
                             }
                             else if (leftover == 3)
@@ -586,7 +586,7 @@ namespace SimdBase64
                                 triple >>= 8;
 
                                 Buffer.MemoryCopy(&triple, dst, 2, 2);
-//                                 // Console.WriteLine("Adding +2 to *dst");
+
                                 dst += 2;
                             }
                             else
@@ -598,23 +598,31 @@ namespace SimdBase64
                                                     << 8;
                                 triple = SwapBytes(triple);
                                 Buffer.MemoryCopy(&triple, dst, 3, 3);
-//                                 // Console.WriteLine("Adding +3 to *dst");
+
                                 dst += 3;
                             }
                         }
                     }
                     if (src < srcEnd + equalsigns) // We finished processing 64-bit blocks
                     {
-                        Console.WriteLine("src < srcEnd + equalsigns");
-                        bytesConsumed = (int)(src - srcInit);
-                        bytesWritten = (int)(dst - dstInit);
-//                         Console.WriteLine("Finished processing 64-bit blocks");
-//                         Console.WriteLine($"This is bytesConsumed: {bytesConsumed}, bytesWritten: {bytesWritten}");
+
+                        // bytesConsumed = (int)(src - srcInit);
+                        // bytesWritten = (int)(dst - dstInit);
+
+                        int sourceIndex = Math.Max(0, (int)(src - srcInit));
+                        int destIndex = Math.Max(0, (int)(dst - dstInit));
+
+                        bytesConsumed = Math.Min(sourceIndex, source.Length);
+                        bytesWritten = Math.Min(destIndex, dest.Length);
+
+
+
                         int remainderBytesConsumed = 0;
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice((int)(src - srcInit)), dest.Slice((int)(dst - dstInit)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            // Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            SafeBase64ToBinaryWithWhiteSpace(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
                         if (result == OperationStatus.InvalidData)
                         {
                             bytesConsumed += remainderBytesConsumed;

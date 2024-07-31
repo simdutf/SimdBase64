@@ -50,13 +50,13 @@ public class Base64DecodingTests
         }
         else
         {
-            i = gen.Next(len + 1); 
+            i = gen.Next(len + 1);
         }
 
         byte c;
         if (specificGarbage.HasValue)
         {
-            c = specificGarbage.Value; 
+            c = specificGarbage.Value;
         }
         else
         {
@@ -414,7 +414,7 @@ public class Base64DecodingTests
 
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(source, decodedBytes.AsSpan().ToArray());
-            Assert.True(len == bytesWritten , $" Expected bytesWritten: {len} , Actual: {bytesWritten}");
+            Assert.True(len == bytesWritten, $" Expected bytesWritten: {len} , Actual: {bytesWritten}");
             Assert.True(base64String.Length == bytesConsumed, $" Expected bytesConsumed: {base64String.Length} , Actual: {bytesConsumed}");
         }
     }
@@ -658,66 +658,13 @@ public class Base64DecodingTests
         DoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-        [Fact]
+    [Fact]
     [Trait("Category", "sse")]
     public void DoomedBase64RoundtripSSE()
     {
         DoomedBase64Roundtrip(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-//         protected void DoomedBase64RoundtripSIMD(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
-//     {
-//         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
-//         {
-// #pragma warning disable CA2208
-//             throw new ArgumentNullException("Unexpected null parameter");
-//         }
-//         for (int len = 0; len < 2048; len++)
-//         {
-//             byte[] source = new byte[len];
-
-//             for (int trial = 0; trial < 10; trial++)
-//             {
-//                 int bytesConsumed = 0;
-//                 int bytesWritten = 0;
-// #pragma warning disable CA5394 // Do not use insecure randomness
-//                 random.NextBytes(source); // Generate random bytes for source
-
-//                 byte[] base64 = Encoding.UTF8.GetBytes(Convert.ToBase64String(source));
-
-
-
-//                 (byte[] base64WithGarbage, int location) = AddGarbage(base64, random);
-
-//                 // Prepare a buffer for decoding the base64 back to binary
-//                 byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64)];
-
-//                 // Attempt to decode base64 back to binary and assert that it fails with INVALID_BASE64_CHARACTER
-//                 var result = Base64WithWhiteSpaceToBinary(
-//                     base64WithGarbage.AsSpan(), back.AsSpan(),
-//                     out bytesConsumed, out bytesWritten, isUrl: false);
-//                 Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
-//                 Assert.Equal(location, bytesConsumed);
-//                 Assert.Equal(location - location % 64, bytesWritten); //<= This isn't working
-
-//                 // Also test safe decoding with a specified back_length
-//                 var safeResult = DecodeFromBase64DelegateSafe(
-//                     base64WithGarbage.AsSpan(), back.AsSpan(),
-//                     out bytesConsumed, out bytesWritten, isUrl: false);
-//                 Assert.Equal(OperationStatus.InvalidData, safeResult);
-//                 Assert.Equal(location, bytesConsumed);
-//                 Assert.Equal(location / 4 * 3, bytesWritten);
-
-//             }
-//         }
-//     }
-
-//     [Fact]
-//     [Trait("Category", "sse")]
-//     public void DoomedBase64RoundtripSIMDSSE()
-//     {
-//         DoomedBase64RoundtripSIMD(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
-//     }
 
 
     protected void TruncatedDoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -852,7 +799,7 @@ public class Base64DecodingTests
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
         }
-        for (int offset = 1; offset <= 16; offset += 3) 
+        for (int offset = 1; offset <= 16; offset += 3)
         {
             for (int len = offset; len < 1024; len++) // fails at len(dst) % 48 == 0 
             {
@@ -863,7 +810,7 @@ public class Base64DecodingTests
                 string base64String = Convert.ToBase64String(source);
 
                 byte[] base64 = Encoding.UTF8.GetBytes(base64String);
-                
+
 
 
                 int limitedLength = len - offset; // intentionally too little
@@ -1037,7 +984,7 @@ public class Base64DecodingTests
                 }
                 outpos += bytesWritten; // DEBUG: If you fix ByteWritten, you should be good to go !
             }
-            Assert.Equal(source,decodedBytes);
+            Assert.Equal(source, decodedBytes);
         }
     }
 
@@ -1174,7 +1121,7 @@ public class Base64DecodingTests
         ReadmeTestSafe(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-        protected void DoomedBase64AtPos0(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    protected void DoomedBase64AtPos0(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
         {
@@ -1194,7 +1141,6 @@ public class Base64DecodingTests
         {
             byte[] source = new byte[len];
 
-            // for (int trial = 0; trial < 10; trial++)
             for (int i = 0; i < positions.Count; i++)
             {
                 int bytesConsumed = 0;
@@ -1206,7 +1152,7 @@ public class Base64DecodingTests
 
 
 
-                (byte[] base64WithGarbage, int location) = AddGarbage(base64, random,0);
+                (byte[] base64WithGarbage, int location) = AddGarbage(base64, random, 0);
 
                 // Prepare a buffer for decoding the base64 back to binary
                 byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64)];
@@ -1216,8 +1162,6 @@ public class Base64DecodingTests
                     base64WithGarbage.AsSpan(), back.AsSpan(),
                     out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.Equal(OperationStatus.InvalidData, result);
-                // Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. {PrintHexAndBinary(base64WithGarbage,location)}");
-                // Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
                 Assert.Equal(location, bytesConsumed);
                 Assert.Equal(location / 4 * 3, bytesWritten);
 

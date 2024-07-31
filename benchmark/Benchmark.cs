@@ -1,5 +1,4 @@
 ﻿using System;
-//using SimdUnicode;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
@@ -168,7 +167,7 @@ namespace SimdUnicodeBenchmarks
             {
                 ReadOnlySpan<char> span = s.ToCharArray();
                 int outlen = Base64.Default.GetDecodedLength(span);
-                Span<byte> dataout = stackalloc byte[outlen];
+                Span<byte> dataout = new byte[outlen];
                 int consumed = 0;
                 int written = 0;
                 Base64.Default.Decode(span, dataout, out consumed, out written, true);
@@ -180,13 +179,24 @@ namespace SimdUnicodeBenchmarks
             foreach (string s in FileContent)
             {
                 byte[] base64 = Encoding.UTF8.GetBytes(s);
-                Span<byte> output = stackalloc byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
+                Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
             }
         }
 
+        public unsafe void RunSSEDecodingBenchmark(string[] data)
+        {
+            foreach (string s in FileContent)
+            {
+                byte[] base64 = Encoding.UTF8.GetBytes(s);
+                Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
+            }
+        }
 
 
         [GlobalSetup]
@@ -240,6 +250,13 @@ namespace SimdUnicodeBenchmarks
             RunScalarDecodingBenchmark(FileContent);
         }
 
+
+        [Benchmark]
+        [BenchmarkCategory("default", "SSE")]
+        public unsafe void SSEDecodingRealData()
+        {
+            RunSSEDecodingBenchmark(FileContent);
+        }
 
     }
     public class Program

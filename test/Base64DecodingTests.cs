@@ -637,7 +637,7 @@ public class Base64DecodingTests
                     out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
                 Assert.Equal(location, bytesConsumed);
-                Assert.Equal(location / 4 * 3, bytesWritten); //<= This isn't working
+                Assert.Equal(location / 4 * 3, bytesWritten);
 
                 // Also test safe decoding with a specified back_length
                 var safeResult = DecodeFromBase64DelegateSafe(
@@ -801,7 +801,7 @@ public class Base64DecodingTests
         }
         for (int offset = 1; offset <= 16; offset += 3)
         {
-            for (int len = offset; len < 1024; len++) // fails at len(dst) % 48 == 0 
+            for (int len = offset; len < 1024; len++)
             {
                 byte[] source = new byte[len];
 #pragma warning disable CA5394 // Do not use insecure randomness
@@ -982,7 +982,7 @@ public class Base64DecodingTests
                     pos -= tailBytesToReprocess;
                     bytesWritten -= bytesWritten % 3;
                 }
-                outpos += bytesWritten; // DEBUG: If you fix ByteWritten, you should be good to go !
+                outpos += bytesWritten;
             }
             Assert.Equal(source, decodedBytes);
         }

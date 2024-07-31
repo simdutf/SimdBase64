@@ -324,7 +324,7 @@ public static ushort ToBase64Mask(bool base64Url, ref Vector128<byte> src, ref b
             }
         }
 
-        public unsafe static OperationStatus SafeDecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
+        public unsafe static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
             // translation from ASCII to 6 bit values
             byte[] toBase64 = isUrl == true ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
@@ -403,13 +403,27 @@ public static ushort ToBase64Mask(bool base64Url, ref Vector128<byte> src, ref b
                             {
 
                                 src -= 64;
-                                while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64)
-                                {
-                                    src++;
-                                }
+                                // while (src < srcInit + bytesToProcess && toBase64[Convert.ToByte(*src)] <= 64)
+                                // {
+                                //     src++;
+                                // }
+
+
+
                                 bytesConsumed = (int)(src - srcInit);
                                 bytesWritten = (int)(dst - dstInit);// TODO: this and its other brethen when an error occurs is likely wrong
-                                return OperationStatus.InvalidData;
+
+                                int remainderBytesConsumed = 0;
+                                int remainderBytesWritten = 0;
+
+                                OperationStatus result =
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+                                bytesConsumed += remainderBytesConsumed;
+                                bytesWritten += remainderBytesWritten;
+                                return result;
+
+                                // return OperationStatus.InvalidData;
                             }
                             if (badCharMask != 0)
                             {

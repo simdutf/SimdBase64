@@ -16,6 +16,61 @@ namespace SimdBase64
     public static partial class Base64
     {
 
+    //     public static void PrintVector128SByte(Vector128<sbyte> vector)
+    // {
+    //     // Get the number of elements in the vector
+    //     int count = Vector128<sbyte>.Count;
+        
+    //     Console.Write("Vector128<sbyte> elements: ");
+    //     for (int i = 0; i < count; i++)
+    //     {
+    //         // Extract each element using the GetElement method
+    //         sbyte value = vector.GetElement(i);
+    //         Console.Write($"{value} ");
+    //     }
+
+    // }
+
+
+public static void PrintVector128SByte(Vector128<sbyte> vector)
+{
+    // Get the number of elements in the vector
+    int count = Vector128<sbyte>.Count;
+    
+
+
+
+
+    for (int i = 0; i < count; i++)
+    {
+        // Extract each element using the GetElement method
+        sbyte value = vector.GetElement(i);
+
+        // Print the value in decimal, hexadecimal, and binary formats
+
+    }
+}
+
+public static void PrintVector128SByte(Vector128<byte> vector)
+{
+    // Get the number of elements in the vector
+    int count = Vector128<byte>.Count;
+    
+
+
+
+
+    for (int i = 0; i < count; i++)
+    {
+        // Extract each element using the GetElement method
+        byte value = vector.GetElement(i);
+
+        // Print the value in decimal, hexadecimal, and binary formats
+
+    }
+}
+
+
         [StructLayout(LayoutKind.Sequential)]
         public struct Block64 : IEquatable<Block64>
         {
@@ -59,124 +114,80 @@ namespace SimdBase64
             b->chunk3 = Sse2.LoadVector128(src + 48);
         }
 
-        public static unsafe ulong ToBase64Mask(bool base64Url, Block64* b, out bool error)
+
+        public static unsafe ulong ToBase64Mask(bool base64Url, Block64* b, ref bool error)
         {
-            error = false;
-            ulong m0 = ToBase64Mask(base64Url, ref b->chunk0, out error);
-            ulong m1 = ToBase64Mask(base64Url, ref b->chunk1, out error);
-            ulong m2 = ToBase64Mask(base64Url, ref b->chunk2, out error);
-            ulong m3 = ToBase64Mask(base64Url, ref b->chunk3, out error);
+            ulong m0 = ToBase64Mask(base64Url, ref b->chunk0, ref error);
+            ulong m1 = ToBase64Mask(base64Url, ref b->chunk1, ref error);
+            ulong m2 = ToBase64Mask(base64Url, ref b->chunk2, ref error);
+            ulong m3 = ToBase64Mask(base64Url, ref b->chunk3, ref error);
             return m0 | (m1 << 16) | (m2 << 32) | (m3 << 48);
         }
 
-        public static ushort ToBase64Mask(bool base64Url, ref Vector128<byte> src, out bool error)
-        {
-            error = false;
-            Vector128<sbyte> asciiSpaceTbl = Vector128.Create(
-                0x20, 0x0, 0x0, 0x0,
-                0x0, 0x0, 0x0, 0x0,
-                0x0, 0x9, 0xa, 0x0,
-                0xc, 0xd, 0x0, 0x0
-            );
+public static ushort ToBase64Mask(bool base64Url, ref Vector128<byte> src, ref bool error)
+{
+    Vector128<sbyte> asciiSpaceTbl = Vector128.Create(
+        0x20, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0,
+        0x0, 0x9, 0xa, 0x0,
+        0xc, 0xd, 0x0, 0x0
+    );
 
-            // credit: aqrit
-            Vector128<sbyte> deltaAsso;
-            if (base64Url)
-            {
-                deltaAsso = Vector128.Create(0x1, 0x1, 0x1, 0x1,
-                                                0x1, 0x1, 0x1, 0x1,
-                                                0x0, 0x0, 0x0, 0x0,
-                                                0x0, 0xF, 0x0, 0xF);
-            }
-            else
-            {
-                deltaAsso = Vector128.Create(
-                   0x1, 0x1, 0x1, 0x1,
-                   0x1, 0x1, 0x1, 0x1,
-                   0x0, 0x0, 0x0, 0x0,
-                   0x0, 0xF, 0x0, 0xF
-               );
-            }
+    Vector128<sbyte> deltaAsso = base64Url
+        ? Vector128.Create(0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0xF, 0x0, 0xF)
+        : Vector128.Create(0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0x00, 0x0F);
 
-            Vector128<sbyte> deltaValues;
-            if (base64Url)
-            {
-                deltaValues = Vector128.Create(
-                    0x00, 0x00, 0x00, 0x13, 
-                    0x04, 0xBF, 0xBF, 0xB9,
-                    0xB9, 0x00, 0x11, 0xC3,
-                    0xBF, 0xE0, 0xB9, 0xB9
-                ).AsSByte();
-            }
-            else
-            {
-                deltaValues = Vector128.Create(
-                    (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x13,
-                    (byte)0x04, (byte)0xBF, (byte)0xBF, (byte)0xB9,
-                    (byte)0xB9, (byte)0x00, (byte)0x10, (byte)0xC3,
-                    (byte)0xBF, (byte)0xBF, (byte)0xB9, (byte)0xB9
-                ).AsSByte();
-            }
-            Vector128<sbyte> checkAsso;
-            Vector128<sbyte> checkValues;
+    Vector128<byte> deltaValues = base64Url 
+        ? Vector128.Create(0x0, 0x0, 0x0, 0x13, 0x4, 0xBF, 0xBF, 0xB9, 0xB9, 0x0, 0x11, 0xC3, 0xBF, 0xE0, 0xB9, 0xB9)
+        : Vector128.Create(0x00, 0x00, 0x00, 0x13, 0x04, 0xBF, 0xBF, 0xB9, 0xB9, 0x00, 0x10, 0xC3, 0xBF, 0xBF, 0xB9, 0xB9);
 
-            if (base64Url)
-            {
-                checkAsso = Vector128.Create(
-                    0x0D, 0x01, 0x01, 0x01,
-                    0x01, 0x01, 0x01, 0x01,
-                    0x01, 0x01, 0x03, 0x07,
-                    0x0B, 0x06, 0x0B, 0x12
-                );
+    Vector128<sbyte> checkAsso = base64Url
+        ? Vector128.Create(0xD, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x3, 0x7, 0xB, 0x6, 0xB, 0x12)
+        : Vector128.Create(0xD, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x3, 0x7, 0xB, 0xB, 0xB, 0xF);
 
-                checkValues = Vector128.Create(
-                    0x00, 0x80, 0x80, 0x80,// explcitly cast as uint8_t in the C++
-                    0xCF, 0xBF, 0xD3, 0xA6,
-                    0xB5, 0x86, 0xD0, 0x80,
-                    0xB0, 0x80, 0x00, 0x00
-                ).AsSByte();
-            }
-            else
-            {
-                checkAsso = Vector128.Create(
-                    0x0D, 0x01, 0x01, 0x01,
-                    0x01, 0x01, 0x01, 0x01,
-                    0x01, 0x01, 0x03, 0x07,
-                    0x0B, 0x0B, 0x0B, 0x0F
-                );
+    Vector128<byte> checkValues = base64Url
+        ? Vector128.Create(0x00, 0x80, 0x80, 0x80,0xCF, 0xBF, 0xD3, 0xA6,0xB5, 0x86, 0xD0, 0x80,0xB0, 0x80, 0x00, 0x00) 
+        : Vector128.Create(0x80, 0x80, 0x80, 0x80,0xCF, 0xBF, 0xD5, 0xA6,0xB5, 0x86, 0xD1, 0x80,0xB1, 0x80, 0x91, 0x80);
 
-                checkValues = Vector128.Create(
-                    (byte)0x80, (byte)0x80, (byte)0x80, (byte)0x80,
-                    (byte)0xCF, (byte)0xBF, (byte)0xD5, (byte)0xA6,
-                    (byte)0xB5, (byte)0x86, (byte)0xD1, (byte)0x80,
-                    (byte)0xB1, (byte)0x80, (byte)0x91, (byte)0x80
-                ).AsSByte();
-            }
+    Vector128<Int32> shifted = Sse2.ShiftRightLogical(src.AsInt32(), 3);
 
-            Vector128<sbyte> shifted = Sse2.ShiftRightLogical(src.AsInt32(), 3).AsSByte();
+    Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso, 
+                                                            src.AsSByte()).
+                                                            AsByte(),
+                                            shifted.AsByte());
+    Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso,
+                                                            src.AsSByte()).
+                                                            AsByte(),
+                                            shifted.AsByte());
 
-            Vector128<byte> deltaHash = Sse2.Average(Ssse3.Shuffle(deltaAsso, src.AsSByte()).AsByte(), shifted.AsByte());
-            Vector128<byte> checkHash = Sse2.Average(Ssse3.Shuffle(checkAsso, src.AsSByte()).AsByte(), shifted.AsByte());
-            // You were here
-            Vector128<sbyte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues, deltaHash.AsSByte()), src.AsSByte());
-            Vector128<sbyte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues, checkHash.AsSByte()), src.AsSByte());
 
-            int mask = Sse2.MoveMask(chkVector.AsDouble());
-            if (mask != 0)
-            {
+    Vector128<sbyte> outVector = Sse2.AddSaturate(Ssse3.Shuffle(deltaValues.AsByte(), deltaHash).AsSByte(), 
+                                                src.AsSByte());
+    // DEBUG:chkvector depends only on checkValues and checkHash, either one of these 2 is faulty or asciiSpaceTbl is faulty
+    Vector128<sbyte> chkVector = Sse2.AddSaturate(Ssse3.Shuffle(checkValues.AsByte(), checkHash).AsSByte(), 
+                                                src.AsSByte());
 
-                // indicates which bytes of the src is ASCII and which isnt 
-                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src).AsByte(), src.AsByte());
-                // Movemask extract the MSB from each byte of asciispace
-                // if the mask is not the same as the movemask extract, signal an error
-                // Print the vectors and mask
+    // DEBUG:chkvector is only to check for the error: either this is faulty or asciiSpaceTbl is faulty
 
-                error |= mask != Sse2.MoveMask(asciiSpace.AsDouble());
-            }
+    // PrintVector128SByte(chkVector.AsByte()); 
+    int mask = Sse2.MoveMask(chkVector.AsByte());
 
-            src = outVector.AsByte();
-            return (ushort)mask;
-        }
+    if (mask != 0)
+    {
+
+        Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src), src);
+        PrintVector128SByte(asciiSpace);   
+        int asciiSpaceMask = Sse2.MoveMask(asciiSpace);
+
+        
+        error |= (mask != Sse2.MoveMask(asciiSpace));
+
+    }
+
+    src = outVector.AsByte();
+    return (ushort)mask;
+}
+
 
         public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
         {
@@ -370,15 +381,14 @@ namespace SimdBase64
                             dst;
 
                 const int blocksSize = 6;
-                Debug.Equals(blocksSize >= 2, "block should of size 2 or more"); // find some sort of assert
-                byte[] buffer = new byte[blocksSize * 64]; // one buffer is several 64-bits block, 3x 128 bits...
+                Debug.Equals(blocksSize >= 2, "block should of size 2 or more"); 
+                byte[] buffer = new byte[blocksSize * 64];
                 fixed (byte* startOfBuffer = buffer)
                 {
                     byte* bufferPtr = startOfBuffer;
 
-                    if (bytesToProcess >= 64) //Start the main routine if there is atleast 64 bits (one block)
+                    if (bytesToProcess >= 64)
                     {
-
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
@@ -387,8 +397,9 @@ namespace SimdBase64
                             Base64.LoadBlock(&b, src);
                             src += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, out error);
-                            if (error)
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
+
+                            if (error == true)
                             {
 
                                 src -= 64;
@@ -470,8 +481,10 @@ namespace SimdBase64
 
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
-                            int whereWeAre = (int)(src - srcInit);
+                            int whereWeAreSrc = (int)(src - srcInit);
+                            int whereWeAreDst = (int)(dst - dstInit);
                             // Corrected syntax for string interpolation
+
 
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
@@ -618,6 +631,9 @@ namespace SimdBase64
                         OperationStatus result =
                             Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
                             // SafeBase64ToBinaryWithWhiteSpace(source.Slice(bytesConsumed), dest.Slice(Math.Min(bytesWritten,dest.Length)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+
+
                         if (result == OperationStatus.InvalidData)
                         {
                             bytesConsumed += remainderBytesConsumed;

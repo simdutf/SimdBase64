@@ -410,6 +410,7 @@ namespace SimdBase64
             }
             if (length == 0)
             {
+                Console.WriteLine("length = 0");
                 if (equalsigns > 0)
                 {
                     bytesConsumed = equallocation;
@@ -418,7 +419,7 @@ namespace SimdBase64
                     return OperationStatus.InvalidData;
 
                 }
-                bytesConsumed = 0;
+                bytesConsumed = 0 + whiteSpaces + equalsigns;
                 bytesWritten = 0;
                 return OperationStatus.Done;
             }
@@ -439,6 +440,9 @@ namespace SimdBase64
                 }
 
                 // Only increment bytesConsumed if decoding was successful
+
+                Console.WriteLine($"whiteSpaces: {whiteSpaces},equalsigns: {equalsigns}");
+
                 bytesConsumed += equalsigns + whiteSpaces;
             }
             return r;

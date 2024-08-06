@@ -122,7 +122,6 @@ namespace SimdBase64
         public unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
         {
             ulong nmask = ~mask;
-
             Compress(b.chunk0, (ushort)mask, output);
             Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF));
             Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
@@ -135,7 +134,7 @@ namespace SimdBase64
         {
             if (mask == 0)
             {
-                Sse2.Store(output, data);
+                Sse2.Store(output, data); 
                 return;
             }
 
@@ -147,8 +146,8 @@ namespace SimdBase64
             // thintable_epi8[mask2] into a 128-bit register, using only
             // two instructions on most compilers.
 
-            ulong value1 = Tables.thintableEpi8[mask1]; // Adjust according to actual implementation
-            ulong value2 = Tables.thintableEpi8[mask2]; // Adjust according to actual implementation
+            ulong value1 = Tables.thintableEpi8[mask1];
+            ulong value2 = Tables.thintableEpi8[mask2];
 
             Vector128<sbyte> shufmask = Vector128.Create(value2, value1).AsSByte();
 
@@ -170,7 +169,7 @@ namespace SimdBase64
                 Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
 
                 Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
-                Sse2.Store(output, answer);
+                Sse2.Store(output, answer); 
             }
         }
 
@@ -249,7 +248,7 @@ namespace SimdBase64
 
                 // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
                 // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
-                Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);
+                Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);// DEGUG:Uncomment
             }
         }
 
@@ -260,6 +259,8 @@ namespace SimdBase64
 
             bytesConsumed = 0;
             bytesWritten = 0;
+            int whiteSpaces = 0;
+
 
             // Define pointers within the fixed blocks
             fixed (byte* srcInit = source)
@@ -275,6 +276,8 @@ namespace SimdBase64
                 while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
+                    whiteSpaces++;
+
                 }
 
                 int equallocation = bytesToProcess; // location of the first padding character if any
@@ -286,6 +289,7 @@ namespace SimdBase64
                     while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
+                        whiteSpaces++;
                     }
                     if (bytesToProcess > 0 && source[bytesToProcess - 1] == '=')
                     {
@@ -344,7 +348,6 @@ namespace SimdBase64
                                 // continuous 1s followed by continuous 0s. And masks containing a
                                 // single bad character.
                                 bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
-                                // Compressblock only stores 
                             }
                             else if (bufferPtr != startOfBuffer)
                             {
@@ -357,8 +360,6 @@ namespace SimdBase64
 
                                 if (dst >= endOfSafe64ByteZone)
                                 {
-
-
                                     Base64DecodeBlockSafe(dst, &b);
                                 }
                                 else
@@ -388,7 +389,7 @@ namespace SimdBase64
                                 }
 
                                 dst += 48;
-                                Buffer.MemoryCopy(bufferPtr + (blocksSize - 1) * 64, bufferPtr, 64, 64);
+                                Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
                                 bufferPtr -= (blocksSize - 1) * 64;
                             }
                         }
@@ -403,10 +404,6 @@ namespace SimdBase64
 
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
-                            int whereWeAreSrc = (int)(src - srcInit);
-                            int whereWeAreDst = (int)(dst - dstInit);
-                            // Corrected syntax for string interpolation
-
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
                             if (val > 64)
@@ -486,7 +483,7 @@ namespace SimdBase64
                             if (leftover == 1)
                             {
                                 bytesConsumed = (int)(src - srcInit);
-                                bytesWritten = (int)(dst - dstInit); // TODO
+                                bytesWritten = (int)(dst - dstInit); 
                                 return OperationStatus.NeedMoreData;
                             }
                             if (leftover == 2)
@@ -533,10 +530,8 @@ namespace SimdBase64
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
 
-
                         int remainderBytesConsumed = 0;
                         int remainderBytesWritten = 0;
-
 
                         OperationStatus result =
                             Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
@@ -570,7 +565,7 @@ namespace SimdBase64
                         }
                     }
 
-                    bytesConsumed = (int)(src - srcInit);
+                    bytesConsumed = (int)(src - srcInit) + whiteSpaces;
                     bytesWritten = (int)(dst - dstInit);
                     return OperationStatus.Done;
                 }

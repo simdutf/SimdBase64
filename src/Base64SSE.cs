@@ -331,24 +331,17 @@ namespace SimdBase64
 
                             if (error == true)
                             {
-
-                                // src -= 64;
-                                src -= bufferBytesConsumed;
+                                src -= bufferBytesConsumed; 
                                 dst -= bufferBytesWritten;
 
                                 bytesConsumed = Math.Max(0,(int)(src - srcInit));
                                 bytesWritten = Math.Max(0,(int)(dst - dstInit));
-
-
-
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
                                     Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
-
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -405,7 +398,8 @@ namespace SimdBase64
                                     Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
                                 }
 
-                                bufferBytesWritten += 48;
+                                bufferBytesWritten = 0;
+                                bufferBytesConsumed = 0;
                                 dst += 48;
                                 Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
                                 bufferPtr -= (blocksSize - 1) * 64;

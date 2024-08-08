@@ -254,13 +254,12 @@ namespace SimdBase64
 
         public unsafe static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
+
             // translation from ASCII to 6 bit values
             byte[] toBase64 = isUrl == true ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
 
             bytesConsumed = 0;
             bytesWritten = 0;
-            int whiteSpaces = 0;
-
 
             // Define pointers within the fixed blocks
             fixed (byte* srcInit = source)
@@ -271,17 +270,18 @@ namespace SimdBase64
                 byte* dst = dstInit;
                 byte* dstEnd = dstInit + dest.Length;
 
+                int whiteSpaces = 0;
+                int equalsigns = 0;
+
                 int bytesToProcess = source.Length;
                 // skip trailing spaces
                 while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
                     whiteSpaces++;
-
                 }
 
                 int equallocation = bytesToProcess; // location of the first padding character if any
-                int equalsigns = 0;
                 if (bytesToProcess > 0 && source[bytesToProcess - 1] == '=')
                 {
                     bytesToProcess -= 1;
@@ -316,27 +316,39 @@ namespace SimdBase64
                     if (bytesToProcess >= 64)
                     {
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
+                        ulong bufferBytesConsumed = 0;//Only used if there is an error
+                        ulong bufferBytesWritten = 0;//Only used if there is an error
                         while (src <= srcEnd64)
                         {
+
+
                             Base64.Block64 b;
                             Base64.LoadBlock(&b, src);
                             src += 64;
+                            bufferBytesConsumed += 64;
                             bool error = false;
                             UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
 
                             if (error == true)
                             {
 
-                                src -= 64;
+                                // src -= 64;
+                                src -= bufferBytesConsumed;
+                                dst -= bufferBytesWritten;
 
-                                bytesConsumed = (int)(src - srcInit);
-                                bytesWritten = (int)(dst - dstInit);
+                                bytesConsumed = Math.Max(0,(int)(src - srcInit));
+                                bytesWritten = Math.Max(0,(int)(dst - dstInit));
+
+
+
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -347,28 +359,32 @@ namespace SimdBase64
                                 // optimization opportunity: check for simple masks like those made of
                                 // continuous 1s followed by continuous 0s. And masks containing a
                                 // single bad character.
-                                bufferPtr += CompressBlock(ref b, badCharMask, bufferPtr);
+
+                                ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                bufferPtr += compressedBytesCount;
+                                bufferBytesConsumed += compressedBytesCount;
+
                             }
                             else if (bufferPtr != startOfBuffer)
                             {
 
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
+                                bufferBytesConsumed += 64;
                             }
                             else
                             {
-
                                 if (dst >= endOfSafe64ByteZone)
                                 {
+
                                     Base64DecodeBlockSafe(dst, &b);
                                 }
                                 else
                                 {
 
-
                                     Base64DecodeBlock(dst, &b);
                                 }
-
+                                bufferBytesWritten += 48;
                                 dst += 48;
                             }
                             if (bufferPtr >= (blocksSize - 1) * 64 + startOfBuffer) // We treat the last block separately later on
@@ -377,6 +393,7 @@ namespace SimdBase64
                                 for (int i = 0; i < (blocksSize - 2); i++) // We also treat the second to last block differently! Until then it is safe to proceed:
                                 {
                                     Base64DecodeBlock(dst, startOfBuffer + i * 64);
+                                    bufferBytesWritten += 48;
                                     dst += 48;
                                 }
                                 if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
@@ -388,6 +405,7 @@ namespace SimdBase64
                                     Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
                                 }
 
+                                bufferBytesWritten += 48;
                                 dst += 48;
                                 Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
                                 bufferPtr -= (blocksSize - 1) * 64;
@@ -401,7 +419,6 @@ namespace SimdBase64
                     // There is at some bytes remaining beyond the last 64 bit block remaining
                     if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) // We first check if there is any error and eliminate white spaces?:
                     {
-
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
                             byte val = toBase64[(int)*src];
@@ -415,8 +432,6 @@ namespace SimdBase64
                             bufferPtr += (val <= 63) ? 1 : 0;
                             src++;
                         }
-
-
                     }
 
                     byte* subBufferPtr = startOfBuffer;
@@ -435,8 +450,6 @@ namespace SimdBase64
                     }
                     if ((bufferPtr - subBufferPtr) % 64 != 0) 
                     {
-
-
                         while (subBufferPtr + 4 < bufferPtr) // we decode one base64 element (4 bit) at a time
                         {
                             UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
@@ -466,6 +479,7 @@ namespace SimdBase64
                         int leftover = (int)(bufferPtr - subBufferPtr);
                         if (leftover > 0)
                         {
+
                             while (leftover < 4 && src < srcEnd) 
                             {
                                 byte val = toBase64[(byte)*src];
@@ -527,14 +541,18 @@ namespace SimdBase64
                     if (src < srcEnd + equalsigns) // We finished processing 64-bit blocks, we're not quite at the end yet
                     {
 
+
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
+
+
 
                         int remainderBytesConsumed = 0;
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
                             Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
 
                         if (result == OperationStatus.InvalidData)
                         {
@@ -544,11 +562,17 @@ namespace SimdBase64
                         }
                         else
                         {
+
+                            //DEBUG: final bytes consumed 
+
+
+
                             bytesConsumed += remainderBytesConsumed;
                             bytesWritten += remainderBytesWritten;
                         }
                         if (result == OperationStatus.Done && equalsigns > 0)
                         {
+
                             // additional checks
                             if ((remainderBytesWritten % 3 == 0) || ((remainderBytesWritten % 3) + 1 + equalsigns != 4))
                             {
@@ -565,7 +589,9 @@ namespace SimdBase64
                         }
                     }
 
-                    bytesConsumed = (int)(src - srcInit) + whiteSpaces;
+
+
+                    bytesConsumed = (int)(src - srcInit);
                     bytesWritten = (int)(dst - dstInit);
                     return OperationStatus.Done;
                 }

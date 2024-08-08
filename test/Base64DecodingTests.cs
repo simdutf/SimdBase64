@@ -950,8 +950,6 @@ public class Base64DecodingTests
             int outpos = 0;
             for (int pos = 0; pos < base64.Length; pos += window)
             {
-
-
                 int windowsBytes = Math.Min(window, base64.Length - pos);
 
 #pragma warning disable CA1062
@@ -1190,6 +1188,75 @@ public class Base64DecodingTests
     {
         DoomedBase64AtPos0(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
+
+    [Fact]
+    [Trait("Category", "sse")]
+    public void RunTestsForAllEnronFiles()
+    {
+        string[] fileNames = Directory.GetFiles("../../../../benchmark/data/email");
+        string[] FileContent = new string[fileNames.Length];
+
+        for (int i = 0; i < fileNames.Length; i++)
+        {
+            // Console.WriteLine(fileNames[i]);
+            FileContent[i] = File.ReadAllText(fileNames[i]);
+        }
+
+        foreach (string s in FileContent)
+        {
+            byte[] base64 = Encoding.UTF8.GetBytes(s);
+
+            Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
+            int bytesConsumed = 0;
+            int bytesWritten = 0;
+
+
+            // Console.WriteLine($"base64.Length:{base64.Length}");
+            var result = SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
+
+            int bytesConsumedScalar = 0;
+            int bytesWrittenScalar = 0;
+
+            var resultScalar = SimdBase64.Base64.SafeBase64ToBinaryWithWhiteSpace(base64.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
+
+            Assert.True(result == resultScalar);
+            Assert.True(result == OperationStatus.Done);
+            Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+            Assert.True(bytesWritten== bytesWrittenScalar);
+        }
+    }
+
+
+    [Fact]
+    public void TestSwedenZoneBaseFileSSE()
+    {
+        string FilePath = "../../../../benchmark/data/dns/swedenzonebase.txt";
+        // Read the contents of the file
+        string fileContent = File.ReadAllText(FilePath);
+
+        // Convert file content to byte array (assuming it's base64 encoded)
+        byte[] base64Bytes = Encoding.UTF8.GetBytes(fileContent);
+
+        Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64Bytes)];
+
+
+        // Decode the base64 content
+        int bytesConsumed, bytesWritten;
+        var result = SimdBase64.Base64.DecodeFromBase64SSE(base64Bytes, output, out bytesConsumed, out bytesWritten, false);
+
+        // Assert that the decoding was successful
+        Console.WriteLine("------------------------------------------------");
+
+        int bytesConsumedScalar = 0;
+        int bytesWrittenScalar = 0;
+
+        var resultScalar = SimdBase64.Base64.SafeBase64ToBinaryWithWhiteSpace(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
+
+        Assert.True( result == resultScalar,"result != resultScalar");
+        Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+        Assert.True(bytesWritten == bytesWrittenScalar, $"bytesWritten: {bytesWritten},bytesWrittenScalar:{bytesWrittenScalar}");
+    }
+
 
 
 

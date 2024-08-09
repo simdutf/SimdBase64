@@ -1189,16 +1189,14 @@ public class Base64DecodingTests
         DoomedBase64AtPos0(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
-    [Trait("Category", "sse")]
-    public void RunTestsForAllEnronFiles()
+
+    public void EnronFilesTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         string[] fileNames = Directory.GetFiles("../../../../benchmark/data/email");
         string[] FileContent = new string[fileNames.Length];
 
         for (int i = 0; i < fileNames.Length; i++)
         {
-            // Console.WriteLine(fileNames[i]);
             FileContent[i] = File.ReadAllText(fileNames[i]);
         }
 
@@ -1210,14 +1208,12 @@ public class Base64DecodingTests
             int bytesConsumed = 0;
             int bytesWritten = 0;
 
-
-            // Console.WriteLine($"base64.Length:{base64.Length}");
-            var result = SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
+            var result = Base64WithWhiteSpaceToBinary(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
 
             int bytesConsumedScalar = 0;
             int bytesWrittenScalar = 0;
 
-            var resultScalar = SimdBase64.Base64.SafeBase64ToBinaryWithWhiteSpace(base64.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
+            var resultScalar = DecodeFromBase64DelegateSafe(base64.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
             Assert.True(result == resultScalar);
             Assert.True(result == OperationStatus.Done);
@@ -1226,9 +1222,22 @@ public class Base64DecodingTests
         }
     }
 
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void EnronFilesTestScalar()
+    {
+        EnronFilesTest(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
 
     [Fact]
-    public void TestSwedenZoneBaseFileSSE()
+    [Trait("Category", "sse")]
+    public void EnronFilesTestSSE()
+    {
+        EnronFilesTest(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+
+    public void SwedenZoneBaseFileTest(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         string FilePath = "../../../../benchmark/data/dns/swedenzonebase.txt";
         // Read the contents of the file
@@ -1242,19 +1251,32 @@ public class Base64DecodingTests
 
         // Decode the base64 content
         int bytesConsumed, bytesWritten;
-        var result = SimdBase64.Base64.DecodeFromBase64SSE(base64Bytes, output, out bytesConsumed, out bytesWritten, false);
+        var result = Base64WithWhiteSpaceToBinary(base64Bytes, output, out bytesConsumed, out bytesWritten, false);
 
         // Assert that the decoding was successful
-        Console.WriteLine("------------------------------------------------");
 
         int bytesConsumedScalar = 0;
         int bytesWrittenScalar = 0;
 
-        var resultScalar = SimdBase64.Base64.SafeBase64ToBinaryWithWhiteSpace(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
+        var resultScalar = DecodeFromBase64DelegateSafe(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
         Assert.True( result == resultScalar,"result != resultScalar");
         Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
         Assert.True(bytesWritten == bytesWrittenScalar, $"bytesWritten: {bytesWritten},bytesWrittenScalar:{bytesWrittenScalar}");
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void SwedenZoneBaseFileTestScalar()
+    {
+        SwedenZoneBaseFileTest(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Fact]
+    [Trait("Category", "sse")]
+    public void SwedenZoneBaseFileTestSSE()
+    {
+        SwedenZoneBaseFileTest(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 

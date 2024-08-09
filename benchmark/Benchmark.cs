@@ -145,7 +145,7 @@ namespace SimdUnicodeBenchmarks
             }
         }
         // Parameters and variables for real data
-        [Params(//@"data/email/enron1.txt",
+        [Params(
                 @"data/email/",
                 @"data/dns/swedenzonebase.txt")]
         public string? FileName;

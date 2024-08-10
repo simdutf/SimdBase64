@@ -5,6 +5,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.IO.Pipes;
 using System.Text;
 using System.Reflection;
@@ -489,7 +490,7 @@ namespace SimdBase64
                                                 ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                 << 8;
-                            triple = SwapBytes(triple);
+                            triple = BinaryPrimitives.ReverseEndianness(triple);
                             Buffer.MemoryCopy(&triple, dst, 4, 4);
 
                             dst += 3;
@@ -502,7 +503,7 @@ namespace SimdBase64
                                                 ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                 << 8;
-                            triple = SwapBytes(triple);
+                            triple = BinaryPrimitives.ReverseEndianness(triple);
                             Buffer.MemoryCopy(&triple, dst, 3, 3);
 
                             dst += 3;
@@ -536,7 +537,7 @@ namespace SimdBase64
                             {
                                 UInt32 triple = ((UInt32)(subBufferPtr[0]) << 3 * 6) +
                                                 ((UInt32)(subBufferPtr[1]) << 2 * 6);
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 triple >>= 8;
                                 Buffer.MemoryCopy(&triple, dst, 1, 1);
 
@@ -547,7 +548,7 @@ namespace SimdBase64
                                 UInt32 triple = ((UInt32)(subBufferPtr[0]) << 3 * 6) +
                                                 ((UInt32)(subBufferPtr[1]) << 2 * 6) +
                                                 ((UInt32)(subBufferPtr[2]) << 1 * 6);
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
 
                                 triple >>= 8;
 
@@ -562,7 +563,7 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 Buffer.MemoryCopy(&triple, dst, 3, 3);
 
                                 dst += 3;

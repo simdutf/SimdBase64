@@ -44,12 +44,10 @@ namespace SimdUnicodeBenchmarks
             long length = 0;
             if (File.Exists(fileName))
             {
-                Console.WriteLine($"File exists: {fileName}");
                 length = new System.IO.FileInfo(fileName).Length;
             }
             else if (Directory.Exists(fileName))
             {
-                Console.WriteLine("It's a directory");
                 length = GetDirectorySize(fileName);
             }
             if (ourReport.ResultStatistics is null)
@@ -146,55 +144,74 @@ namespace SimdUnicodeBenchmarks
         }
         // Parameters and variables for real data
         [Params(
-                @"data/email/",
+              //  @"data/email/",
                 @"data/dns/swedenzonebase.txt")]
         public string? FileName;
         public string[] FileContent;
+        public int[] DecodedLengths;
 
 
-        public void RunRuntimeDecodingBenchmark(string[] data)
+        public void RunRuntimeDecodingBenchmark(string[] data, int[] lengths)
         {
             foreach (string s in FileContent)
             {
                 Convert.FromBase64String(s);
             }
         }
-        public unsafe void RunGfoidlDecodingBenchmark(string[] data)
+        public unsafe void RunGfoidlDecodingBenchmark(string[] data, int[] lengths)
         {
             // gfoidl does not appear to always succeed. Note that
             // the decoding was not integrated into the DOTNET runtime.
-            foreach (string s in FileContent)
+            for(int i = 0; i < FileContent.Length; i++)
             {
+                string s = FileContent[i];
                 ReadOnlySpan<char> span = s.ToCharArray();
                 int outlen = Base64.Default.GetDecodedLength(span);
                 Span<byte> dataout = new byte[outlen];
                 int consumed = 0;
                 int written = 0;
                 Base64.Default.Decode(span, dataout, out consumed, out written, true);
+                if(written != lengths[i])
+                {
+                    Console.WriteLine($"Error: {written} != {lengths[i]}");
+                    throw new Exception("Error");
+                }
             }
         }
 
-        public unsafe void RunScalarDecodingBenchmark(string[] data)
+        public unsafe void RunScalarDecodingBenchmark(string[] data, int[] lengths)
         {
-            foreach (string s in FileContent)
+            for(int i = 0; i < FileContent.Length; i++)
             {
+                string s = FileContent[i];
                 byte[] base64 = Encoding.UTF8.GetBytes(s);
                 Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
+                if(bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+                    throw new Exception("Error");
+                }
             }
         }
         
-        public unsafe void RunSSEDecodingBenchmark(string[] data)
+        public unsafe void RunSSEDecodingBenchmark(string[] data, int[] lengths)
         {
-            foreach (string s in FileContent)
+            for(int i = 0; i < FileContent.Length; i++)
             {
+                string s = FileContent[i];
                 byte[] base64 = Encoding.UTF8.GetBytes(s);
                 Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
+                if(bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+                    throw new Exception("Error");
+                }
             }
         }
 
@@ -206,20 +223,22 @@ namespace SimdUnicodeBenchmarks
             if (FileName == "data/dns/swedenzonebase.txt")
             {
                 FileContent = File.ReadAllLines(FileName);
+                DecodedLengths = new int[FileContent.Length];
+                for (int i = 0; i < FileContent.Length; i++)
+                {
+                    DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
+                }
             }
             else if (FileName == "data/email/")
             {
-                Console.WriteLine($"FileContent : {FileName}");
-
-
                 string[] fileNames = Directory.GetFiles(FileName);
                 FileContent = new string[fileNames.Length];
+                DecodedLengths = new int[fileNames.Length];
 
                 for (int i = 0; i < fileNames.Length; i++)
                 {
-                    Console.WriteLine($"FileContent loading: {fileNames[i]}");
-
                     FileContent[i] = File.ReadAllText(fileNames[i]);
+                    DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
                 }
 
             }
@@ -230,32 +249,32 @@ namespace SimdUnicodeBenchmarks
 
         }
 
-        [Benchmark]
+        /*[Benchmark]
         [BenchmarkCategory("default", "runtime")]
         public unsafe void DotnetRuntimeBase64RealData()
         {
-            RunRuntimeDecodingBenchmark(FileContent);
+            RunRuntimeDecodingBenchmark(FileContent, DecodedLengths);
         }
         [Benchmark]
         [BenchmarkCategory("default", "gfoidl")]
         public unsafe void DotnetGfoildBase64RealData()
         {
-            RunGfoidlDecodingBenchmark(FileContent);
+            RunGfoidlDecodingBenchmark(FileContent, DecodedLengths);
         }
 
         [Benchmark]
         [BenchmarkCategory("default", "scalar")]
         public unsafe void ScalarDecodingRealData()
         {
-            RunScalarDecodingBenchmark(FileContent);
-        }
+            RunScalarDecodingBenchmark(FileContent, DecodedLengths);
+        }*/
 
 
         [Benchmark]
         [BenchmarkCategory("default", "SSE")]
         public unsafe void SSEDecodingRealData()
         {
-            RunSSEDecodingBenchmark(FileContent);
+            RunSSEDecodingBenchmark(FileContent, DecodedLengths);
         }
 
     }

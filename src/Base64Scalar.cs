@@ -5,6 +5,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.IO.Pipes;
 using System.Text;
 
@@ -96,7 +97,7 @@ namespace SimdBase64
                     {
                         if (MatchSystem(Endianness.BIG))
                         {
-                            x = SwapBytes(x);
+                            x = BinaryPrimitives.ReverseEndianness(x);
                         }
 
                         *(uint*)dst = x;// optimization opportunity: copy 4 bytes
@@ -144,7 +145,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 triple >>= 8;
                                 byte[] byteTriple = BitConverter.GetBytes(triple);
                                 dst[0] = byteTriple[0];  // Copy only the first byte
@@ -164,7 +165,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 triple >>= 8;
                                 Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
                             }
@@ -194,7 +195,7 @@ namespace SimdBase64
                     }
                     else
                     {
-                        triple = SwapBytes(triple);
+                        triple = BinaryPrimitives.ReverseEndianness(triple);
                         triple >>= 8;
                         Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
                     }
@@ -245,7 +246,7 @@ namespace SimdBase64
 
                         if (MatchSystem(Endianness.BIG))
                         {
-                            x = SwapBytes(x);
+                            x = BinaryPrimitives.ReverseEndianness(x);
                         }
                         if (dst + 3 > dstEnd)
                         {
@@ -309,7 +310,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 triple >>= 8;
                                 byte[] byteTriple = BitConverter.GetBytes(triple);
                                 dst[0] = byteTriple[0];  // Copy only the first byte
@@ -335,7 +336,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                triple = SwapBytes(triple);
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
                                 triple >>= 8;
                                 Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
                             }
@@ -371,7 +372,7 @@ namespace SimdBase64
                     }
                     else
                     {
-                        triple = SwapBytes(triple);
+                        triple = BinaryPrimitives.ReverseEndianness(triple);
                         triple >>= 8;
                         Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
                     }

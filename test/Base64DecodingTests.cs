@@ -1281,6 +1281,85 @@ public class Base64DecodingTests
 
 
 
+    protected void DoomedPartialBuffer(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+         byte[] VectorToBeCompressed = new byte[] {
+        0x6D, 0x6A, 0x6D, 0x73, 0x41, 0x71, 0x39, 0x75,
+        0x76, 0x6C, 0x77, 0x48, 0x20, 0x77, 0x33, 0x53
+    };
+        
+        for (int len = 0; len < 2048; len++)
+        {
+            byte[] source = new byte[len];
+
+            for (int trial = 0; trial < 10; trial++)
+            {
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+
+                int bytesConsumedSafe = 0;
+                int bytesWrittenSafe = 0;
+
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Generate random bytes for source
+
+                byte[] base64 = Encoding.UTF8.GetBytes(Convert.ToBase64String(source));
+
+
+                (byte[] base64WithGarbage, int location) = AddGarbage(base64, random);
+
+                // Insert 1 to 5 copies of the vector right before the garbage
+                int numberOfCopies = random.Next(1, 6); // Randomly choose 1 to 5 copies
+                List<byte> base64WithGarbageAndTrigger = new List<byte>(base64WithGarbage);
+                int insertPosition = location; // Insert right before the garbage
+
+                for (int i = 0; i < numberOfCopies; i++)
+                {
+                    base64WithGarbageAndTrigger.InsertRange(insertPosition, VectorToBeCompressed);
+                    insertPosition += VectorToBeCompressed.Length;
+                }
+
+                // Update the location to reflect the new position of the garbage byte
+                location += insertPosition;
+
+                // Prepare a buffer for decoding the base64 back to binary
+                byte[] back = new byte[MaxBase64ToBinaryLengthDelegate(base64WithGarbageAndTrigger.ToArray())];
+
+                // Attempt to decode base64 back to binary and assert that it fails
+                var result = Base64WithWhiteSpaceToBinary(
+                    base64WithGarbageAndTrigger.ToArray().AsSpan(), back.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isUrl: false);
+                Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
+                Assert.Equal(insertPosition, bytesConsumed);
+                Assert.Equal(insertPosition / 4 * 3, bytesWritten);
+
+                // Also test safe decoding with a specified back_length
+                var safeResult = DecodeFromBase64DelegateSafe(
+                    base64WithGarbageAndTrigger.ToArray().AsSpan(), back.AsSpan(),
+                    out bytesConsumedSafe, out bytesWrittenSafe, isUrl: false);
+
+                Assert.True(result == safeResult);
+                Assert.True(bytesConsumedSafe == bytesConsumed, $"bytesConsumedSafe :{bytesConsumedSafe} != bytesConsumed {bytesConsumed}");
+                Assert.True(bytesWrittenSafe == bytesWritten,$"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
+
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void DoomedPartialBufferScalar()
+    {
+        DoomedPartialBuffer(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Fact]
+    [Trait("Category", "sse")]
+    public void DoomedPartialBufferSSE()
+    {
+        DoomedPartialBuffer(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
 
 

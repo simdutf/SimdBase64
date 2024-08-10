@@ -131,12 +131,6 @@ namespace SimdBase64
                 Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src), src);                
                 error |= (mask != Sse2.MoveMask(asciiSpace));
 
-
-
-
-                // if (error == false){
-
-                // }
             }
 
             src = outVector.AsByte();
@@ -340,8 +334,6 @@ namespace SimdBase64
 
                     ulong bufferBytesConsumed = 0;//Only used if there is an error
                     ulong bufferBytesWritten = 0;//Only used if there is an error
-                    ulong BufferCompressedBytesCount = 0;
-
 
                     if (bytesToProcess >= 64)
                     {
@@ -455,13 +447,7 @@ namespace SimdBase64
                             *bufferPtr = val;
                             if (val > 64)
                             {
-
-                                // bytesConsumed = (int)(src - srcInit);
-                                // bytesWritten = (int)(dst - dstInit);
-                                // return OperationStatus.InvalidData;
-
                                 bytesConsumed = Math.Max(0,(int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
-                                // bytesConsumed = (int)(src - srcInit) -(int)bufferBytesConsumed ;
                                 bytesWritten = Math.Max(0,(int)(dst - dstInit) - (int)bufferBytesWritten);
 
                                 int remainderBytesConsumed = 0;
@@ -469,9 +455,6 @@ namespace SimdBase64
 
                                 OperationStatus result =
                                     Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
-                                // Console.WriteLine($"bytesConsumed:{bytesConsumed},bytesWritten:{bytesWritten}");
-                                // Console.WriteLine($"remainderBytesConsumed:{remainderBytesConsumed},remainderBytesWritten:{remainderBytesWritten}");
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;

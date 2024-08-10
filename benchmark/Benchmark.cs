@@ -185,7 +185,7 @@ namespace SimdUnicodeBenchmarks
                 SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
             }
         }
-
+        
         public unsafe void RunSSEDecodingBenchmark(string[] data)
         {
             foreach (string s in FileContent)

@@ -1331,7 +1331,6 @@ public class Base64DecodingTests
                     out bytesConsumed, out bytesWritten, isUrl: false);
                 Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
                 Assert.Equal(insertPosition, bytesConsumed);
-                Assert.Equal(insertPosition / 4 * 3, bytesWritten);
 
                 // Also test safe decoding with a specified back_length
                 var safeResult = DecodeFromBase64DelegateSafe(

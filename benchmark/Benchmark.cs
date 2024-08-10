@@ -18,6 +18,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using gfoidl.Base64;
+using System.Buffers.Text;
 
 namespace SimdUnicodeBenchmarks
 {
@@ -39,6 +40,7 @@ namespace SimdUnicodeBenchmarks
         }
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
         {
+#pragma warning disable CA1062
             var ourReport = summary.Reports.First(x => x.BenchmarkCase.Equals(benchmarkCase));
             var fileName = (string)benchmarkCase.Parameters["FileName"];
             long length = 0;
@@ -66,7 +68,9 @@ namespace SimdUnicodeBenchmarks
         public string ColumnName { get; } = "Speed (GB/s)";
         public bool AlwaysShow { get; } = true;
         public ColumnCategory Category { get; } = ColumnCategory.Custom;
+#pragma warning disable CA1805
         public int PriorityInCategory { get; } = 0;
+#pragma warning disable CA1805
         public bool IsNumeric { get; } = false;
         public UnitType UnitType { get; } = UnitType.Dimensionless;
         public string Legend { get; } = "The speed in gigabytes per second";
@@ -77,8 +81,8 @@ namespace SimdUnicodeBenchmarks
     [Config(typeof(Config))]
     public class RealDataBenchmark
     {
-
-        private class Config : ManualConfig
+#pragma warning disable CA1812
+        private sealed class Config : ManualConfig
         {
             static bool warned;
             public Config()
@@ -90,10 +94,11 @@ namespace SimdUnicodeBenchmarks
                 {
                     if (!warned)
                     {
+#pragma warning disable CA1303
                         Console.WriteLine("ARM64 system detected.");
                         warned = true;
                     }
-                    AddFilter(new AnyCategoriesFilter(["arm64", "scalar", "runtime", "gfoidl"]));
+                    AddFilter(new AnyCategoriesFilter(["arm64", "runtime", "gfoidl"]));
 
                 }
                 else if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
@@ -102,33 +107,47 @@ namespace SimdUnicodeBenchmarks
                     {
                         if (!warned)
                         {
+#pragma warning disable CA1303
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX-512 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "scalar", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "runtime", "gfoidl"]));
                     }
                     else if (Avx2.IsSupported)
                     {
                         if (!warned)
                         {
+#pragma warning disable CA1303
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX2 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["avx", "sse", "scalar", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["avx", "sse", "runtime", "gfoidl"]));
                     }
-                    else if (Ssse3.IsSupported)
+                    else if (Ssse3.IsSupported && Popcnt.IsSupported)
                     {
                         if (!warned)
                         {
-                            Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse4.2 support.");
+#pragma warning disable CA1303
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) with Ssse3 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["sse", "scalar", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["sse", "runtime", "gfoidl"]));
+                    }
+                    else if (Sse3.IsSupported && Popcnt.IsSupported)
+                    {
+                        if (!warned)
+                        {
+#pragma warning disable CA1303
+                            Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse3 support.");
+                            warned = true;
+                        }
+                        AddFilter(new AnyCategoriesFilter(["sse", "runtime", "gfoidl"]));
                     }
                     else
                     {
                         if (!warned)
                         {
+#pragma warning disable CA1303
                             Console.WriteLine("X64 system detected (Intel, AMD,...) without relevant SIMD support.");
                             warned = true;
                         }
@@ -144,77 +163,137 @@ namespace SimdUnicodeBenchmarks
         }
         // Parameters and variables for real data
         [Params(
-              //  @"data/email/",
+                @"data/email/",
                 @"data/dns/swedenzonebase.txt")]
+#pragma warning disable CA1051
         public string? FileName;
+#pragma warning disable CS8618
         public string[] FileContent;
         public int[] DecodedLengths;
+        public byte[][] output; // precomputed byte outputs (with correct size)
+        public byte[][] input; // precomputed byte inputs
 
 
-        public void RunRuntimeDecodingBenchmark(string[] data, int[] lengths)
+        public void RunRuntimeDecodingBenchmarkUTF16(string[] data, int[] lengths)
         {
             foreach (string s in FileContent)
             {
                 Convert.FromBase64String(s);
             }
         }
-        public unsafe void RunGfoidlDecodingBenchmark(string[] data, int[] lengths)
+
+        // Note: The runtime decoding uses advanced SIMD instructions, including AVX-512.
+        // Thus on systems with > SSSE3 support, it might beat our SSE implementation.
+        // See https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/Buffers/Text/Base64Helper/Base64DecoderHelper.cs
+        public void RunRuntimeSIMDDecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                System.Buffers.Text.Base64.DecodeFromUtf8(input[i].AsSpan(), output[i].AsSpan(), out int consumed, out int written);
+                if (written != lengths[i])
+                {
+                    Console.WriteLine($"Error: {written} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        // Note: The runtime decoding uses advanced SIMD instructions, including AVX-512.
+        // See https://github.com/dotnet/runtime/blob/main/src/libraries/System.Private.CoreLib/src/System/Buffers/Text/Base64Helper/Base64DecoderHelper.cs
+        // Thus on systems with > SSSE3 support, it might beat our SSE implementation.
+        public void RunRuntimeSIMDDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                byte[] outputdata = new byte[System.Buffers.Text.Base64.GetMaxDecodedFromUtf8Length(input[i].Length)];
+                System.Buffers.Text.Base64.DecodeFromUtf8(input[i].AsSpan(), outputdata.AsSpan(), out int consumed, out int written);
+                if (written != lengths[i])
+                {
+                    Console.WriteLine($"Error: {written} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+        public unsafe void RunGfoidlDecodingBenchmarkUTF16(string[] data, int[] lengths)
         {
             // gfoidl does not appear to always succeed. Note that
             // the decoding was not integrated into the DOTNET runtime.
-            for(int i = 0; i < FileContent.Length; i++)
+            for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
                 ReadOnlySpan<char> span = s.ToCharArray();
-                int outlen = Base64.Default.GetDecodedLength(span);
-                Span<byte> dataout = new byte[outlen];
+                Span<byte> dataout = output[i];
                 int consumed = 0;
                 int written = 0;
-                Base64.Default.Decode(span, dataout, out consumed, out written, true);
-                if(written != lengths[i])
+                gfoidl.Base64.Base64.Default.Decode(span, dataout, out consumed, out written, true);
+                if (written != lengths[i])
                 {
                     Console.WriteLine($"Error: {written} != {lengths[i]}");
+#pragma warning disable CA2201
                     throw new Exception("Error");
                 }
             }
         }
 
-        public unsafe void RunScalarDecodingBenchmark(string[] data, int[] lengths)
+        public unsafe void RunScalarDecodingBenchmarkUTF8(string[] data, int[] lengths)
         {
-            for(int i = 0; i < FileContent.Length; i++)
+            for (int i = 0; i < FileContent.Length; i++)
             {
-                string s = FileContent[i];
-                byte[] base64 = Encoding.UTF8.GetBytes(s);
-                Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
-                if(bytesWritten != lengths[i])
+                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
-                    throw new Exception("Error");
-                }
-            }
-        }
-        
-        public unsafe void RunSSEDecodingBenchmark(string[] data, int[] lengths)
-        {
-            for(int i = 0; i < FileContent.Length; i++)
-            {
-                string s = FileContent[i];
-                byte[] base64 = Encoding.UTF8.GetBytes(s);
-                Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
-                int bytesConsumed = 0;
-                int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), output, out bytesConsumed, out bytesWritten, false);
-                if(bytesWritten != lengths[i])
-                {
-                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
                     throw new Exception("Error");
                 }
             }
         }
 
+        public unsafe void RunSSEDecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunSSEDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64.AsSpan())];
+                //byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
 
         [GlobalSetup]
         public void Setup()
@@ -224,9 +303,13 @@ namespace SimdUnicodeBenchmarks
             {
                 FileContent = File.ReadAllLines(FileName);
                 DecodedLengths = new int[FileContent.Length];
+                output = new byte[FileContent.Length][];
+                input = new byte[FileContent.Length][];
                 for (int i = 0; i < FileContent.Length; i++)
                 {
                     DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
+                    output[i] = new byte[DecodedLengths[i]];
+                    input[i] = Encoding.UTF8.GetBytes(FileContent[i]);
                 }
             }
             else if (FileName == "data/email/")
@@ -234,11 +317,15 @@ namespace SimdUnicodeBenchmarks
                 string[] fileNames = Directory.GetFiles(FileName);
                 FileContent = new string[fileNames.Length];
                 DecodedLengths = new int[fileNames.Length];
+                output = new byte[FileContent.Length][];
+                input = new byte[FileContent.Length][];
 
                 for (int i = 0; i < fileNames.Length; i++)
                 {
                     FileContent[i] = File.ReadAllText(fileNames[i]);
                     DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
+                    output[i] = new byte[DecodedLengths[i]];
+                    input[i] = Encoding.UTF8.GetBytes(FileContent[i]);
                 }
 
             }
@@ -249,32 +336,56 @@ namespace SimdUnicodeBenchmarks
 
         }
 
-        /*[Benchmark]
-        [BenchmarkCategory("default", "runtime")]
-        public unsafe void DotnetRuntimeBase64RealData()
-        {
-            RunRuntimeDecodingBenchmark(FileContent, DecodedLengths);
-        }
         [Benchmark]
-        [BenchmarkCategory("default", "gfoidl")]
-        public unsafe void DotnetGfoildBase64RealData()
+        [BenchmarkCategory("default", "runtime")]
+        public unsafe void DotnetRuntimeSIMDBase64RealDataUTF8()
         {
-            RunGfoidlDecodingBenchmark(FileContent, DecodedLengths);
+            RunRuntimeSIMDDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
         [Benchmark]
-        [BenchmarkCategory("default", "scalar")]
-        public unsafe void ScalarDecodingRealData()
+        [BenchmarkCategory("default", "runtime")]
+        public unsafe void DotnetRuntimeSIMDBase64RealDataWithAllocUTF8()
         {
-            RunScalarDecodingBenchmark(FileContent, DecodedLengths);
+            RunRuntimeSIMDDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("default", "runtime")]
+        public unsafe void DotnetRuntimeBase64RealDataUTF16()
+        {
+            RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
+        }
+
+        // Gfoidl does not work correctly with spaces.
+        /*[Benchmark]
+        [BenchmarkCategory("default", "gfoidl")]
+        public unsafe void DotnetGfoildBase64RealDataUTF16()
+        {
+            RunGfoidlDecodingBenchmarkUTF16(FileContent, DecodedLengths);
+        }*/
+
+        // We almost never want to benchmark scalar decoding.
+        /*[Benchmark]
+        [BenchmarkCategory("scalar")]
+        public unsafe void ScalarDecodingRealDataUTF8()
+        {
+            RunScalarDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }*/
 
 
         [Benchmark]
-        [BenchmarkCategory("default", "SSE")]
-        public unsafe void SSEDecodingRealData()
+        [BenchmarkCategory("SSE")]
+        public unsafe void SSEDecodingRealDataUTF8()
         {
-            RunSSEDecodingBenchmark(FileContent, DecodedLengths);
+            RunSSEDecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("SSE")]
+        public unsafe void SSEDecodingRealDataWithAllocUTF8()
+        {
+            RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
     }

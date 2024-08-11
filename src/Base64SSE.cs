@@ -52,6 +52,25 @@ namespace SimdBase64
             b->chunk3 = Sse2.LoadVector128(src + 48);
         }
 
+        private unsafe static void LoadBlock(Block64* b, char* src)
+        {
+            // Load 128 bits (16 chars, 32 bytes) at each step from the UTF-16 source
+            var m1 = Sse2.LoadVector128((ushort*)src);
+            var m2 = Sse2.LoadVector128((ushort*)(src + 8));
+            var m3 = Sse2.LoadVector128((ushort*)(src + 16));
+            var m4 = Sse2.LoadVector128((ushort*)(src + 24));
+            var m5 = Sse2.LoadVector128((ushort*)(src + 32));
+            var m6 = Sse2.LoadVector128((ushort*)(src + 40));
+            var m7 = Sse2.LoadVector128((ushort*)(src + 48));
+            var m8 = Sse2.LoadVector128((ushort*)(src + 56));
+
+            // Pack 16-bit chars down to 8-bit chars, handling two __m128i at a time
+            b->chunk0 = Sse2.PackUnsignedSaturate(m1.AsInt16(), m2.AsInt16()).AsByte();
+            b->chunk1 = Sse2.PackUnsignedSaturate(m3.AsInt16(), m4.AsInt16()).AsByte();
+            b->chunk2 = Sse2.PackUnsignedSaturate(m5.AsInt16(), m6.AsInt16()).AsByte();
+            b->chunk3 = Sse2.PackUnsignedSaturate(m7.AsInt16(), m8.AsInt16()).AsByte();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe ulong ToBase64Mask(bool base64Url, Block64* b, ref bool error)
         {

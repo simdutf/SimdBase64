@@ -16,13 +16,8 @@ public partial class Base64DecodingTests{
     public delegate OperationStatus Base64WithWhiteSpaceToBinaryFromUTF16(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
 
 
-    protected static void DecodeBase64CasesUTF16(DecodeFromBase64DelegateFncFromUTF16 DecodeFromBase64Delegate, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    protected static void DecodeBase64CasesUTF16(DecodeFromBase64DelegateFncFromUTF16 DecodeFromBase64Delegate)
     {
-        if (DecodeFromBase64Delegate == null || MaxBase64ToBinaryLengthDelegate == null)
-        {
-#pragma warning disable CA2208
-            throw new ArgumentNullException("Unexpected null parameter");
-        }
         var cases = new List<char[]> { new char[] { (char)0x53, (char)0x53 } };
         // Define expected results for each case
         var expectedResults = new List<(OperationStatus, int)> { (OperationStatus.Done, 1) };
@@ -44,85 +39,78 @@ public partial class Base64DecodingTests{
 
     [Fact]
     [Trait("Category", "scalar")]
-    [Trait("Category", "UTF16")]
     public void DecodeBase64CasesScalarTUF16()
     {
-        DecodeBase64CasesUTF16(Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
+        DecodeBase64CasesUTF16(Base64.DecodeFromBase64Scalar);
     }
 
     [Fact]
     [Trait("Category", "SSE")]
     public void DecodeBase64CasesSSETUF16()
     {
-        DecodeBase64CasesUTF16(Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
+        DecodeBase64CasesUTF16(Base64.DecodeFromBase64SSE);
     }
 
-//     protected static void CompleteDecodeBase64Cases(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
-//     {
-//         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFomUTF16 == null || MaxBase64ToBinaryLengthDelegate == null)
-//         {
-// #pragma warning disable CA2208
-//             throw new ArgumentNullException("Unexpected null parameter");
-//         }
-//         List<(string decoded, string base64)> cases = new List<(string, string)>
-//     {
-//         ("abcd", " Y\fW\tJ\njZ A=\r= "),
-//     };
+    protected static void CompleteDecodeBase64CasesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16)
+    {
+        List<(string decoded, string base64)> cases = new List<(string, string)>
+    {
+        ("abcd", " Y\fW\tJ\njZ A=\r= "),
+    };
 
-//         foreach (var (decoded, base64) in cases)
-//         {
-//             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-//             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-//             int bytesConsumed;
-//             int bytesWritten;
+        foreach (var (decoded, base64) in cases)
+        {
+            // byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
+            ReadOnlySpan<char> base64Span = new ReadOnlySpan<char>(base64.ToCharArray());
+            int bytesConsumed;
+            int bytesWritten;
 
-//             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-//             var result = Base64WithWhiteSpaceToBinaryFromUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
-//             Assert.Equal(OperationStatus.Done, result);
-//             Assert.Equal(decoded.Length, bytesWritten);
-//             Assert.Equal(base64.Length, bytesConsumed);
-//             for (int i = 0; i < bytesWritten; i++)
-//             {
-//                 Assert.Equal(decoded[i], (char)buffer[i]);
-//             }
-//         }
+            byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64Span)];
+            var result = Base64WithWhiteSpaceToBinaryFromUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
+        }
 
-//         foreach (var (decoded, base64) in cases)
-//         {
-//             byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-//             ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-//             int bytesConsumed;
-//             int bytesWritten;
+        foreach (var (decoded, base64) in cases)
+        {
+            ReadOnlySpan<char> base64Span = new ReadOnlySpan<char>(base64.ToCharArray());
+            int bytesConsumed;
+            int bytesWritten;
 
-//             byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-//             var result = DecodeFromBase64DelegateSafeFomUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
-//             Assert.Equal(OperationStatus.Done, result);
-//             Assert.Equal(decoded.Length, bytesWritten);
-//             Assert.Equal(base64.Length, bytesConsumed);
+            byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64Span)];
+            var result = DecodeFromBase64DelegateSafeFomUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
+            Assert.Equal(OperationStatus.Done, result);
+            Assert.Equal(decoded.Length, bytesWritten);
+            Assert.Equal(base64.Length, bytesConsumed);
 
-//             for (int i = 0; i < bytesWritten; i++)
-//             {
-//                 Assert.Equal(decoded[i], (char)buffer[i]);
-//             }
+            for (int i = 0; i < bytesWritten; i++)
+            {
+                Assert.Equal(decoded[i], (char)buffer[i]);
+            }
 
 
-//         }
+        }
 
-//     }
+    }
 
-//     [Fact]
-//     [Trait("Category", "scalar")]
-//     public void CompleteDecodeBase64CasesScalar()
-//     {
-//         CompleteDecodeBase64Cases(Base64.Base64WithWhiteSpaceToBinaryFromUTF16Scalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
-//     }
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void CompleteDecodeBase64CasesScalarUTF16()
+    {
+        CompleteDecodeBase64CasesUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
 
-//     [Fact]
-//     [Trait("Category", "sse")]
-//     public void CompleteDecodeBase64CasesSSE()
-//     {
-//         CompleteDecodeBase64Cases(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
-//     }
+    [Fact]
+    [Trait("Category", "sse")]
+    public void CompleteDecodeBase64CasesSSEUTF16()
+    {
+        CompleteDecodeBase64CasesUTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
 
 
 //     protected static void MoreDecodeTests(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)

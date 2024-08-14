@@ -613,6 +613,69 @@ namespace SimdBase64
             return r;
         }
 
+        public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
+        {
+            int length = input.Length;
+            int whiteSpaces = 0;
+            while (length > 0 && IsAsciiWhiteSpace((char)input[length - 1]))
+            {
+                length--;
+                whiteSpaces++;
+            }
+            int equallocation = length; // location of the first padding character if any
+            int equalsigns = 0;
+            if (length > 0 && input[length - 1] == '=')
+            {
+                length -= 1;
+                equalsigns++;
+                while (length > 0 && IsAsciiWhiteSpace((char)input[length - 1]))
+                {
+                    length--;
+                    whiteSpaces++;
+                }
+                if (length > 0 && input[length - 1] == '=')
+                {
+                    equalsigns++;
+                    length -= 1;
+                }
+            }
+            if (length == 0)
+            {
+                if (equalsigns > 0)
+                {
+                    bytesConsumed = equallocation;
+                    bytesWritten = 0;
+
+                    return OperationStatus.InvalidData;
+
+                }
+                bytesConsumed = 0 + whiteSpaces + equalsigns;
+                bytesWritten = 0;
+                return OperationStatus.Done;
+            }
+
+            ReadOnlySpan<char> trimmedInput = input.Slice(0, length);
+
+            OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isUrl);
+
+            if (r == OperationStatus.Done)
+            {
+                if (equalsigns > 0)
+                {
+                    // Additional checks
+                    if ((bytesWritten % 3 == 0) || (((bytesWritten % 3) + 1 + equalsigns) != 4))
+                    {
+                        return OperationStatus.InvalidData;
+                    }
+                }
+
+                // Only increment bytesConsumed if decoding was successful
+                bytesConsumed += equalsigns + whiteSpaces;
+            }
+            return r;
+        }
+
+
 
         public static int Base64LengthFromBinary(int length, bool isUrl = false)
         {

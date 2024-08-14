@@ -9,7 +9,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Buffers;
 using Newtonsoft.Json;
 
-public class Base64DecodingTests
+public partial class Base64DecodingTests
 {
     Random random = new Random(12345680);
 
@@ -1203,7 +1203,7 @@ public class Base64DecodingTests
         {
             byte[] base64 = Encoding.UTF8.GetBytes(s);
 
-            Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64)];
+            Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
             int bytesConsumed = 0;
             int bytesWritten = 0;
 
@@ -1245,7 +1245,7 @@ public class Base64DecodingTests
         // Convert file content to byte array (assuming it's base64 encoded)
         byte[] base64Bytes = Encoding.UTF8.GetBytes(fileContent);
 
-        Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64Bytes)];
+        Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64Bytes)];
 
 
         // Decode the base64 content

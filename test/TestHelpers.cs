@@ -28,6 +28,18 @@ public partial class Base64DecodingTests
         list.Insert(index, spaceBytes[0]);
     }
 
+    protected static void AddSpace(List<char> list, Random random)
+    {
+        ArgumentNullException.ThrowIfNull(random);
+        ArgumentNullException.ThrowIfNull(list);
+#pragma warning disable CA5394 // Do not use insecure randomness
+        int index = random.Next(list.Count + 1); // Random index to insert at
+#pragma warning disable CA5394 // Do not use insecure randomness
+        int charIndex = random.Next(SpaceCharacters.Length); // Random space character
+        char spaceChar = SpaceCharacters[charIndex];
+        list.Insert(index, spaceChar);
+    }
+
     public static (byte[] modifiedArray, int location) AddGarbage(
         byte[] inputArray, Random gen, int? specificLocation = null, byte? specificGarbage = null)
     {

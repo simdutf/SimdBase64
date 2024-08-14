@@ -336,132 +336,132 @@ public partial class Base64DecodingTests{
         RoundtripBase64UrlUTF16(Base64.DecodeFromBase64SSE, Base64.DecodeFromBase64SSE);
     }
 
-//     protected static void BadPaddingBase64(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16, Base64.MaximalBinaryLengthFromBase64Scalar<char>Fnc Base64.MaximalBinaryLengthFromBase64Scalar<char>)
-//     {
-//         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFomUTF16 == null || Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
-//         {
-// #pragma warning disable CA2208
-//             throw new ArgumentNullException("Unexpected null parameter");
-//         }
-//         Random random = new Random(1234); // use deterministic seed for reproducibility
+    protected static void BadPaddingBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16)
+    {
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFomUTF16 == null || Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        {
+#pragma warning disable CA2208
+            throw new ArgumentNullException("Unexpected null parameter");
+        }
+        Random random = new Random(1234); // use deterministic seed for reproducibility
 
-//         for (int len = 0; len < 2048; len++)
-//         {
-//             byte[] source = new byte[len];
-//             int bytesConsumed;
-//             int bytesWritten;
+        for (int len = 0; len < 2048; len++)
+        {
+            byte[] source = new byte[len];
+            int bytesConsumed;
+            int bytesWritten;
 
-//             for (int trial = 0; trial < 10; trial++)
-//             {
-// #pragma warning disable CA5394 // Do not use insecure randomness
-//                 random.NextBytes(source); // Generate random bytes for source
+            for (int trial = 0; trial < 10; trial++)
+            {
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Generate random bytes for source
 
-//                 string base64 = Convert.ToBase64String(source); // Encode source bytes to Base64
-//                 int padding = base64.EndsWith('=') ? 1 : 0;
-//                 padding += base64.EndsWith("==", StringComparison.InvariantCulture) ? 1 : 0;
+                string base64 = Convert.ToBase64String(source); // Encode source bytes to Base64
+                int padding = base64.EndsWith('=') ? 1 : 0;
+                padding += base64.EndsWith("==", StringComparison.InvariantCulture) ? 1 : 0;
 
-//                 if (padding != 0)
-//                 {
-//                     try
-//                     {
+                if (padding != 0)
+                {
+                    try
+                    {
 
-//                         // Test adding padding characters should break decoding
-//                         // byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64 + "=");
-//                         byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64)];
-//                         for (int i = 0; i < 5; i++)
-//                         {
-//                             AddSpace((base64 + "=").ToCharArray().ToList(), random);
-//                         }
+                        // Test adding padding characters should break decoding
+                        List<char> modifiedBase64 = (base64 + "=").ToList();
+                        byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64.ToArray())];
+                        for (int i = 0; i < 5; i++)
+                        {
+                            AddSpace(modifiedBase64.ToList(), random);
+                        }
 
-//                         var result = Base64WithWhiteSpaceToBinaryFromUTF16(
-//                             modifiedBase64.AsSpan(), buffer.AsSpan(),
-//                             out bytesConsumed, out bytesWritten, isUrl: false);
+                        var result = Base64WithWhiteSpaceToBinaryFromUTF16(
+                            modifiedBase64.ToArray(), buffer.AsSpan(),
+                            out bytesConsumed, out bytesWritten, isUrl: false);
 
-//                         Assert.Equal(OperationStatus.InvalidData, result);
-//                     }
-//                     catch (FormatException)
-//                     {
-//                         if (padding == 2)
-//                         {
-// #pragma warning disable CA1303 // Do not pass literals as localized parameters
-//                             Console.WriteLine($"Wrong OperationStatus when adding one padding character to TWO padding character");
-//                         }
-//                         else if (padding == 1)
-//                         {
-// #pragma warning disable CA1303 // Do not pass literals as localized parameters
-//                             Console.WriteLine($"Wrong OperationStatus when adding one padding character to ONE padding character");
-//                         }
-//                     }
+                        Assert.Equal(OperationStatus.InvalidData, result);
+                    }
+                    catch (FormatException)
+                    {
+                        if (padding == 2)
+                        {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                            Console.WriteLine($"Wrong OperationStatus when adding one padding character to TWO padding character");
+                        }
+                        else if (padding == 1)
+                        {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                            Console.WriteLine($"Wrong OperationStatus when adding one padding character to ONE padding character");
+                        }
+                    }
 
-//                     if (padding == 2)
-//                     {
-//                         try
-//                         {
+                    if (padding == 2)
+                    {
+                        try
+                        {
 
-//                             // removing one padding characters should break decoding
-//                             byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64.Substring(0, base64.Length - 1));
-//                             byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64)];
-//                             for (int i = 0; i < 5; i++)
-//                             {
-//                                 AddSpace(modifiedBase64.ToList(), random);
-//                             }
+                            // removing one padding characters should break decoding
+                            List<char> modifiedBase64 = base64.Substring(0, base64.Length - 1).ToList();
+                            byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64.ToArray())];
+                            for (int i = 0; i < 5; i++)
+                            {
+                                AddSpace(modifiedBase64.ToList(), random);
+                            }
 
-//                             var result = Base64WithWhiteSpaceToBinaryFromUTF16(
-//                                 modifiedBase64.AsSpan(), buffer.AsSpan(),
-//                                 out bytesConsumed, out bytesWritten, isUrl: false);
+                            var result = Base64WithWhiteSpaceToBinaryFromUTF16(
+                                modifiedBase64.ToArray(), buffer.AsSpan(),
+                                out bytesConsumed, out bytesWritten, isUrl: false);
 
-//                             Assert.Equal(OperationStatus.InvalidData, result);
-//                         }
-//                         catch (FormatException)
-//                         {
-// #pragma warning disable CA1303 // Do not pass literals as localized parameters
-//                             Console.WriteLine($"Wrong OperationStatus when substracting one padding character");
-//                         }
-//                     }
-//                 }
-//                 else
-//                 {
-//                     try
-//                     {
+                            Assert.Equal(OperationStatus.InvalidData, result);
+                        }
+                        catch (FormatException)
+                        {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                            Console.WriteLine($"Wrong OperationStatus when substracting one padding character");
+                        }
+                    }
+                }
+                else
+                {
+                    try
+                    {
 
-//                         // Test adding padding characters should break decoding
-//                         byte[] modifiedBase64 = Encoding.UTF8.GetBytes(base64 + "=");
-//                         byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64)];
-//                         for (int i = 0; i < 5; i++)
-//                         {
-//                             AddSpace(modifiedBase64.ToList(), random);
-//                         }
+                        // Test adding padding characters should break decoding
+                        List<char> modifiedBase64 = (base64 + "=").ToList();
+                        byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(modifiedBase64.ToArray())];
+                        for (int i = 0; i < 5; i++)
+                        {
+                            AddSpace(modifiedBase64.ToList(), random);
+                        }
 
-//                         var result = Base64WithWhiteSpaceToBinaryFromUTF16(
-//                             modifiedBase64.AsSpan(), buffer.AsSpan(),
-//                             out bytesConsumed, out bytesWritten, isUrl: false);
+                        var result = Base64WithWhiteSpaceToBinaryFromUTF16(
+                            modifiedBase64.ToArray(), buffer.AsSpan(),
+                            out bytesConsumed, out bytesWritten, isUrl: false);
 
-//                         Assert.Equal(OperationStatus.InvalidData, result);
-//                     }
-//                     catch (FormatException)
-//                     {
-// #pragma warning disable CA1303 // Do not pass literals as localized parameters
-//                         Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding charater");
-//                     }
-//                 }
+                        Assert.Equal(OperationStatus.InvalidData, result);
+                    }
+                    catch (FormatException)
+                    {
+#pragma warning disable CA1303 // Do not pass literals as localized parameters
+                        Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding charater");
+                    }
+                }
 
-//             }
-//         }
-//     }
+            }
+        }
+    }
 
-//     [Fact]
-//     [Trait("Category", "scalar")]
-//     public void BadPaddingBase64Scalar()
-//     {
-//         BadPaddingBase64(Base64.Base64WithWhiteSpaceToBinaryFromUTF16Scalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
-//     }
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void BadPaddingUTF16Base64Scalar()
+    {
+        BadPaddingBase64UTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
 
-//     [Fact]
-//     [Trait("Category", "sse")]
-//     public void BadPaddingBase64SSE()
-//     {
-//         BadPaddingBase64(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
-//     }
+    [Fact]
+    [Trait("Category", "sse")]
+    public void BadPaddingUTF16Base64SSE()
+    {
+        BadPaddingBase64UTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
 
 
 //     protected void DoomedBase64Roundtrip(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16, Base64.MaximalBinaryLengthFromBase64Scalar<char>Fnc Base64.MaximalBinaryLengthFromBase64Scalar<char>)

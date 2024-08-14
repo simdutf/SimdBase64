@@ -37,7 +37,33 @@ namespace SimdBase64
 
 
 
-        public static int MaximalBinaryLengthFromBase64Scalar(ReadOnlySpan<byte> input)
+        // public static int MaximalBinaryLengthFromBase64Scalar(ReadOnlySpan<byte> input)
+        // {
+        //     // We follow https://infra.spec.whatwg.org/#forgiving-base64-decode
+        //     int padding = 0;
+        //     int length = input.Length;
+        //     if (length > 0)
+        //     {
+        //         if (input[length - 1].Equals('='))
+        //         {
+        //             padding++;
+        //             if (length > 1 && input[length - 2].Equals('='))
+        //             {
+
+        //                 padding++;
+        //             }
+        //         }
+        //     }
+        //     int actualLength = length - padding;
+        //     if (actualLength % 4 <= 1)
+        //     {
+        //         return actualLength / 4 * 3;
+        //     }
+        //     // If we have a valid input, then the remainder must be 2 or 3 adding one or two extra bytes.
+        //     return actualLength / 4 * 3 + (actualLength % 4) - 1;
+        // }
+
+        public static int MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T> input)
         {
             // We follow https://infra.spec.whatwg.org/#forgiving-base64-decode
             int padding = 0;
@@ -63,6 +89,7 @@ namespace SimdBase64
             return actualLength / 4 * 3 + (actualLength % 4) - 1;
         }
 
+
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
 
@@ -82,6 +109,147 @@ namespace SimdBase64
             {
                 byte* srcEnd = srcInit + length;
                 byte* src = srcInit;
+                byte* dst = dstInit;
+
+                UInt32 x;
+                uint triple;
+                int idx;
+                byte[] buffer = new byte[4];
+
+                while (true)
+                {
+                    // fastpath
+                    while (src + 4 <= srcEnd &&
+                           (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
+                    {
+                        if (MatchSystem(Endianness.BIG))
+                        {
+                            x = BinaryPrimitives.ReverseEndianness(x);
+                        }
+
+                        *(uint*)dst = x;// optimization opportunity: copy 4 bytes
+                        dst += 3;
+                        src += 4;
+                    }
+                    idx = 0;
+
+                    // We need at least four characters.
+                    while (idx < 4 && src < srcEnd)
+                    {
+                        char c = (char)*src;
+                        byte code = toBase64[c];
+                        buffer[idx] = code;
+
+                        if (code <= 63)
+                        {
+                            idx++;
+                        }
+                        else if (code > 64)
+                        {
+                            bytesConsumed = (int)(src - srcInit);
+                            bytesWritten = (int)(dst - dstInit);
+
+                            return OperationStatus.InvalidData;// Found a character that cannot be part of a valid base64 string.
+                        }
+                        else
+                        {
+                            // We have a space or a newline. We ignore it.
+                        }
+                        src++;
+                    }
+
+                    // deals with reminder
+                    if (idx != 4)
+                    {
+                        if (idx == 2) // we just copy directly while converting
+                        {
+                            triple = ((uint)buffer[0] << (3 * 6)) + ((uint)buffer[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
+                            if (MatchSystem(Endianness.BIG))
+                            {
+                                triple <<= 8;
+                                byte[] byteTriple = BitConverter.GetBytes(triple);
+                                dst[0] = byteTriple[0];
+                            }
+                            else
+                            {
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
+                                triple >>= 8;
+                                byte[] byteTriple = BitConverter.GetBytes(triple);
+                                dst[0] = byteTriple[0];  // Copy only the first byte
+                            }
+                            dst += 1;
+                        }
+
+                        else if (idx == 3)
+                        {
+                            triple = ((uint)buffer[0] << 3 * 6) +
+                                            ((uint)buffer[1] << 2 * 6) +
+                                            ((uint)buffer[2] << 1 * 6);
+                            if (MatchSystem(Endianness.BIG))
+                            {
+                                triple <<= 8;
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                            }
+                            else
+                            {
+                                triple = BinaryPrimitives.ReverseEndianness(triple);
+                                triple >>= 8;
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                            }
+                            dst += 2;
+                        }
+
+                        else if (idx == 1)
+                        {
+
+
+                            bytesConsumed = (int)(src - srcInit);
+                            bytesWritten = (int)(dst - dstInit);
+                            return OperationStatus.NeedMoreData;// The base64 input terminates with a single character, excluding padding.
+                        }
+                        bytesConsumed = (int)(src - srcInit);
+                        bytesWritten = (int)(dst - dstInit);
+                        return OperationStatus.Done;
+                    }
+                    triple =
+                        ((uint)buffer[0] << 3 * 6) + ((uint)buffer[1] << 2 * 6) +
+                        ((uint)buffer[2] << 1 * 6) + ((uint)buffer[3] << 0 * 6);
+                    if (MatchSystem(Endianness.BIG))
+                    {
+                        triple <<= 8;
+                        Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+
+                    }
+                    else
+                    {
+                        triple = BinaryPrimitives.ReverseEndianness(triple);
+                        triple >>= 8;
+                        Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                    }
+                    dst += 3;
+                }
+
+            }
+        }
+
+
+
+        public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
+        {
+            byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
+            uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
+            uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
+            uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
+            uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
+
+            int length = source.Length;
+
+            fixed (char* srcInit = source)
+            fixed (byte* dstInit = dest)
+
+            {
+                char* srcEnd = srcInit + length;
+                char* src = srcInit;
                 byte* dst = dstInit;
 
                 UInt32 x;

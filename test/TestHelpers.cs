@@ -85,6 +85,47 @@ public partial class Base64DecodingTests
         return (modifiedArray, i);
     }
 
+        public static (char[] modifiedArray, int location) AddGarbage(
+        char[] inputArray, Random gen, int? specificLocation = null, byte? specificGarbage = null)
+    {
+        ArgumentNullException.ThrowIfNull(inputArray);
+        ArgumentNullException.ThrowIfNull(gen);
+        List<char> v = new List<char>(inputArray);
+
+        int len = v.Count;
+        int i;
+
+        int equalSignIndex = v.FindIndex(c => c == '=');
+        if (equalSignIndex != -1)
+        {
+            len = equalSignIndex; // Adjust the length to before the '='
+        }
+
+        if (specificLocation.HasValue && specificLocation.Value < len)
+        {
+            i = specificLocation.Value;
+        }
+        else
+        {
+            i = gen.Next(len + 1);
+        }
+
+        char c;
+
+
+        do
+        {
+            c = (char)gen.Next(256);
+        } while (c == '=' || SimdBase64.Tables.ToBase64Value[c] != 255);
+        
+        v.Insert(i, c);
+
+        char[] modifiedArray = v.ToArray();
+
+        return (modifiedArray, i);
+    }
+
+
 
     [Flags]
     public enum TestSystemRequirements

@@ -334,14 +334,14 @@ namespace SimdBase64
                                 src -= bufferBytesConsumed;
                                 dst -= bufferBytesWritten;
 
-                                bytesConsumed = Math.Max(0,(int)(src - srcInit));
-                                bytesWritten = Math.Max(0,(int)(dst - dstInit));
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit));
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit));
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -420,14 +420,14 @@ namespace SimdBase64
                             *bufferPtr = val;
                             if (val > 64)
                             {
-                                bytesConsumed = Math.Max(0,(int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
-                                bytesWritten = Math.Max(0,(int)(dst - dstInit) - (int)bufferBytesWritten);
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit) - (int)bufferBytesWritten);
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;

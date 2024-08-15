@@ -650,73 +650,73 @@ public partial class Base64DecodingTests{
         RoundtripBase64WithSpacesUTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-//     protected void AbortedSafeRoundtripBase64(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16)
-//     {
-//         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFomUTF16 == null || Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
-//         {
-// #pragma warning disable CA2208
-//             throw new ArgumentNullException("Unexpected null parameter");
-//         }
-//         for (int offset = 1; offset <= 16; offset += 3)
-//         {
-//             for (int len = offset; len < 1024; len++)
-//             {
-//                 byte[] source = new byte[len];
-// #pragma warning disable CA5394 // Do not use insecure randomness
-//                 random.NextBytes(source); // Initialize source buffer with random bytes
+    protected void AbortedSafeRoundtripBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16)
+    {
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFomUTF16 == null || Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        {
+#pragma warning disable CA2208
+            throw new ArgumentNullException("Unexpected null parameter");
+        }
+        for (int offset = 1; offset <= 16; offset += 3)
+        {
+            for (int len = offset; len < 1024; len++)
+            {
+                byte[] source = new byte[len];
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Initialize source buffer with random bytes
 
-//                 string base64String = Convert.ToBase64String(source);
+                string base64String = Convert.ToBase64String(source);
 
-//                 byte[] base64 = Encoding.UTF8.GetBytes(base64String);
-
-
-
-//                 int limitedLength = len - offset; // intentionally too little
-//                 byte[] tooSmallArray = new byte[limitedLength];
-
-//                 int bytesConsumed = 0;
-//                 int bytesWritten = 0;
-
-//                 var result = DecodeFromBase64DelegateSafeFomUTF16(
-//                     base64.AsSpan(), tooSmallArray.AsSpan(),
-//                     out bytesConsumed, out bytesWritten, isUrl: false);
-//                 Assert.Equal(OperationStatus.DestinationTooSmall, result);
-//                 Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
+                char[] base64 = base64String.ToCharArray();
 
 
 
-//                 // Now let us decode the rest !!!
-//                 ReadOnlySpan<byte> base64Remains = base64.AsSpan().Slice(bytesConsumed);
+                int limitedLength = len - offset; // intentionally too little
+                byte[] tooSmallArray = new byte[limitedLength];
 
-//                 byte[] decodedRemains = new byte[len - bytesWritten];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
 
-//                 int remainingBytesConsumed = 0;
-//                 int remainingBytesWritten = 0;
+                var result = DecodeFromBase64DelegateSafeFomUTF16(
+                    base64.AsSpan(), tooSmallArray.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isUrl: false);
+                Assert.Equal(OperationStatus.DestinationTooSmall, result);
+                Assert.Equal(source.Take(bytesWritten).ToArray(), tooSmallArray.Take(bytesWritten).ToArray());
 
-//                 result = DecodeFromBase64DelegateSafeFomUTF16(
-//                     base64Remains, decodedRemains.AsSpan(),
-//                     out remainingBytesConsumed, out remainingBytesWritten, isUrl: false);
 
-//                 Assert.Equal(OperationStatus.Done, result);
-//                 Assert.Equal(len, bytesWritten + remainingBytesWritten);
-//                 Assert.Equal(source.Skip(bytesWritten).ToArray(), decodedRemains.ToArray());
-//             }
-//         }
-//     }
 
-//     [Fact]
-//     [Trait("Category", "scalar")]
-//     public void AbortedSafeRoundtripBase64Scalar()
-//     {
-//         AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
-//     }
+                // Now let us decode the rest !!!
+                ReadOnlySpan<char> base64Remains = base64.AsSpan().Slice(bytesConsumed);
 
-//     [Fact]
-//     [Trait("Category", "sse")]
-//     public void AbortedSafeRoundtripBase64SSE()
-//     {
-//         AbortedSafeRoundtripBase64(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
-//     }
+                byte[] decodedRemains = new byte[len - bytesWritten];
+
+                int remainingBytesConsumed = 0;
+                int remainingBytesWritten = 0;
+
+                result = DecodeFromBase64DelegateSafeFomUTF16(
+                    base64Remains, decodedRemains.AsSpan(),
+                    out remainingBytesConsumed, out remainingBytesWritten, isUrl: false);
+
+                Assert.Equal(OperationStatus.Done, result);
+                Assert.Equal(len, bytesWritten + remainingBytesWritten);
+                Assert.Equal(source.Skip(bytesWritten).ToArray(), decodedRemains.ToArray());
+            }
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void AbortedSafeRoundtripBase64ScalarUTF16()
+    {
+        AbortedSafeRoundtripBase64UTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Fact]
+    [Trait("Category", "sse")]
+    public void AbortedSafeRoundtripBase64SSEUTF16()
+    {
+        AbortedSafeRoundtripBase64UTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
 
 //     protected void AbortedSafeRoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFomUTF16 DecodeFromBase64DelegateSafeFomUTF16)
 //     {

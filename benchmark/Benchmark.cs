@@ -256,6 +256,25 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+        public unsafe void RunScalarDecodingBenchmarkUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                char[] base64 = s.ToCharArray();
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
         public unsafe void RunSSEDecodingBenchmarkUTF8(string[] data, int[] lengths)
         {
             for (int i = 0; i < FileContent.Length; i++)
@@ -275,14 +294,54 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+        public unsafe void RunSSEDecodingBenchmarkUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                char[] base64 = s.ToCharArray();
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        
+
         public unsafe void RunSSEDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
                 //string s = FileContent[i];
                 byte[] base64 = input[i];
-                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar(base64.AsSpan())];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
                 //byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunSSEDecodingBenchmarkWithAllocUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                char[] base64 = s.ToCharArray();
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -386,6 +445,20 @@ namespace SimdUnicodeBenchmarks
         public unsafe void SSEDecodingRealDataWithAllocUTF8()
         {
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("SSE")]
+        public unsafe void SSEDecodingRealDataUTF16()
+        {
+            RunSSEDecodingBenchmarkUTF16(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("SSE")]
+        public unsafe void SSEDecodingRealDataWithAllocUTF16()
+        {
+            RunSSEDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
 
     }

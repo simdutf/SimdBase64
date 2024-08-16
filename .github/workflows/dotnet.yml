@@ -1,0 +1,26 @@
+name: .NET
+
+on: [pull_request] # add push later
+
+jobs:
+  build:
+    name: Build and test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest] # add later:, windows-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Unit tests
+      run: dotnet test  --verbosity m --no-build 
+      continue-on-error: false

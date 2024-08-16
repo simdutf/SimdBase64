@@ -1216,8 +1216,8 @@ public class Base64DecodingTests
 
             Assert.True(result == resultScalar);
             Assert.True(result == OperationStatus.Done);
-            Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
-            Assert.True(bytesWritten== bytesWrittenScalar);
+            Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+            Assert.True(bytesWritten == bytesWrittenScalar);
         }
     }
 
@@ -1259,8 +1259,8 @@ public class Base64DecodingTests
 
         var resultScalar = DecodeFromBase64DelegateSafe(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
-        Assert.True( result == resultScalar,"result != resultScalar");
-        Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+        Assert.True(result == resultScalar, "result != resultScalar");
+        Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
         Assert.True(bytesWritten == bytesWrittenScalar, $"bytesWritten: {bytesWritten},bytesWrittenScalar:{bytesWrittenScalar}");
     }
 
@@ -1282,11 +1282,11 @@ public class Base64DecodingTests
 
     protected void DoomedPartialBuffer(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
-         byte[] VectorToBeCompressed = new byte[] {
+        byte[] VectorToBeCompressed = new byte[] {
         0x6D, 0x6A, 0x6D, 0x73, 0x41, 0x71, 0x39, 0x75,
         0x76, 0x6C, 0x77, 0x48, 0x20, 0x77, 0x33, 0x53
     };
-        
+
         for (int len = 0; len < 2048; len++)
         {
             byte[] source = new byte[len];
@@ -1338,7 +1338,7 @@ public class Base64DecodingTests
 
                 Assert.True(result == safeResult);
                 Assert.True(bytesConsumedSafe == bytesConsumed, $"bytesConsumedSafe :{bytesConsumedSafe} != bytesConsumed {bytesConsumed}");
-                Assert.True(bytesWrittenSafe == bytesWritten,$"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
+                Assert.True(bytesWrittenSafe == bytesWritten, $"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
 
             }
         }

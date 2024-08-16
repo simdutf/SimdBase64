@@ -81,11 +81,11 @@ namespace SimdBase64
                 : Vector128.Create(0x00, 0x00, 0x00, 0x13, 0x04, 0xBF, 0xBF, 0xB9, 0xB9, 0x00, 0x10, 0xC3, 0xBF, 0xBF, 0xB9, 0xB9);
 
             Vector128<sbyte> checkAsso = base64Url
-                ? Vector128.Create(0xD, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x3, 0x7, 0xB, 0x6, 0xB, 0x12)
+                ? Vector128.Create(0xD, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x3, 0x7, 0xB, 0xE, 0xB, 0x6)
                 : Vector128.Create(0xD, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x3, 0x7, 0xB, 0xB, 0xB, 0xF);
 
             Vector128<byte> checkValues = base64Url
-                ? Vector128.Create(0x00, 0x80, 0x80, 0x80, 0xCF, 0xBF, 0xD3, 0xA6, 0xB5, 0x86, 0xD0, 0x80, 0xB0, 0x80, 0x00, 0x00)
+                ? Vector128.Create(0x80, 0x80, 0x80, 0x80, 0xCF, 0xBF, 0xB6, 0xA6, 0xB5, 0xA1, 0x0, 0x80, 0x0, 0x80, 0x0, 0x80)
                 : Vector128.Create(0x80, 0x80, 0x80, 0x80, 0xCF, 0xBF, 0xD5, 0xA6, 0xB5, 0x86, 0xD1, 0x80, 0xB1, 0x80, 0x91, 0x80);
 
             Vector128<Int32> shifted = Sse2.ShiftRightLogical(src.AsInt32(), 3);
@@ -334,14 +334,14 @@ namespace SimdBase64
                                 src -= bufferBytesConsumed;
                                 dst -= bufferBytesWritten;
 
-                                bytesConsumed = Math.Max(0,(int)(src - srcInit));
-                                bytesWritten = Math.Max(0,(int)(dst - dstInit));
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit));
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit));
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -420,14 +420,14 @@ namespace SimdBase64
                             *bufferPtr = val;
                             if (val > 64)
                             {
-                                bytesConsumed = Math.Max(0,(int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
-                                bytesWritten = Math.Max(0,(int)(dst - dstInit) - (int)bufferBytesWritten);
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit) - (int)bufferBytesWritten);
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0,bytesConsumed)), dest.Slice(Math.Max(0,bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;

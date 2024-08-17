@@ -50,9 +50,9 @@ public partial class Base64DecodingTests
         DecodeBase64CasesUTF8(Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
-    [Trait("Category", "SSE")]
-    public void DecodeBase64CasesSSEUTF8()
+    [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void DecodeBase64CasesSSE()
     {
         DecodeBase64CasesUTF8(Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
@@ -117,86 +117,104 @@ public partial class Base64DecodingTests
         CompleteDecodeBase64CasesUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
-    public void CompleteDecodeBase64CasesSSEUTF8()
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void CompleteDecodeBase64CasesSSE()
     {
         CompleteDecodeBase64CasesUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 
-    protected static void MoreDecodeTestsUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    protected static void Issue511UTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary)
     {
-        if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
-        {
-#pragma warning disable CA2208
-            throw new ArgumentNullException("Unexpected null parameter");
-        }
-        List<(string decoded, string base64)> cases = new List<(string, string)>
-    {
-        ("Hello, World!", "SGVsbG8sIFdvcmxkIQ=="),
-        ("GeeksforGeeks", "R2Vla3Nmb3JHZWVrcw=="),
-        ("123456", "MTIzNDU2"),
-        ("Base64 Encoding", "QmFzZTY0IEVuY29kaW5n"),
-        ("!R~J2jL&mI]O)3=c:G3Mo)oqmJdxoprTZDyxEvU0MI.'Ww5H{G>}y;;+B8E_Ah,Ed[ PdBqY'^N>O$4:7LK1<:|7)btV@|{YWR$$Er59-XjVrFl4L}~yzTEd4'E[@k", "IVJ+SjJqTCZtSV1PKTM9YzpHM01vKW9xbUpkeG9wclRaRHl4RXZVME1JLidXdzVIe0c+fXk7OytCOEVfQWgsRWRbIFBkQnFZJ15OPk8kNDo3TEsxPDp8NylidFZAfHtZV1IkJEVyNTktWGpWckZsNEx9fnl6VEVkNCdFW0Br")
-    };
+        ArgumentNullException.ThrowIfNull(Base64WithWhiteSpaceToBinary);
 
-        foreach (var (decoded, base64) in cases)
-        {
-
-
-            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-            int bytesConsumed;
-            int bytesWritten;
-
-            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
-            Assert.Equal(OperationStatus.Done, result);
-            Assert.True(OperationStatus.Done == result, $"Decoding string {decoded} with Length {decoded.Length} bytes went wrong");
-            for (int i = 0; i < bytesWritten; i++)
-            {
-                Assert.True(decoded[i] == (char)buffer[i], $"Decoded character not equal to source at location {i}: \n Actual: {(char)buffer[i]} ,\n Expected: {decoded[i]},\n Actual string: {BitConverter.ToString(buffer)},\n Expected string :{decoded} ");
-            }
-            Assert.Equal(decoded.Length, bytesWritten);
-            Assert.Equal(base64.Length, bytesConsumed);
-
-        }
-
-        foreach (var (decoded, base64) in cases)
-        {
-            byte[] base64Bytes = Encoding.UTF8.GetBytes(base64);
-            ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
-            int bytesConsumed;
-            int bytesWritten;
-
-            byte[] buffer = new byte[MaxBase64ToBinaryLengthDelegate(base64Span)];
-            var result = DecodeFromBase64DelegateSafe(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
-            Assert.Equal(OperationStatus.Done, result);
-            Assert.Equal(decoded.Length, bytesWritten);
-            Assert.Equal(base64.Length, bytesConsumed);
-
-            for (int i = 0; i < bytesWritten; i++)
-            {
-                Assert.Equal(decoded[i], (char)buffer[i]);
-            }
-        }
+        byte[] base64Bytes = [0x7f,
+            0x57,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x5a,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x57,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x20,
+            0x5a,
+            0x20,
+            0x5a,
+            0x5a,
+            0x5a];
+        ReadOnlySpan<byte> base64Span = new ReadOnlySpan<byte>(base64Bytes);
+        int bytesConsumed;
+        int bytesWritten;
+        byte[] buffer = new byte[48];
+        var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
+        Assert.Equal(OperationStatus.InvalidData, result);
 
     }
 
     [Fact]
     [Trait("Category", "scalar")]
-    public void MoreDecodeTestsScalarUTF8()
+    public void Issue511ScalarUTF8()
     {
-        MoreDecodeTestsUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        Issue511UTF8(Base64.Base64WithWhiteSpaceToBinaryScalar);
     }
 
 
-    [Fact]
     [Trait("Category", "SSE")]
-    public void MoreDecodeTestsSSEUTF8()
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void Issue511SSEUTF8()
     {
-        MoreDecodeTestsUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        Issue511UTF8(Base64.DecodeFromBase64SSE);
     }
 
     protected static void MoreDecodeTestsUrlUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -254,8 +272,8 @@ public partial class Base64DecodingTests
         }
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void MoreDecodeTestsUrlSSEUTF8()
     {
         MoreDecodeTestsUrlUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -306,8 +324,8 @@ public partial class Base64DecodingTests
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void RoundtripBase64SSEUTF8()
     {
         RoundtripBase64UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -350,8 +368,8 @@ public partial class Base64DecodingTests
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void RoundtripBase64UrlSSEUTF8()
     {
         RoundtripBase64UrlUTF8(Base64.DecodeFromBase64SSE, Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -477,8 +495,8 @@ public partial class Base64DecodingTests
         BadPaddingBase64UTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void BadPaddingBase64SSEUTF8()
     {
         BadPaddingBase64UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -537,8 +555,8 @@ public partial class Base64DecodingTests
         DoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void DoomedBase64RoundtripSSEUTF8()
     {
         DoomedBase64Roundtrip(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -598,8 +616,8 @@ public partial class Base64DecodingTests
         TruncatedDoomedBase64Roundtrip(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void TruncatedDoomedBase64RoundtripSSEUTF8()
     {
         TruncatedDoomedBase64Roundtrip(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -664,8 +682,8 @@ public partial class Base64DecodingTests
         RoundtripBase64WithSpacesUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void RoundtripBase64WithSpacesSSEUTF8()
     {
         RoundtripBase64WithSpacesUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -732,8 +750,8 @@ public partial class Base64DecodingTests
         AbortedSafeRoundtripBase64(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void AbortedSafeRoundtripBase64SSEUTF8()
     {
         AbortedSafeRoundtripBase64(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -800,9 +818,8 @@ public partial class Base64DecodingTests
         AbortedSafeRoundtripBase64WithSpaces(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void AbortedSafeRoundtripBase64WithSpacesSSEUTF8()
     {
         AbortedSafeRoundtripBase64WithSpaces(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -873,8 +890,8 @@ public partial class Base64DecodingTests
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void StreamingBase64RoundtripSSEUTF8()
     {
         StreamingBase64RoundtripUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -943,8 +960,8 @@ public partial class Base64DecodingTests
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void ReadmeTestSSEUTF8()
     {
         ReadmeTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -991,8 +1008,8 @@ public partial class Base64DecodingTests
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void ReadmeTestSafeSSEUTF8()
     {
         ReadmeTestSafeUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -1061,8 +1078,8 @@ public partial class Base64DecodingTests
         DoomedBase64AtPos0UTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void DoomedBase64AtPos0SSEUTF8()
     {
         DoomedBase64AtPos0UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -1095,8 +1112,8 @@ public partial class Base64DecodingTests
 
             Assert.True(result == resultScalar);
             Assert.True(result == OperationStatus.Done);
-            Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
-            Assert.True(bytesWritten== bytesWrittenScalar);
+            Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+            Assert.True(bytesWritten == bytesWrittenScalar);
         }
     }
 
@@ -1107,8 +1124,8 @@ public partial class Base64DecodingTests
         EnronFilesTestUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void EnronFilesTestSSEUTF8()
     {
         EnronFilesTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -1138,8 +1155,8 @@ public partial class Base64DecodingTests
 
         var resultScalar = DecodeFromBase64DelegateSafe(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
-        Assert.True( result == resultScalar,"result != resultScalar");
-        Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+        Assert.True(result == resultScalar, "result != resultScalar");
+        Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
         Assert.True(bytesWritten == bytesWrittenScalar, $"bytesWritten: {bytesWritten},bytesWrittenScalar:{bytesWrittenScalar}");
     }
 
@@ -1150,8 +1167,8 @@ public partial class Base64DecodingTests
         SwedenZoneBaseFileTestUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void SwedenZoneBaseFileTestSSEUTF8()
     {
         SwedenZoneBaseFileTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
@@ -1161,11 +1178,11 @@ public partial class Base64DecodingTests
 
     protected void DoomedPartialBufferUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
-         byte[] VectorToBeCompressed = new byte[] {
+        byte[] VectorToBeCompressed = new byte[] {
         0x6D, 0x6A, 0x6D, 0x73, 0x41, 0x71, 0x39, 0x75,
         0x76, 0x6C, 0x77, 0x48, 0x20, 0x77, 0x33, 0x53
     };
-        
+
         for (int len = 0; len < 2048; len++)
         {
             byte[] source = new byte[len];
@@ -1217,7 +1234,7 @@ public partial class Base64DecodingTests
 
                 Assert.True(result == safeResult);
                 Assert.True(bytesConsumedSafe == bytesConsumed, $"bytesConsumedSafe :{bytesConsumedSafe} != bytesConsumed {bytesConsumed}");
-                Assert.True(bytesWrittenSafe == bytesWritten,$"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
+                Assert.True(bytesWrittenSafe == bytesWritten, $"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
 
             }
         }
@@ -1230,8 +1247,8 @@ public partial class Base64DecodingTests
         DoomedPartialBufferUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void DoomedPartialBufferSSEUTF8()
     {
         DoomedPartialBufferUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);

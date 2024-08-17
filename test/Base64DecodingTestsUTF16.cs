@@ -1216,7 +1216,98 @@ public partial class Base64DecodingTests{
         DoomedPartialBufferUTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    protected static void Issue511UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinary)
+    {
+        ArgumentNullException.ThrowIfNull(Base64WithWhiteSpaceToBinary);
 
+        char[] base64Bytes = [
+            (char)0x7f,
+            (char)0x57,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x57,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x20,
+            (char)0x5a,
+            (char)0x20,
+            (char)0x5a,
+            (char)0x5a,
+            (char)0x5a];
+        ReadOnlySpan<char> base64Span = new ReadOnlySpan<char>(base64Bytes);
+        int bytesConsumed;
+        int bytesWritten;
+        byte[] buffer = new byte[48];
+        var result = Base64WithWhiteSpaceToBinary(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
+        Assert.Equal(OperationStatus.InvalidData, result);
+
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void Issue511ScalarUTF16()
+    {
+        Issue511UTF16(Base64.Base64WithWhiteSpaceToBinaryScalar);
+    }
+
+
+    [Trait("Category", "SSE")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void Issue511SSEUTF16()
+    {
+        Issue511UTF16(Base64.DecodeFromBase64SSE);
+    }
 
 
 

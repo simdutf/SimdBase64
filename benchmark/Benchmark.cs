@@ -299,11 +299,12 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
-                char[] base64 = s.ToCharArray();
+                // char[] base64 = s.ToCharArray();
+                ReadOnlySpan<char> base64 = s.AsSpan();
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.Base64.DecodeFromBase64SSE(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");

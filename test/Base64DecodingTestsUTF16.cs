@@ -305,7 +305,7 @@ public partial class Base64DecodingTests{
 #pragma warning disable CA5394 // Do not use insecure randomness
             random.NextBytes(source);
 
-            string base64String = Convert.ToBase64String(source).Replace('+', '-').Replace('/', '_'); ;
+            string base64String = Convert.ToBase64String(source).Replace('+', '-').Replace('/', '_');
 
             byte[] decodedBytes = new byte[len];
 
@@ -1370,6 +1370,68 @@ public partial class Base64DecodingTests{
     public void TruncatedCharErrorUTF16SSE()
     {
         TruncatedCharErrorUTF16(Base64.DecodeFromBase64SSE,Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    protected void TruncatedCharErrorUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16,DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
+    {
+
+        string badNonASCIIString = "♡♡♡♡";
+
+        for (int len = 0; len < 2048; len++)
+        {
+            byte[] source = new byte[len];
+
+            for (int trial = 0; trial < 10; trial++)
+            {
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+#pragma warning disable CA5394 // Do not use insecure randomness
+                random.NextBytes(source); // Generate random bytes for source
+
+                string base64 = Convert.ToBase64String(source).Replace('+', '-').Replace('/', '_');
+
+                int location = random.Next(0, base64.Length + 1)/4;
+
+                char[] base64WithGarbage = base64.Insert(location, badNonASCIIString).ToCharArray();
+
+                // Prepare a buffer for decoding the base64 back to binary
+                byte[] back = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64WithGarbage)];
+
+                // Attempt to decode base64 back to binary and assert that it fails with INVALID_BASE64_CHARACTER
+                var result = Base64WithWhiteSpaceToBinaryFromUTF16(
+                    base64WithGarbage.AsSpan(), back.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isUrl: true);
+                Assert.True(OperationStatus.InvalidData == result, $"OperationStatus {result} is not Invalid Data, error at location {location}. ");
+                Assert.Equal(location, bytesConsumed);
+                Assert.Equal(location / 4 * 3, bytesWritten);
+
+                // Also test safe decoding with a specified back_length
+                var safeResult = DecodeFromBase64DelegateSafeFromUTF16(
+                    base64WithGarbage.AsSpan(), back.AsSpan(),
+                    out bytesConsumed, out bytesWritten, isUrl: true);
+                Assert.Equal(OperationStatus.InvalidData, safeResult);
+                Assert.Equal(location, bytesConsumed);
+                Assert.Equal(location / 4 * 3, bytesWritten);
+
+            }
+        }
+
+        
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void TruncatedCharErrorUrlScalarUTF16()
+    {
+        TruncatedCharErrorUrlUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar,Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+
+    [Fact]
+    [Trait("Category", "sse")]
+    public void TruncatedCharErrorUrlUTF16SSE()
+    {
+        TruncatedCharErrorUrlUTF16(Base64.DecodeFromBase64SSE,Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 

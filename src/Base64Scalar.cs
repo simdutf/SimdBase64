@@ -205,6 +205,12 @@ namespace SimdBase64
         }
 
 
+        public static bool IsValidBase64Index(char b)
+        {
+            // Assume d0 to d3 are sized 256, replace with actual valid range if different
+            return b < 256; 
+        }
+
 
         public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
@@ -233,6 +239,8 @@ namespace SimdBase64
                 {
                     // fastpath
                     while (src + 4 <= srcEnd &&
+                    IsValidBase64Index(*src) && IsValidBase64Index(src[1]) &&
+                    IsValidBase64Index(src[2]) && IsValidBase64Index(src[3]) &&
                            (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
                     {
                         if (MatchSystem(Endianness.BIG))
@@ -250,7 +258,16 @@ namespace SimdBase64
                     while (idx < 4 && src < srcEnd)
                     {
                         char c = (char)*src;
+                        if (!IsValidBase64Index(c)) // Ensure c is a valid index
+                        {
+                            bytesConsumed = (int)(src - srcInit);
+                            bytesWritten = (int)(dst - dstInit);
+
+                            return OperationStatus.InvalidData;
+                            // Process code
+                        }
                         byte code = toBase64[c];
+                        // byte code = 1;
                         buffer[idx] = code;
 
                         if (code <= 63)

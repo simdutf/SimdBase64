@@ -207,7 +207,6 @@ namespace SimdBase64
 
         public static bool IsValidBase64Index(char b)
         {
-            // Assume d0 to d3 are sized 256, replace with actual valid range if different
             return b < 256; 
         }
 

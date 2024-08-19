@@ -299,7 +299,6 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
-                // char[] base64 = s.ToCharArray();
                 ReadOnlySpan<char> base64 = s.AsSpan();
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;

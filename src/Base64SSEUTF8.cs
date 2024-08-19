@@ -965,21 +965,5 @@ namespace SimdBase64
 
             }
         }
-
-        // Caller is responsible for checking that Ssse3.IsSupported && Popcnt.IsSupported
-        // public unsafe static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
-        // {
-        //     bytesConsumed =0; // DEBUG: Dont forget to delete these
-        //     bytesWritten = 0;
-        //     return 0;
-        //     // if (isUrl)
-        //     // {
-        //     //     return InnerDecodeFromBase64SSEUrlUTF8(source, dest, out bytesConsumed, out bytesWritten);
-        //     // }
-        //     // else
-        //     // {
-        //     //     return InnerDecodeFromBase64SSERegularUTF8(source, dest, out bytesConsumed, out bytesWritten);
-        //     // }
-        // }
     }
 }

@@ -42,6 +42,7 @@ namespace SimdBase64
             int length = input.Length;
             if (length > 0)
             {
+#pragma warning disable CS8602
                 if (input[length - 1].Equals('='))
                 {
                     padding++;

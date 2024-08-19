@@ -27,7 +27,7 @@ public partial class Base64DecodingTests{
             byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(cases[i].AsSpan())];
             int bytesConsumed;
             int bytesWritten;
-
+#pragma warning disable CA1062
             var result = DecodeFromBase64Delegate(cases[i], buffer, out bytesConsumed, out bytesWritten, false);
 
             Assert.Equal(expectedResults[i].Item1, result);
@@ -64,8 +64,8 @@ public partial class Base64DecodingTests{
             ReadOnlySpan<char> base64Span = new ReadOnlySpan<char>(base64.ToCharArray());
             int bytesConsumed;
             int bytesWritten;
-
             byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64Span)];
+#pragma warning disable CA1062
             var result = Base64WithWhiteSpaceToBinaryFromUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, true);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
@@ -81,8 +81,8 @@ public partial class Base64DecodingTests{
             ReadOnlySpan<char> base64Span = new ReadOnlySpan<char>(base64.ToCharArray());
             int bytesConsumed;
             int bytesWritten;
-
             byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64Span)];
+#pragma warning disable CA1062
             var result = DecodeFromBase64DelegateSafeFromUTF16(base64Span, buffer, out bytesConsumed, out bytesWritten, false);
             Assert.Equal(OperationStatus.Done, result);
             Assert.Equal(decoded.Length, bytesWritten);
@@ -264,8 +264,8 @@ public partial class Base64DecodingTests{
             string base64String = Convert.ToBase64String(source);
 
             byte[] decodedBytes = new byte[len];
-
             int bytesConsumed, bytesWritten;
+#pragma warning disable CA1062
             var result = Base64WithWhiteSpaceToBinaryFromUTF16(
                 base64String.ToCharArray(), decodedBytes.AsSpan(),
                 out bytesConsumed, out bytesWritten, isUrl: false);

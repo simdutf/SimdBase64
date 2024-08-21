@@ -504,14 +504,14 @@ namespace SimdBase64
                             }
                             else
                             {
-                                if (dst >= endOfSafe64ByteZone)
-                                {
+                                //if (dst >= endOfSafe64ByteZone)
+                                //{
                                     Base64DecodeBlockSafe(dst, &b);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, &b);
-                                }
+                                //}
+                                //else
+                                //{
+                                //    Base64DecodeBlock(dst, &b);
+                                //}
                                 bufferBytesWritten += 48;
                                 dst += 48;
                             }
@@ -524,14 +524,14 @@ namespace SimdBase64
                                     bufferBytesWritten += 48;
                                     dst += 48;
                                 }
-                                if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
-                                {
+                                //if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
+                                //{
                                     Base64DecodeBlockSafe(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
+                                //}
+                                //else
+                                //{
+                                  //  Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
+                                //}
 
 
 
@@ -597,14 +597,14 @@ namespace SimdBase64
                     byte* subBufferPtr = startOfBuffer;
                     for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64)
                     {
-                        if (dst >= endOfSafe64ByteZone)
-                        {
+                        //if (dst >= endOfSafe64ByteZone)
+                       // {
                             Base64DecodeBlockSafe(dst, subBufferPtr);
-                        }
-                        else
-                        {
-                            Base64DecodeBlock(dst, subBufferPtr);
-                        }
+                        //}
+                        //else
+                       // {
+                        //    Base64DecodeBlock(dst, subBufferPtr);
+                        //}
 
                         dst += 48;// 64 bits of base64 decodes to 48 bits
                     }

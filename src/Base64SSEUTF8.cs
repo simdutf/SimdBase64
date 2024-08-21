@@ -215,7 +215,7 @@ namespace SimdBase64
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static void Base64Decode(byte* output, Vector128<byte> input)
+        private unsafe static Vector128<byte> Base64Decode(byte* output, Vector128<byte> input)
         {
             // credit: aqrit
             Vector128<sbyte> packShuffle = Vector128.Create(2, 1, 0, 6,
@@ -234,6 +234,29 @@ namespace SimdBase64
 
             // Store the output. This writes 16 bytes, but we only need 12.
             Sse2.Store(output, t2);
+            return t2;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe static void Base64DecodeSafe(byte* output, Vector128<byte> input, Vector128<byte> previous)
+        {
+            // credit: aqrit
+            Vector128<sbyte> packShuffle = Vector128.Create(2, 1, 0, 6,
+                                                            5, 4, 10, 9,
+                                                            8, 14, 13, 12,
+                                                           -1, -1, -1, -1);
+
+            // Perform the initial multiply and add operation across unsigned 8-bit integers.
+            Vector128<short> t0 = Ssse3.MultiplyAddAdjacent(input, Vector128.Create((Int32)0x01400140).AsSByte());
+
+            // Perform another multiply and add to finalize the byte positions.
+            Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0, Vector128.Create((Int32)0x00011000).AsInt16());
+
+            // Shuffle the bytes according to the packShuffle pattern.
+            Vector128<byte> t2 = Ssse3.Shuffle(t1.AsSByte(), packShuffle).AsByte();
+            t2 = Ssse3.AlignRight(input, previous, (byte)(16 - 4));
+            // Store the output. This writes 16 bytes, but we only need 12.
+            Sse2.Store(output - 4, t2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

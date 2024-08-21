@@ -57,6 +57,13 @@ public partial class Base64DecodingTests
         DecodeBase64CasesUTF8(Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DecodeBase64CasesAvx2()
+    {
+        DecodeBase64CasesUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected static void CompleteDecodeBase64CasesUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
@@ -122,6 +129,13 @@ public partial class Base64DecodingTests
     public void CompleteDecodeBase64CasesSSE()
     {
         CompleteDecodeBase64CasesUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void CompleteDecodeBase64CasesAvx2()
+    {
+        CompleteDecodeBase64CasesUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
 
@@ -210,11 +224,18 @@ public partial class Base64DecodingTests
     }
 
 
-    [Trait("Category", "SSE")]
+    [Trait("Category", "sse")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void Issue511SSEUTF8()
     {
         Issue511UTF8(Base64.DecodeFromBase64SSE);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void Issue511Avx2UTF8()
+    {
+        Issue511UTF8(Base64AVX2.DecodeFromBase64AVX2);
     }
 
     protected static void MoreDecodeTestsUrlUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -272,6 +293,15 @@ public partial class Base64DecodingTests
         }
     }
 
+
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void MoreDecodeTestsUrlScalarUTF8()
+    {
+        MoreDecodeTestsUrlUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     [Trait("Category", "sse")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void MoreDecodeTestsUrlSSEUTF8()
@@ -279,11 +309,11 @@ public partial class Base64DecodingTests
         MoreDecodeTestsUrlUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Fact]
-    [Trait("Category", "scalar")]
-    public void MoreDecodeTestsUrlScalarUTF8()
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void MoreDecodeTestsUrlAvx2UTF8()
     {
-        MoreDecodeTestsUrlUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+        MoreDecodeTestsUrlUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void RoundtripBase64UTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -331,6 +361,13 @@ public partial class Base64DecodingTests
         RoundtripBase64UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64Avx2UTF8()
+    {
+        RoundtripBase64UTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected void RoundtripBase64UrlUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
@@ -373,6 +410,13 @@ public partial class Base64DecodingTests
     public void RoundtripBase64UrlSSEUTF8()
     {
         RoundtripBase64UrlUTF8(Base64.DecodeFromBase64SSE, Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64UrlAVX2UTF8()
+    {
+        RoundtripBase64UrlUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected static void BadPaddingBase64UTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -502,6 +546,12 @@ public partial class Base64DecodingTests
         BadPaddingBase64UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void BadPaddingBase64Avx2UTF8()
+    {
+        BadPaddingBase64UTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
 
     protected void DoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
@@ -562,7 +612,12 @@ public partial class Base64DecodingTests
         DoomedBase64Roundtrip(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedBase64RoundtripAvx2UTF8()
+    {
+        DoomedBase64Roundtrip(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
 
     protected void TruncatedDoomedBase64Roundtrip(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
@@ -621,6 +676,13 @@ public partial class Base64DecodingTests
     public void TruncatedDoomedBase64RoundtripSSEUTF8()
     {
         TruncatedDoomedBase64Roundtrip(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void TruncatedDoomedBase64RoundtripAVX2UTF8()
+    {
+        TruncatedDoomedBase64Roundtrip(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void RoundtripBase64WithSpacesUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -687,6 +749,13 @@ public partial class Base64DecodingTests
     public void RoundtripBase64WithSpacesSSEUTF8()
     {
         RoundtripBase64WithSpacesUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64WithSpacesAvx2UTF8()
+    {
+        RoundtripBase64WithSpacesUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void AbortedSafeRoundtripBase64(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -757,6 +826,13 @@ public partial class Base64DecodingTests
         AbortedSafeRoundtripBase64(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void AbortedSafeRoundtripBase64AVX2UTF8()
+    {
+        AbortedSafeRoundtripBase64(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected void AbortedSafeRoundtripBase64WithSpaces(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
@@ -823,6 +899,13 @@ public partial class Base64DecodingTests
     public void AbortedSafeRoundtripBase64WithSpacesSSEUTF8()
     {
         AbortedSafeRoundtripBase64WithSpaces(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void AbortedSafeRoundtripBase64WithSpacesAVX2UTF8()
+    {
+        AbortedSafeRoundtripBase64WithSpaces(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void StreamingBase64RoundtripUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -897,6 +980,13 @@ public partial class Base64DecodingTests
         StreamingBase64RoundtripUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void StreamingBase64RoundtripAvx2UTF8()
+    {
+        StreamingBase64RoundtripUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected static void ReadmeTestUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         int len = 2048;
@@ -967,6 +1057,13 @@ public partial class Base64DecodingTests
         ReadmeTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void ReadmeTestAvx2UTF8()
+    {
+        ReadmeTestUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected static void ReadmeTestSafeUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         int len = 72;
@@ -1013,6 +1110,13 @@ public partial class Base64DecodingTests
     public void ReadmeTestSafeSSEUTF8()
     {
         ReadmeTestSafeUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void ReadmeTestSafeAvx2UTF8()
+    {
+        ReadmeTestSafeUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
     protected void DoomedBase64AtPos0UTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -1085,6 +1189,13 @@ public partial class Base64DecodingTests
         DoomedBase64AtPos0UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedBase64AtPos0Avx2UTF8()
+    {
+        DoomedBase64AtPos0UTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
     protected static void EnronFilesTestUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         string[] fileNames = Directory.GetFiles("../../../../benchmark/data/email");
@@ -1131,6 +1242,13 @@ public partial class Base64DecodingTests
         EnronFilesTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void EnronFilesTestAvx2UTF8()
+    {
+        EnronFilesTestUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
     protected static void SwedenZoneBaseFileTestUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
@@ -1174,7 +1292,12 @@ public partial class Base64DecodingTests
         SwedenZoneBaseFileTestUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void SwedenZoneBaseFileTestAvx2UTF8()
+    {
+        SwedenZoneBaseFileTestUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
 
     protected void DoomedPartialBufferUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
@@ -1253,6 +1376,14 @@ public partial class Base64DecodingTests
     {
         DoomedPartialBufferUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedPartialBufferAvx2UTF8()
+    {
+        DoomedPartialBufferUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
 
 

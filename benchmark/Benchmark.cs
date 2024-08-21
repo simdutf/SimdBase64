@@ -77,7 +77,7 @@ namespace SimdUnicodeBenchmarks
     }
 
 
-    [SimpleJob(launchCount: 1, warmupCount: 3, iterationCount: 3)]
+    [SimpleJob(launchCount: 1, warmupCount: 5, iterationCount: 5)]
     [Config(typeof(Config))]
     public class RealDataBenchmark
     {
@@ -172,6 +172,7 @@ namespace SimdUnicodeBenchmarks
         public int[] DecodedLengths;
         public byte[][] output; // precomputed byte outputs (with correct size)
         public byte[][] input; // precomputed byte inputs
+        public char[][] input16; // precomputed char inputs
 
 
         public void RunRuntimeDecodingBenchmarkUTF16(string[] data, int[] lengths)
@@ -261,7 +262,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
-                char[] base64 = s.ToCharArray();
+                char[] base64 = input16[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
@@ -313,16 +314,14 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
-        
+
 
         public unsafe void RunSSEDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
-                //byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -340,7 +339,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
-                char[] base64 = s.ToCharArray();
+                char[] base64 = input16[i];
                 byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
@@ -364,11 +363,13 @@ namespace SimdUnicodeBenchmarks
                 DecodedLengths = new int[FileContent.Length];
                 output = new byte[FileContent.Length][];
                 input = new byte[FileContent.Length][];
+                input16 = new char[FileContent.Length][];
                 for (int i = 0; i < FileContent.Length; i++)
                 {
                     DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
                     output[i] = new byte[DecodedLengths[i]];
                     input[i] = Encoding.UTF8.GetBytes(FileContent[i]);
+                    input16[i] = FileContent[i].ToCharArray();
                 }
             }
             else if (FileName == "data/email/")
@@ -378,6 +379,7 @@ namespace SimdUnicodeBenchmarks
                 DecodedLengths = new int[fileNames.Length];
                 output = new byte[FileContent.Length][];
                 input = new byte[FileContent.Length][];
+                input16 = new char[FileContent.Length][];
 
                 for (int i = 0; i < fileNames.Length; i++)
                 {
@@ -385,6 +387,7 @@ namespace SimdUnicodeBenchmarks
                     DecodedLengths[i] = Convert.FromBase64String(FileContent[i]).Length;
                     output[i] = new byte[DecodedLengths[i]];
                     input[i] = Encoding.UTF8.GetBytes(FileContent[i]);
+                    input16[i] = FileContent[i].ToCharArray();
                 }
 
             }

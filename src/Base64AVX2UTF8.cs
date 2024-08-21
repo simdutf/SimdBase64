@@ -18,7 +18,7 @@ namespace SimdBase64
     {
         /*
         // If needed for debugging, you can do the following:
-        static string VectorToString(Vector128<byte> vector)
+        static string VectorToString(Vector256<byte> vector)
         {
             Span<byte> bytes = new byte[16];
             vector.CopyTo(bytes);
@@ -151,15 +151,15 @@ namespace SimdBase64
 
 
             Vector256<sbyte> outVector = Avx2.AddSaturate(Avx2.Shuffle(deltaValues.AsByte(), deltaHash).AsSByte(),
-                                                        src.AsSByte());             /// You are here 
+                                                        src.AsSByte());             /// DEBUG: manual checking ends here
             Vector256<sbyte> chkVector = Avx2.AddSaturate(Avx2.Shuffle(checkValues.AsByte(), checkHash).AsSByte(),
                                                         src.AsSByte());
 
             int mask = Avx2.MoveMask(chkVector.AsByte());
             if (mask != 0)
             {
-                Vector128<byte> asciiSpace = Sse2.CompareEqual(Ssse3.Shuffle(asciiSpaceTbl.AsByte(), src), src);
-                error |= (mask != Sse2.MoveMask(asciiSpace));
+                Vector256<byte> asciiSpace = Avx2.CompareEqual(Avx2.Shuffle(asciiSpaceTbl.AsByte(), src), src);
+                error |= (mask != Avx2.MoveMask(asciiSpace));
 
             }
 
@@ -172,14 +172,12 @@ namespace SimdBase64
         {
             ulong nmask = ~mask;
             Compress(b.chunk0, (ushort)mask, output);
-            Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF));
-            Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
-            Compress(b.chunk3, (ushort)(mask >> 48), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
+            Compress(b.chunk1, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
 
             return Popcnt.X64.PopCount(nmask);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // This Compress is the same as in SSE
         private static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output)
         {
             if (mask == 0)
@@ -223,61 +221,72 @@ namespace SimdBase64
             }
         }
 
+        public static unsafe void Compress(Vector256<byte> data, uint mask, byte* output)
+        {
+            if (mask == 0)
+            {
+                Avx2.Store(output, data.AsByte());
+                return;
+            }
+            
+            // Perform compression on the lower 128 bits
+            Compress(data.GetLower().AsByte(), (ushort)mask, output); // DEBUG:this sounds sketch
+            
+            // Perform compression on the upper 128 bits, shifting output pointer by the number of 1's in the lower 16 bits of mask
+            int popCount = (int)Popcnt.PopCount(~mask & 0xFFFF);
+            Compress(Avx2.ExtractVector128(data.AsByte(), 1), (ushort)(mask >> 16), output + popCount);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void CopyBlock(Block64* b, byte* output)
         {
-            // Directly store each 128-bit chunk to the output buffer using SSE2
-            Sse2.Store(output, b->chunk0);
-            Sse2.Store(output + 16, b->chunk1);
-            Sse2.Store(output + 32, b->chunk2);
-            Sse2.Store(output + 48, b->chunk3);
+            // Directly store each 128-bit chunk to the output buffer using Avx2
+            Avx2.Store(output, b->chunk0);
+            Avx2.Store(output + 32, b->chunk1);
         }
 
+        // You are here
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void Base64DecodeBlockSafe(byte* outPtr, Block64* b)
         {
             Base64Decode(outPtr, b->chunk0);
-            Base64Decode(outPtr + 12, b->chunk1);
-            Base64Decode(outPtr + 24, b->chunk2);
-            byte[] buffer = new byte[16];
+            byte[] buffer = new byte[32];
 
             // Safe memory copy for the last part of the data
             fixed (byte* bufferStart = buffer)
             {
-                Base64Decode(bufferStart, b->chunk3);
-                Buffer.MemoryCopy(bufferStart, outPtr + 36, 12, 12);
+                Base64Decode(bufferStart, b->chunk1);
+                Buffer.MemoryCopy(bufferStart, outPtr + 24, 24, 24);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static void Base64Decode(byte* output, Vector128<byte> input)
+        private unsafe static void Base64Decode(byte* output, Vector256<byte> input)
         {
             // credit: aqrit
-            Vector128<sbyte> packShuffle = Vector128.Create(2, 1, 0, 6,
-                                                            5, 4, 10, 9,
-                                                            8, 14, 13, 12,
-                                                           -1, -1, -1, -1);
+            Vector256<sbyte> packShuffle = Vector256.Create(2, 1, 0, 6, 5, 4, 10, 9, 8, 14, 13, 12, -1, -1, -1, -1,
+                                                            2, 1, 0, 6, 5, 4, 10, 9, 8, 14, 13, 12, -1, -1, -1, -1);
 
             // Perform the initial multiply and add operation across unsigned 8-bit integers.
-            Vector128<short> t0 = Ssse3.MultiplyAddAdjacent(input, Vector128.Create((Int32)0x01400140).AsSByte());
+            Vector256<short> t0 = Avx2.MultiplyAddAdjacent(input, Vector256.Create((Int32)0x01400140).AsSByte());
 
             // Perform another multiply and add to finalize the byte positions.
-            Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0, Vector128.Create((Int32)0x00011000).AsInt16());
+            Vector256<int> t1 = Avx2.MultiplyAddAdjacent(t0, Vector256.Create((Int32)0x00011000).AsInt16());
 
             // Shuffle the bytes according to the packShuffle pattern.
-            Vector128<byte> t2 = Ssse3.Shuffle(t1.AsSByte(), packShuffle).AsByte();
+            Vector256<byte> t2 = Avx2.Shuffle(t1.AsSByte(), packShuffle).AsByte();
 
             // Store the output. This writes 16 bytes, but we only need 12.
-            Sse2.Store(output, t2);
+            // Avx2.Store(output, t2);
+            Sse2.Store(output, t2.GetLower());
+            Sse2.Store(output + 12, t2.GetUpper());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void Base64DecodeBlock(byte* outPtr, byte* srcPtr)
         {
-            Base64Decode(outPtr, Sse2.LoadVector128(srcPtr));
-            Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
-            Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
-            Base64Decode(outPtr + 36, Sse2.LoadVector128(srcPtr + 48));
+            Base64Decode(outPtr, Avx2.LoadVector256(srcPtr));
+            Base64Decode(outPtr + 24, Avx2.LoadVector256(srcPtr + 32));
         }
 
         // Function to decode a Base64 block into binary data.
@@ -285,43 +294,40 @@ namespace SimdBase64
         private static unsafe void Base64DecodeBlock(byte* output, Block64* block)
         {
             Base64Decode(output, block->chunk0);
-            Base64Decode(output + 12, block->chunk1);
-            Base64Decode(output + 24, block->chunk2);
-            Base64Decode(output + 36, block->chunk3);
+            Base64Decode(output + 24, block->chunk1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
         {
-            Base64Decode(outPtr, Sse2.LoadVector128(srcPtr));
-            Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
-            Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
-            Vector128<byte> tempBlock = Sse2.LoadVector128(srcPtr + 48);
-            byte[] buffer = new byte[16];
+            Base64Decode(outPtr, Avx2.LoadVector256(srcPtr));
+            Base64Decode(outPtr + 24, Avx2.LoadVector256(srcPtr + 32));
+            byte[] buffer = new byte[32];
             fixed (byte* bufferPtr = buffer)
             {
-                Base64Decode(bufferPtr, tempBlock);
-
                 // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
                 // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
-                Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);// DEGUG:Uncomment
+                Buffer.MemoryCopy(bufferPtr, outPtr + 24, 24, 24);// DEGUG:Uncomment
             }
         }
 
-        // Caller is responsible for checking that Ssse3.IsSupported && Popcnt.IsSupported
-        public unsafe static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
+        // DEBUG: you are here
+
+
+        // Caller is responsible for checking that Avx2.IsSupported && Popcnt.IsSupported
+        public unsafe static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
             if (isUrl)
             {
-                return InnerDecodeFromBase64SSEUrl(source, dest, out bytesConsumed, out bytesWritten);
+                return InnerDecodeFromBase64AVX2Url(source, dest, out bytesConsumed, out bytesWritten);
             }
             else
             {
-                return InnerDecodeFromBase64SSERegular(source, dest, out bytesConsumed, out bytesWritten);
+                return InnerDecodeFromBase64AVX2Regular(source, dest, out bytesConsumed, out bytesWritten);
             }
         }
 
-        private unsafe static OperationStatus InnerDecodeFromBase64SSERegular(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
+        private unsafe static OperationStatus InnerDecodeFromBase64AVX2Regular(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
         {
             // translation from ASCII to 6 bit values
             bool isUrl = false;
@@ -387,12 +393,12 @@ namespace SimdBase64
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
-                            Base64.Block64 b;
-                            Base64.LoadBlock(&b, src);
+                            Base64AVX2.Block64 b;
+                            Base64AVX2.LoadBlock(&b, src);
                             src += 64;
                             bufferBytesConsumed += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
+                            UInt64 badCharMask = Base64AVX2.ToBase64Mask(isUrl, &b, ref error);
                             if (error == true)
                             {
                                 src -= bufferBytesConsumed;
@@ -405,7 +411,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -491,7 +497,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -620,7 +626,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)
@@ -661,7 +667,7 @@ namespace SimdBase64
             }
         }
 
-        private unsafe static OperationStatus InnerDecodeFromBase64SSEUrl(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
+        private unsafe static OperationStatus InnerDecodeFromBase64AVX2Url(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
         {
             // translation from ASCII to 6 bit values
             bool isUrl = true;
@@ -727,12 +733,12 @@ namespace SimdBase64
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
-                            Base64.Block64 b;
-                            Base64.LoadBlock(&b, src);
+                            Base64AVX2.Block64 b;
+                            Base64AVX2.LoadBlock(&b, src);
                             src += 64;
                             bufferBytesConsumed += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
+                            UInt64 badCharMask = Base64AVX2.ToBase64Mask(isUrl, &b, ref error);
                             if (error == true)
                             {
                                 src -= bufferBytesConsumed;
@@ -745,7 +751,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -831,7 +837,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -960,7 +966,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)

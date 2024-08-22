@@ -13,6 +13,7 @@ using System.Numerics;
 
 namespace SimdBase64
 {
+    namespace Arm {
     public static partial class Base64
     {
         /*
@@ -65,16 +66,6 @@ namespace SimdBase64
             b->chunk3 = AdvSimd.ExtractNarrowingSaturateUpper(AdvSimd.ExtractNarrowingSaturateLower(m7.AsInt16()), m8.AsInt16()).AsByte();
         }
 
-       /* [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        
-        {
-            ulong m0 = ToBase64Mask(base64Url, ref b->chunk0, ref error);
-            ulong m1 = ToBase64Mask(base64Url, ref b->chunk1, ref error);
-            ulong m2 = ToBase64Mask(base64Url, ref b->chunk2, ref error);
-            ulong m3 = ToBase64Mask(base64Url, ref b->chunk3, ref error);
-            return m0 | (m1 << 16) | (m2 << 32) | (m3 << 48);
-        }*/
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe ulong ToBase64Mask(bool base64Url, Block64* b, ref bool error)
         {
@@ -101,10 +92,10 @@ namespace SimdBase64
             Vector128<byte> loNibbles3 = b->chunk2 & v0f;
 
             // Extract higher nibbles
-            Vector128<byte> hiNibbles0 = ArmBase.ShiftRightLogical(b->chunk0, 4);
-            Vector128<byte> hiNibbles1 = ArmBase.ShiftRightLogical(b->chunk1, 4);
-            Vector128<byte> hiNibbles2 = ArmBase.ShiftRightLogical(b->chunk2, 4);
-            Vector128<byte> hiNibbles3 = ArmBase.ShiftRightLogical(b->chunk3, 4);
+            Vector128<byte> hiNibbles0 = AdvSimd.ShiftRightLogical(b->chunk0, 4);
+            Vector128<byte> hiNibbles1 = AdvSimd.ShiftRightLogical(b->chunk1, 4);
+            Vector128<byte> hiNibbles2 = AdvSimd.ShiftRightLogical(b->chunk2, 4);
+            Vector128<byte> hiNibbles3 = AdvSimd.ShiftRightLogical(b->chunk3, 4);
 
             // Lookup tables for encoding
             Vector128<byte> lutLo = base64Url 
@@ -117,28 +108,27 @@ namespace SimdBase64
                 : Vector128.Create((byte)0x11, 0x20, 0x42, 0x80, 0x8, 0x4, 0x8, 0x4,
                                         0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20);
             // Lookup for lower and higher nibbles
-            Vector128<byte> lo0 = ArmBase.LookupVector128(lutLo, loNibbles0);
-            Vector128<byte> hi0 = ArmBase.LookupVector128(lutHi, hiNibbles0);
-            Vector128<byte> lo1 = ArmBase.LookupVector128(lutLo, loNibbles1);
-            Vector128<byte> hi1 = ArmBase.LookupVector128(lutHi, hiNibbles1);
-            Vector128<byte> lo2 = ArmBase.LookupVector128(lutLo, loNibbles2);
-            Vector128<byte> hi2 = ArmBase.LookupVector128(lutHi, hiNibbles2);
-            Vector128<byte> lo3 = ArmBase.LookupVector128(lutLo, loNibbles3);
-            Vector128<byte> hi3 = ArmBase.LookupVector128(lutHi, hiNibbles3);
+            Vector128<byte> lo0 = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles0);
+            Vector128<byte> hi0 = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles0);
+            Vector128<byte> lo1 = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles1);
+            Vector128<byte> hi1 = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles1);
+            Vector128<byte> lo2 = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles2);
+            Vector128<byte> hi2 = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles2);
+            Vector128<byte> lo3 = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles3);
+            Vector128<byte> hi3 = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles3);
             if (base64Url)
             {
-                hi0 = ArmBase.BitwiseClear(hi0, underscore0);
-                hi1 = ArmBase.BitwiseClear(hi1, underscore1);
-                hi2 = ArmBase.BitwiseClear(hi2, underscore2);
-                hi3 = ArmBase.BitwiseClear(hi3, underscore3);
+                hi0 = AdvSimd.BitwiseClear(hi0, underscore0);
+                hi1 = AdvSimd.BitwiseClear(hi1, underscore1);
+                hi2 = AdvSimd.BitwiseClear(hi2, underscore2);
+                hi3 = AdvSimd.BitwiseClear(hi3, underscore3);
             }
 
             // Check for invalid characters
-            Vector128<byte> checks = ArmBase.MaxAcross(hi0 | hi1 | hi2 | hi3);
+            // Note that the maxaccross can be replaced.
+            error = (AdvSimd.Arm64.MaxAcross(hi0 | hi1 | hi2 | hi3).ToScalar() > 0x3);
 
-            error = (checks.ToScalar() > 0x3);
-
-            ushort badCharmask = 0;
+            ulong badCharmask = 0;
             if (error)
             {
                 Vector128<byte> test0 = AdvSimd.CompareTest(lo0, hi0);
@@ -151,7 +141,7 @@ namespace SimdBase64
                 Vector128<byte> sum1 = AdvSimd.Arm64.AddPairwise(test2 & bit_mask, test3 & bit_mask);
                 sum0 = AdvSimd.Arm64.AddPairwise(sum0, sum1);
                 sum0 = AdvSimd.Arm64.AddPairwise(sum0, sum0);
-                badcharmask = sum0.AsUInt64().ToScalar();
+                badCharmask = sum0.AsUInt64().ToScalar();
             }
 
             Vector128<byte> roll_lut = base64Url
@@ -159,24 +149,24 @@ namespace SimdBase64
                                 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
                 : Vector128.Create((byte)0x0, 0x10, 0x13, 0x4, 0xbf, 0xbf, 0xb9, 0xb9,
                                 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0);
-            Vector128<byte> vsecond_last = base64Url
+            Vector128<byte> SecondLast = base64Url
                 ? Vector128.Create((byte)0x2d)
                 : Vector128.Create((byte)0x2f);
-            if (base64_url) {
-                hiNibbles0 = ArmBase.BitwiseClear(hiNibbles0, underscore0);
-                hiNibbles1 = ArmBase.BitwiseClear(hiNibbles1, underscore1);
-                hiNibbles2 = ArmBase.BitwiseClear(hiNibbles2, underscore2);
-                hiNibbles3 = ArmBase.BitwiseClear(hiNibbles3, underscore3);
+            if (base64Url) {
+                hiNibbles0 = AdvSimd.BitwiseClear(hiNibbles0, underscore0);
+                hiNibbles1 = AdvSimd.BitwiseClear(hiNibbles1, underscore1);
+                hiNibbles2 = AdvSimd.BitwiseClear(hiNibbles2, underscore2);
+                hiNibbles3 = AdvSimd.BitwiseClear(hiNibbles3, underscore3);
             }
-            Vector128<byte>  roll0 = ArmBase.LookupVector128(roll_lut, (b->chunks[0]  == vsecond_last) + hiNibbles0);
-            Vector128<byte>  roll1 = ArmBase.LookupVector128(roll_lut, (b->chunks[1]  == vsecond_last) + hiNibbles1);
-            Vector128<byte>  roll2 = ArmBase.LookupVector128(roll_lut, (b->chunks[2]  == vsecond_last) + hiNibbles2);
-            Vector128<byte>  roll3 = ArmBase.LookupVector128(roll_lut, (b->chunks[3]  == vsecond_last) + hiNibbles3);
-            b->chunks[0] += roll0;
-            b->chunks[1] += roll1;
-            b->chunks[2] += roll2;
-            b->chunks[3] += roll3;
-            return badcharmask;
+            Vector128<byte>  roll0 = AdvSimd.Arm64.VectorTableLookup(roll_lut, AdvSimd.CompareEqual(b->chunk0, SecondLast) + hiNibbles0);
+            Vector128<byte>  roll1 = AdvSimd.Arm64.VectorTableLookup(roll_lut, AdvSimd.CompareEqual(b->chunk1, SecondLast) + hiNibbles1);
+            Vector128<byte>  roll2 = AdvSimd.Arm64.VectorTableLookup(roll_lut, AdvSimd.CompareEqual(b->chunk2, SecondLast) + hiNibbles2);
+            Vector128<byte>  roll3 = AdvSimd.Arm64.VectorTableLookup(roll_lut, AdvSimd.CompareEqual(b->chunk3, SecondLast) + hiNibbles3);
+            b->chunk0 += roll0;
+            b->chunk1 += roll1;
+            b->chunk2 += roll2;
+            b->chunk3 += roll3;
+            return badCharmask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -217,7 +207,7 @@ namespace SimdBase64
             shufmask = shufmask + Vector128.Create(0x08080808, 0x08080808, 0, 0).AsSByte();
 
             // this is the version "nearly pruned"
-            Vector128<sbyte> pruned = Ssse3.Shuffle(data.AsSByte(), shufmask);
+            Vector128<sbyte> pruned = AdvSimd.Arm64.VectorTableLookup(data.AsSByte(), shufmask);
             // we still need to put the two halves together.
             // we compute the popcount of the first half:
             int pop1 = Tables.BitsSetTable256mul2[mask1];
@@ -230,7 +220,7 @@ namespace SimdBase64
             {
                 Vector128<byte> compactmask = Vector128.Load(tablePtr + pop1 * 8);
 
-                Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
+                Vector128<byte> answer = AdvSimd.Arm64.VectorTableLookup(pruned.AsByte(), compactmask);
                 Vector128.Store(answer, output);
             }
         }
@@ -243,80 +233,34 @@ namespace SimdBase64
             Vector128.Store(b->chunk2, output + 32);
             Vector128.Store(b->chunk3, output + 48);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Base64DecodeBlockSafe(byte* outPtr, Block64* b)
-        {
-            Base64Decode(outPtr, b->chunk0);
-            Base64Decode(outPtr + 12, b->chunk1);
-            Base64Decode(outPtr + 24, b->chunk2);
-            byte[] buffer = new byte[16];
-
-            // Safe memory copy for the last part of the data
-            fixed (byte* bufferStart = buffer)
-            {
-                Base64Decode(bufferStart, b->chunk3);
-                Buffer.MemoryCopy(bufferStart, outPtr + 36, 12, 12);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static void Base64Decode(byte* output, Vector128<byte> input)
-        {
-            // credit: aqrit
-            Vector128<sbyte> packShuffle = Vector128.Create(2, 1, 0, 6,
-                                                            5, 4, 10, 9,
-                                                            8, 14, 13, 12,
-                                                           -1, -1, -1, -1);
-
-            // Perform the initial multiply and add operation across unsigned 8-bit integers.
-            Vector128<short> t0 = Ssse3.MultiplyAddAdjacent(input, Vector128.Create((Int32)0x01400140).AsSByte());
-
-            // Perform another multiply and add to finalize the byte positions.
-            Vector128<int> t1 = Sse2.MultiplyAddAdjacent(t0, Vector128.Create((Int32)0x00011000).AsInt16());
-
-            // Shuffle the bytes according to the packShuffle pattern.
-            Vector128<byte> t2 = Ssse3.Shuffle(t1.AsSByte(), packShuffle).AsByte();
-
-            // Store the output. This writes 16 bytes, but we only need 12.
-            Vector128.Store(t2, output);
-        }
+  
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void Base64DecodeBlock(byte* outPtr, byte* srcPtr)
         {
-            Base64Decode(outPtr, Vector128.Load(srcPtr));
-            Base64Decode(outPtr + 12, Vector128.Load(srcPtr + 16));
-            Base64Decode(outPtr + 24, Vector128.Load(srcPtr + 32));
-            Base64Decode(outPtr + 36, Vector128.Load(srcPtr + 48));
-        }
+            // Load 4 vectors from src
+            var (str0, str1, str2, str3) = AdvSimd.Arm64.Load4xVector128AndUnzip(srcPtr);
 
-        // Function to decode a Base64 block into binary data.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Base64DecodeBlock(byte* output, Block64* block)
-        {
-            Base64Decode(output, block->chunk0);
-            Base64Decode(output + 12, block->chunk1);
-            Base64Decode(output + 24, block->chunk2);
-            Base64Decode(output + 36, block->chunk3);
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
-        {
-            Base64Decode(outPtr, Vector128.Load(srcPtr));
-            Base64Decode(outPtr + 12, Vector128.Load(srcPtr + 16));
-            Base64Decode(outPtr + 24, Vector128.Load(srcPtr + 32));
-            Vector128<byte> tempBlock = Vector128.Load(srcPtr + 48);
-            byte[] buffer = new byte[16];
-            fixed (byte* bufferPtr = buffer)
-            {
-                Base64Decode(bufferPtr, tempBlock);
 
-                // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
-                // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
-                Buffer.MemoryCopy(bufferPtr, outPtr + 36, 12, 12);// DEGUG:Uncomment
-            }
+            // Perform bitwise operations to simulate NEON intrinsics
+            Vector128<byte> outvec0 = AdvSimd.Or(
+                AdvSimd.ShiftLeftLogical(str0, 2),
+                AdvSimd.ShiftRightLogical(str1, 4)
+            );
+
+            Vector128<byte> outvec1 = AdvSimd.Or(
+                AdvSimd.ShiftLeftLogical(str1, 4),
+                AdvSimd.ShiftRightLogical(str2, 2)
+            );
+
+            Vector128<byte> outvec2 = AdvSimd.Or(
+                AdvSimd.ShiftLeftLogical(str2, 6),
+                str3
+            );
+
+            // Store the result in outData
+            AdvSimd.Arm64.Store(outPtr, (outvec0, outvec1, outvec2));
         }
 
         // Caller is responsible for checking tha (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian)
@@ -356,7 +300,7 @@ namespace SimdBase64
 
                 int bytesToProcess = source.Length;
                 // skip trailing spaces
-                while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                while (bytesToProcess > 0 && SimdBase64.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
                     whiteSpaces++;
@@ -367,7 +311,7 @@ namespace SimdBase64
                 {
                     bytesToProcess -= 1;
                     equalsigns++;
-                    while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                    while (bytesToProcess > 0 && SimdBase64.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
                         whiteSpaces++;
@@ -416,7 +360,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -433,24 +377,11 @@ namespace SimdBase64
 
 
                             }
-                            else if (bufferPtr != startOfBuffer)
+                            else
                             {
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
                                 bufferBytesConsumed += 64;
-                            }
-                            else
-                            {
-                                if (dst >= endOfSafe64ByteZone)
-                                {
-                                    Base64DecodeBlockSafe(dst, &b);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, &b);
-                                }
-                                bufferBytesWritten += 48;
-                                dst += 48;
                             }
 
                             if (bufferPtr >= (blocksSize - 1) * 64 + startOfBuffer) // We treat the last block separately later on
@@ -461,16 +392,7 @@ namespace SimdBase64
                                     bufferBytesWritten += 48;
                                     dst += 48;
                                 }
-                                if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
-                                {
-                                    Base64DecodeBlockSafe(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
-
-
+                                Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
 
                                 dst += 48;
                                 Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
@@ -502,7 +424,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -517,15 +439,7 @@ namespace SimdBase64
                     byte* subBufferPtr = startOfBuffer;
                     for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64)
                     {
-                        if (dst >= endOfSafe64ByteZone)
-                        {
-                            Base64DecodeBlockSafe(dst, subBufferPtr);
-                        }
-                        else
-                        {
-                            Base64DecodeBlock(dst, subBufferPtr);
-                        }
-
+                        Base64DecodeBlock(dst, subBufferPtr);
                         dst += 48;// 64 bits of base64 decodes to 48 bits
                     }
                     if ((bufferPtr - subBufferPtr) % 64 != 0)
@@ -631,7 +545,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)
@@ -696,7 +610,7 @@ namespace SimdBase64
 
                 int bytesToProcess = source.Length;
                 // skip trailing spaces
-                while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                while (bytesToProcess > 0 && SimdBase64.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
                     whiteSpaces++;
@@ -707,7 +621,7 @@ namespace SimdBase64
                 {
                     bytesToProcess -= 1;
                     equalsigns++;
-                    while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                    while (bytesToProcess > 0 && SimdBase64.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
                         whiteSpaces++;
@@ -756,7 +670,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -773,24 +687,11 @@ namespace SimdBase64
 
 
                             }
-                            else if (bufferPtr != startOfBuffer)
+                            else
                             {
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
                                 bufferBytesConsumed += 64;
-                            }
-                            else
-                            {
-                                if (dst >= endOfSafe64ByteZone)
-                                {
-                                    Base64DecodeBlockSafe(dst, &b);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, &b);
-                                }
-                                bufferBytesWritten += 48;
-                                dst += 48;
                             }
 
                             if (bufferPtr >= (blocksSize - 1) * 64 + startOfBuffer) // We treat the last block separately later on
@@ -801,16 +702,7 @@ namespace SimdBase64
                                     bufferBytesWritten += 48;
                                     dst += 48;
                                 }
-                                if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
-                                {
-                                    Base64DecodeBlockSafe(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
-                                else
-                                {
-                                    Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
-                                }
-
-
+                                Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
 
                                 dst += 48;
                                 Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
@@ -842,7 +734,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -857,14 +749,7 @@ namespace SimdBase64
                     byte* subBufferPtr = startOfBuffer;
                     for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64)
                     {
-                        if (dst >= endOfSafe64ByteZone)
-                        {
-                            Base64DecodeBlockSafe(dst, subBufferPtr);
-                        }
-                        else
-                        {
-                            Base64DecodeBlock(dst, subBufferPtr);
-                        }
+                        Base64DecodeBlock(dst, subBufferPtr);
 
                         dst += 48;// 64 bits of base64 decodes to 48 bits
                     }
@@ -971,7 +856,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)
@@ -1011,5 +896,6 @@ namespace SimdBase64
 
             }
         }
+    }
     }
 }

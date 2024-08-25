@@ -1,7 +1,4 @@
 using System;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
@@ -11,7 +8,9 @@ using System.Text;
 
 namespace SimdBase64
 {
-    public static partial class Base64
+    namespace Scalar {
+
+    public static class Base64
     {
         public enum Endianness
         {
@@ -1034,6 +1033,7 @@ namespace SimdBase64
 
 
 
+    }
     }
 
 }

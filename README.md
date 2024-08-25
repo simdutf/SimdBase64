@@ -11,7 +11,24 @@ used in major JavaScript runtimes (Node.js and Bun) to C#. It would complete the
 
 ## Requirements
 
-We recommend you install .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+We require .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+
+
+## Usage
+
+The library only provides Base64 decoding functions, because the .NET library already has
+fast Base64 encoding functions.
+
+```c#
+        string base64 = "SGVsbG8sIFdvcmxkIQ==";
+        byte[] buffer = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
+        int bytesConsumed; // gives you the number of characters consumed
+        int bytesWritten; // gives you the 
+        var result = SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), buffer, out bytesConsumed, out bytesWritten, false); // false is for regular base64, true for base64url
+        // result == OperationStatus.Done
+        // Encoding.UTF8.GetString(buffer.AsSpan().Slice(0, bytesWritten)) == "Hello, World!"
+
+```
 
 
 ## Running tests

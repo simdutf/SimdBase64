@@ -238,7 +238,7 @@ namespace SimdUnicodeBenchmarks
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -257,7 +257,7 @@ namespace SimdUnicodeBenchmarks
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -276,7 +276,7 @@ namespace SimdUnicodeBenchmarks
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -295,7 +295,7 @@ namespace SimdUnicodeBenchmarks
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -312,10 +312,10 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 byte[] base64 = input[i];
-                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -331,10 +331,10 @@ namespace SimdUnicodeBenchmarks
             {
                 string s = FileContent[i];
                 char[] base64 = input16[i];
-                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -390,7 +390,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 byte[] base64 = input[i];
-                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -409,7 +409,7 @@ namespace SimdUnicodeBenchmarks
             {
                 string s = FileContent[i];
                 char[] base64 = input16[i];
-                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);

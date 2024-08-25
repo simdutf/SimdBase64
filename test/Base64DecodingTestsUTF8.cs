@@ -467,12 +467,10 @@ public partial class Base64DecodingTests
                         if (padding == 2)
                         {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                            Console.WriteLine($"Wrong OperationStatus when adding one padding character to TWO padding character");
                         }
                         else if (padding == 1)
                         {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                            Console.WriteLine($"Wrong OperationStatus when adding one padding character to ONE padding character");
                         }
                     }
 
@@ -498,7 +496,7 @@ public partial class Base64DecodingTests
                         catch (FormatException)
                         {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                            Console.WriteLine($"Wrong OperationStatus when substracting one padding character");
+
                         }
                     }
                 }
@@ -524,7 +522,7 @@ public partial class Base64DecodingTests
                     catch (FormatException)
                     {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                        Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding charater");
+
                     }
                 }
 
@@ -1206,8 +1204,10 @@ public partial class Base64DecodingTests
             FileContent[i] = File.ReadAllText(fileNames[i]);
         }
 
-        foreach (string s in FileContent)
+        for (int i = 0; i < FileContent.Length; i++)
         {
+            string s = FileContent[i];
+
             byte[] base64 = Encoding.UTF8.GetBytes(s);
 
             Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
@@ -1221,10 +1221,10 @@ public partial class Base64DecodingTests
 
             var resultScalar = DecodeFromBase64DelegateSafe(base64.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
-            Assert.True(result == resultScalar);
-            Assert.True(result == OperationStatus.Done);
-            Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
-            Assert.True(bytesWritten == bytesWrittenScalar);
+            Assert.True(result == resultScalar, $"result {result} != resultScalar {resultScalar} in file # {i}");
+            Assert.True(result == OperationStatus.Done,$"result {result} != OperationStatus.Done in file # {i}");
+            Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar} in file # {i}");
+            Assert.True(bytesWritten == bytesWrittenScalar,$"bytesWritten {bytesWritten} != {bytesWrittenScalar} bytesWrittenScalar in file # {i}");
         }
     }
 
@@ -1248,6 +1248,77 @@ public partial class Base64DecodingTests
     {
         EnronFilesTestUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
+
+    protected static void EnronChoppedUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
+    {
+        string[] fileNames = Directory.GetFiles("../../../../benchmark/data/email");
+        string[] FileContent = new string[fileNames.Length];
+
+        for (int i = 0; i < fileNames.Length; i++)
+        {
+            FileContent[i] = File.ReadAllText(fileNames[i]);
+        }
+
+        // for (int i = 0; i < FileContent.Length; i++)
+        {
+            string s = FileContent[4];
+            byte[] base64 = Encoding.UTF8.GetBytes(s);
+
+            // Define initial chunk size and start index for chopping from the end
+            int increment = 50; // Modify as needed to adjust granularity
+            int startIndex = base64.Length - increment;
+
+            while (startIndex > 0)
+            {
+
+
+                // Create a Span<byte> slice from the base64 array
+                Span<byte> slice = new Span<byte>(base64, startIndex, base64.Length - startIndex);
+                Span<byte> output = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(slice)];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+
+                var result = Base64WithWhiteSpaceToBinary(slice, output, out bytesConsumed, out bytesWritten, false);
+
+                int bytesConsumedScalar = 0;
+                int bytesWrittenScalar = 0;
+
+                var resultScalar = DecodeFromBase64DelegateSafe(slice, output, out bytesConsumedScalar, out bytesWrittenScalar, false);
+
+                Assert.True(result == resultScalar, $"result {result} != resultScalar {resultScalar} at index = {startIndex} , slice.Length was {slice.Length}");
+                // Assert.True(result == OperationStatus.Done,$"result {result} != OperationStatus.Done");
+                // Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+                // Assert.True(bytesWritten == bytesWrittenScalar,$"bytesWritten {bytesWritten} != {bytesWrittenScalar} bytesWrittenScalar");
+
+                // Adjust the startIndex for the next iteration, move back by chunkSize
+                startIndex -= increment;
+            }
+
+            
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "scalar")]
+    public void EnronChoppedScalarUTF8()
+    {
+        EnronChoppedUTF8(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void EnronChoppedSSEUTF8()
+    {
+        EnronChoppedUTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void EnronChoppedUTF8Avx2UTF8()
+    {
+        EnronChoppedUTF8(Base64AVX2.DecodeFromBase64AVX2, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
+
 
 
     protected static void SwedenZoneBaseFileTestUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
@@ -1355,7 +1426,7 @@ public partial class Base64DecodingTests
                     base64WithGarbageAndTrigger.ToArray().AsSpan(), back.AsSpan(),
                     out bytesConsumedSafe, out bytesWrittenSafe, isUrl: false);
 
-                Assert.True(result == safeResult);
+                Assert.True(result == safeResult, $"OperationStatus {result} != Safe  OperationStatus {safeResult}.");
                 Assert.True(bytesConsumedSafe == bytesConsumed, $"bytesConsumedSafe :{bytesConsumedSafe} != bytesConsumed {bytesConsumed}");
                 Assert.True(bytesWrittenSafe == bytesWritten, $"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
 

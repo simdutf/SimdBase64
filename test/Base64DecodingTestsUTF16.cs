@@ -9,10 +9,13 @@ using System.Runtime.Intrinsics.Arm;
 using System.Buffers;
 using Newtonsoft.Json;
 
+#pragma warning disable CA1515
 public partial class Base64DecodingTests{
-
+#pragma warning disable CA1515
     public delegate OperationStatus DecodeFromBase64DelegateFncFromUTF16(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
+#pragma warning disable CA1515
     public delegate OperationStatus DecodeFromBase64DelegateSafeFromUTF16(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
+#pragma warning disable CA1515
     public delegate OperationStatus Base64WithWhiteSpaceToBinaryFromUTF16(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
 
 

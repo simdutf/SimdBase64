@@ -13,7 +13,7 @@ using System.Runtime.Intrinsics.X86;
 namespace SimdUnicodeBenchmarks
 {
 
-
+#pragma warning disable CA1515
     public class Speed : IColumn
     {
         static long GetDirectorySize(string folderPath)
@@ -66,9 +66,9 @@ namespace SimdUnicodeBenchmarks
         public string Legend { get; } = "The speed in gigabytes per second";
     }
 
-
     [SimpleJob(launchCount: 1, warmupCount: 5, iterationCount: 5)]
     [Config(typeof(Config))]
+#pragma warning disable CA1515
     public class RealDataBenchmark
     {
 #pragma warning disable CA1812
@@ -536,8 +536,8 @@ namespace SimdUnicodeBenchmarks
         {
             RunSSEDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
-
     }
+#pragma warning disable CA1515
     public class Program
     {
         static void Main(string[] args)

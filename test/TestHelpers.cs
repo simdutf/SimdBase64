@@ -126,8 +126,8 @@ public partial class Base64DecodingTests
     }
 
 
-
     [Flags]
+#pragma warning disable CA1515
     public enum TestSystemRequirements
     {
         None = 0,

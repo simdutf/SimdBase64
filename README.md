@@ -11,7 +11,7 @@ used in major JavaScript runtimes (Node.js and Bun) to C#. It would complete the
 
 ## Requirements
 
-We recommend you install .NET 8 or better: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+We recommend you install .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
 
 
 ## Running tests

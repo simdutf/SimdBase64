@@ -13,7 +13,7 @@ public partial class Base64DecodingTests
 {
     Random random = new Random(12345680);
 
-    private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r' };
+    private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r', '\f'};
 #pragma warning disable CA1002
     protected static void AddSpace(List<byte> list, Random random)
     {
@@ -156,11 +156,11 @@ public partial class Base64DecodingTests
             switch (RuntimeInformation.ProcessArchitecture)
             {
                 case Architecture.Arm64:
-                    return requiredSystems.HasFlag(TestSystemRequirements.Arm64);
+                    return requiredSystems.HasFlag(TestSystemRequirements.Arm64) && AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian;
                 case Architecture.X64:
                     return (requiredSystems.HasFlag(TestSystemRequirements.X64Avx512) && Vector512.IsHardwareAccelerated && System.Runtime.Intrinsics.X86.Avx512F.IsSupported) ||
                         (requiredSystems.HasFlag(TestSystemRequirements.X64Avx2) && System.Runtime.Intrinsics.X86.Avx2.IsSupported) ||
-                        (requiredSystems.HasFlag(TestSystemRequirements.X64Sse) && System.Runtime.Intrinsics.X86.Sse.IsSupported);
+                        (requiredSystems.HasFlag(TestSystemRequirements.X64Sse) && System.Runtime.Intrinsics.X86.Ssse3.IsSupported && Popcnt.IsSupported);
                 default:
                     return false;
             }

@@ -105,7 +105,7 @@ public partial class Base64DecodingTests{
         CompleteDecodeBase64CasesUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void CompleteDecodeBase64CasesSSEUTF16()
     {
@@ -177,7 +177,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "SSE")]
     public void MoreDecodeTestsSSEUTF16()
     {
@@ -239,7 +239,7 @@ public partial class Base64DecodingTests{
         }
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void MoreDecodeTestsUrlUTF16SSE()
     {
@@ -285,11 +285,18 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void RoundtripBase64SSEUtf16()
     {
         RoundtripBase64UTF16(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+   [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    [Trait("Category", "ARM64")]
+    public void RoundtripBase64ARMUtf16()
+    {
+        RoundtripBase64UTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     protected void RoundtripBase64UrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
@@ -329,7 +336,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void RoundtripBase64UrlSSEUtf16()
     {
@@ -456,7 +463,7 @@ public partial class Base64DecodingTests{
         BadPaddingBase64UTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void BadPaddingUTF16Base64SSE()
     {
@@ -516,7 +523,7 @@ public partial class Base64DecodingTests{
         DoomedBase64RoundtripUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void DoomedBase64RoundtripSSEUTF16()
     {
@@ -577,7 +584,7 @@ public partial class Base64DecodingTests{
         TruncatedDoomedBase64RoundtripUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void TruncatedDoomedBase64RoundtripSSEUTF16()
     {
@@ -643,7 +650,7 @@ public partial class Base64DecodingTests{
         RoundtripBase64WithSpacesUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void RoundtripBase64WithSpacesSSEUTF16()
     {
@@ -711,7 +718,7 @@ public partial class Base64DecodingTests{
         AbortedSafeRoundtripBase64UTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void AbortedSafeRoundtripBase64SSEUTF16()
     {
@@ -780,7 +787,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void AbortedSafeRoundtripBase64WithSpacesSSEUTF16()
     {
@@ -852,7 +859,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void StreamingBase64RoundtripSSEUTF16()
     {
@@ -922,7 +929,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void ReadmeTestSSEUTF16()
     {
@@ -970,7 +977,7 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void ReadmeTestSafeSSEUTF16()
     {
@@ -1040,7 +1047,7 @@ public partial class Base64DecodingTests{
         DoomedBase64AtPos0(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void DoomedBase64AtPos0SSEUTF16()
     {
@@ -1086,7 +1093,7 @@ public partial class Base64DecodingTests{
         EnronFilesTestUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void EnronFilesTestSSEUTF16()
     {
@@ -1129,7 +1136,7 @@ public partial class Base64DecodingTests{
         SwedenZoneBaseFileTestUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void SwedenZoneBaseFileTestSSEUTF16()
     {
@@ -1209,7 +1216,7 @@ public partial class Base64DecodingTests{
         DoomedPartialBufferUTF16(Base64.Base64WithWhiteSpaceToBinaryScalar, Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [Fact]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "sse")]
     public void DoomedPartialBufferSSEUTF16()
     {
@@ -1365,8 +1372,8 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void TruncatedCharErrorUTF16SSE()
     {
         TruncatedCharErrorUTF16(Base64.DecodeFromBase64SSE,Base64.SafeBase64ToBinaryWithWhiteSpace);
@@ -1427,8 +1434,8 @@ public partial class Base64DecodingTests{
     }
 
 
-    [Fact]
     [Trait("Category", "sse")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void TruncatedCharErrorUrlUTF16SSE()
     {
         TruncatedCharErrorUrlUTF16(Base64.DecodeFromBase64SSE,Base64.SafeBase64ToBinaryWithWhiteSpace);

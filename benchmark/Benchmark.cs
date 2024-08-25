@@ -1,24 +1,14 @@
-﻿using System;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
 using System.Text;
-using System.Runtime;
 using System.Runtime.InteropServices;
-using System.Buffers;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 using BenchmarkDotNet.Columns;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.CompilerServices;
-using gfoidl.Base64;
-using System.Buffers.Text;
 
 namespace SimdUnicodeBenchmarks
 {
@@ -164,7 +154,8 @@ namespace SimdUnicodeBenchmarks
         // Parameters and variables for real data
         [Params(
                 @"data/email/",
-                @"data/dns/swedenzonebase.txt")]
+                @"data/dns/swedenzonebase.txt"
+                )]
 #pragma warning disable CA1051
         public string? FileName;
 #pragma warning disable CS8618
@@ -353,6 +344,84 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+
+        public unsafe void RunARMDecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunARMDecodingBenchmarkUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                ReadOnlySpan<char> base64 = s.AsSpan();
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+
+
+        public unsafe void RunARMDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                byte[] base64 = input[i];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunARMDecodingBenchmarkWithAllocUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                char[] base64 = input16[i];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
         [GlobalSetup]
         public void Setup()
         {
@@ -419,23 +488,6 @@ namespace SimdUnicodeBenchmarks
             RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        // Gfoidl does not work correctly with spaces.
-        /*[Benchmark]
-        [BenchmarkCategory("default", "gfoidl")]
-        public unsafe void DotnetGfoildBase64RealDataUTF16()
-        {
-            RunGfoidlDecodingBenchmarkUTF16(FileContent, DecodedLengths);
-        }*/
-
-        // We almost never want to benchmark scalar decoding.
-        /*[Benchmark]
-        [BenchmarkCategory("scalar")]
-        public unsafe void ScalarDecodingRealDataUTF8()
-        {
-            RunScalarDecodingBenchmarkUTF8(FileContent, DecodedLengths);
-        }*/
-
-
         [Benchmark]
         [BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataUTF8()
@@ -448,6 +500,27 @@ namespace SimdUnicodeBenchmarks
         public unsafe void SSEDecodingRealDataWithAllocUTF8()
         {
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("arm64")]
+        public unsafe void ARMDecodingRealDataUTF8()
+        {
+            RunARMDecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("arm64")]
+        public unsafe void ARMDecodingRealDataWithAllocUTF8()
+        {
+            RunARMDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("arm64")]
+        public unsafe void ARMDecodingRealDataUTF16()
+        {
+            RunARMDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
         [Benchmark]

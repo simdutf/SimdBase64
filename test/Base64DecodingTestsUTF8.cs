@@ -310,9 +310,9 @@ public partial class Base64DecodingTests
                 out bytesConsumed, out bytesWritten, isUrl: false);
 
             Assert.Equal(OperationStatus.Done, result);
-            Assert.Equal(source, decodedBytes.AsSpan().ToArray());
             Assert.True(len == bytesWritten, $" Expected bytesWritten: {len} , Actual: {bytesWritten}");
             Assert.True(base64String.Length == bytesConsumed, $" Expected bytesConsumed: {base64String.Length} , Actual: {bytesConsumed}");
+            Assert.Equal(source, decodedBytes.AsSpan().ToArray());
         }
     }
 
@@ -331,6 +331,12 @@ public partial class Base64DecodingTests
         RoundtripBase64UTF8(Base64.DecodeFromBase64SSE, Base64.SafeBase64ToBinaryWithWhiteSpace, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+    [Trait("Category", "arm64")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    public void RoundtripBase64ARMUTF8()
+    {
+        RoundtripBase64UTF8(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Arm.Base64.DecodeFromBase64ARM, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
     protected void RoundtripBase64UrlUTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)
@@ -375,6 +381,13 @@ public partial class Base64DecodingTests
         RoundtripBase64UrlUTF8(Base64.DecodeFromBase64SSE, Base64.DecodeFromBase64SSE, Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
+
+    [Trait("Category", "arm64")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    public void RoundtripBase64UrlARMUTF8()
+    {
+        RoundtripBase64UrlUTF8(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Arm.Base64.DecodeFromBase64ARM, Base64.MaximalBinaryLengthFromBase64Scalar);
+    }
     protected static void BadPaddingBase64UTF8(Base64WithWhiteSpaceToBinary Base64WithWhiteSpaceToBinary, DecodeFromBase64DelegateSafe DecodeFromBase64DelegateSafe, MaxBase64ToBinaryLengthDelegateFnc MaxBase64ToBinaryLengthDelegate)
     {
         if (Base64WithWhiteSpaceToBinary == null || DecodeFromBase64DelegateSafe == null || MaxBase64ToBinaryLengthDelegate == null)

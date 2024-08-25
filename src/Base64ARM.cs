@@ -713,17 +713,15 @@ namespace SimdBase64
                             {
                                 src -= bufferBytesConsumed;
                                 dst -= bufferBytesWritten;
-                                bytesConsumed = Math.Max(0, (int)(src - srcInit));
-                                bytesWritten = Math.Max(0, (int)(dst - dstInit));
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
                                     SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
+
                                 return result;
                             }
                             if (badCharMask != 0)
@@ -771,6 +769,22 @@ namespace SimdBase64
                         int lastBlockSrcCount = 0;
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
+
+                            if (!SimdBase64.Base64.IsValidBase64Index(*src))
+                            {
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit) - (int)bufferBytesWritten);
+
+                                int remainderBytesConsumed = 0;
+                                int remainderBytesWritten = 0;
+
+                                OperationStatus result =
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+                                bytesConsumed += remainderBytesConsumed;
+                                bytesWritten += remainderBytesWritten;
+                                return result;
+                            }
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
                             if (val > 64)
@@ -834,6 +848,13 @@ namespace SimdBase64
 
                             while (leftover < 4 && src < srcEnd)
                             {
+                                if (!SimdBase64.Base64.IsValidBase64Index(*src))
+                                {
+                                    bytesConsumed = (int)(src - srcInit);
+                                    bytesWritten = (int)(dst - dstInit);
+                                    return OperationStatus.InvalidData;
+                                }
+
                                 byte val = toBase64[(byte)*src];
                                 if (val > 64)
                                 {
@@ -1014,9 +1035,6 @@ namespace SimdBase64
                             {
                                 src -= bufferBytesConsumed;
                                 dst -= bufferBytesWritten;
-
-                                bytesConsumed = Math.Max(0, (int)(src - srcInit));
-                                bytesWritten = Math.Max(0, (int)(dst - dstInit));
 
                                 int remainderBytesConsumed = 0;
                                 int remainderBytesWritten = 0;
@@ -1381,6 +1399,22 @@ namespace SimdBase64
                         int lastBlockSrcCount = 0;
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
+
+                            if (!SimdBase64.Base64.IsValidBase64Index(*src))
+                            {
+                                bytesConsumed = Math.Max(0, (int)(src - srcInit) - lastBlockSrcCount - (int)bufferBytesConsumed);
+                                bytesWritten = Math.Max(0, (int)(dst - dstInit) - (int)bufferBytesWritten);
+
+                                int remainderBytesConsumed = 0;
+                                int remainderBytesWritten = 0;
+
+                                OperationStatus result =
+                                    SimdBase64.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+                                bytesConsumed += remainderBytesConsumed;
+                                bytesWritten += remainderBytesWritten;
+                                return result;
+                            }
                             byte val = toBase64[(int)*src];
                             *bufferPtr = val;
                             if (val > 64)
@@ -1445,6 +1479,12 @@ namespace SimdBase64
 
                             while (leftover < 4 && src < srcEnd)
                             {
+                                if (!SimdBase64.Base64.IsValidBase64Index(*src))
+                                {
+                                    bytesConsumed = (int)(src - srcInit);
+                                    bytesWritten = (int)(dst - dstInit);
+                                    return OperationStatus.InvalidData;
+                                }
                                 byte val = toBase64[(byte)*src];
                                 if (val > 64)
                                 {

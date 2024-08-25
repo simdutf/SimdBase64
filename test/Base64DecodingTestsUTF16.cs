@@ -1318,7 +1318,12 @@ public partial class Base64DecodingTests{
     {
         Issue511UTF16(Base64.DecodeFromBase64SSE);
     }
-
+    [Trait("Category", "Arm64")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    public void Issue511ARMUTF16()
+    {
+        Issue511UTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM);
+    }
 
     protected void TruncatedCharErrorUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16,DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
@@ -1381,6 +1386,14 @@ public partial class Base64DecodingTests{
     {
         TruncatedCharErrorUTF16(Base64.DecodeFromBase64SSE,Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
+
+    [Trait("Category", "arm64")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    public void TruncatedCharErrorUTF16ARM()
+    {
+        TruncatedCharErrorUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM,Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
 
     protected void TruncatedCharErrorUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16,DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {

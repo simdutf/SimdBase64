@@ -33,7 +33,7 @@ fast Base64 encoding functions.
         string base64 = "SGVsbG8sIFdvcmxkIQ==";
         byte[] buffer = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
         int bytesConsumed; // gives you the number of characters consumed
-        int bytesWritten; // gives you the 
+        int bytesWritten;
         var result = SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), buffer, out bytesConsumed, out bytesWritten, false); // false is for regular base64, true for base64url
         // result == OperationStatus.Done
         // Encoding.UTF8.GetString(buffer.AsSpan().Slice(0, bytesWritten)) == "Hello, World!"

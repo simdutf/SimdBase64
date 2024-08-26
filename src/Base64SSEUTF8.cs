@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
@@ -14,6 +13,7 @@ using System.Numerics;
 
 namespace SimdBase64
 {
+    namespace SSE {
     public static partial class Base64
     {
         /*
@@ -310,7 +310,7 @@ namespace SimdBase64
 
                 int bytesToProcess = source.Length;
                 // skip trailing spaces
-                while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                while (bytesToProcess > 0 && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
                     whiteSpaces++;
@@ -321,7 +321,7 @@ namespace SimdBase64
                 {
                     bytesToProcess -= 1;
                     equalsigns++;
-                    while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                    while (bytesToProcess > 0 && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
                         whiteSpaces++;
@@ -370,7 +370,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -456,7 +456,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -585,7 +585,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)
@@ -650,7 +650,7 @@ namespace SimdBase64
 
                 int bytesToProcess = source.Length;
                 // skip trailing spaces
-                while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                while (bytesToProcess > 0 && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                 {
                     bytesToProcess--;
                     whiteSpaces++;
@@ -661,7 +661,7 @@ namespace SimdBase64
                 {
                     bytesToProcess -= 1;
                     equalsigns++;
-                    while (bytesToProcess > 0 && Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
+                    while (bytesToProcess > 0 && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
                         whiteSpaces++;
@@ -710,7 +710,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -796,7 +796,7 @@ namespace SimdBase64
                                 int remainderBytesWritten = 0;
 
                                 OperationStatus result =
-                                    Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                    SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(Math.Max(0, bytesConsumed)), dest.Slice(Math.Max(0, bytesWritten)), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                                 bytesConsumed += remainderBytesConsumed;
                                 bytesWritten += remainderBytesWritten;
@@ -925,7 +925,7 @@ namespace SimdBase64
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
-                            Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                            SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                         if (result == OperationStatus.InvalidData)
@@ -965,5 +965,6 @@ namespace SimdBase64
 
             }
         }
+    }
     }
 }

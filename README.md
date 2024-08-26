@@ -2,16 +2,43 @@
 ## Fast WHATWG forgiving-base64 in C#
 
 The C# standard library has fast (SIMD-based) base64 encoding functions, but it lacks
-base64 decoding function. The initial work that lead to the fast functions in the runtime
-was carried out by [gfoidl](https://github.com/gfoidl/Base64).
+really fast base64 decoding function. The initial work that lead to the fast functions in the runtime
+was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
+
+-  There are accelerated base64 functions for UTF-8 inputs in the .NET runtime, but they are not optimal: 
+we can make them 50% to 2x or 3x faster.
+- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be 2x faster
+or more.
 
 The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
-used in major JavaScript runtimes (Node.js and Bun) to C#. It would complete the existing work.
+used in major JavaScript runtimes (Node.js and Bun) to C#.
+
+Importantly, we only focus on base64 decoding. It is a more challenging problem than base64 encoding because
+of the presence of allowable white space characters and the need to validate the input. Indeed, all
+inputs are valid for encoding, but only some inputs are valid for decoding. Having to skip white space 
+characters makes accelerated decoding somewhat difficult.
 
 
 ## Requirements
 
-We recommend you install .NET 8 or better: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+We require .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+
+
+## Usage
+
+The library only provides Base64 decoding functions, because the .NET library already has
+fast Base64 encoding functions.
+
+```c#
+        string base64 = "SGVsbG8sIFdvcmxkIQ==";
+        byte[] buffer = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
+        int bytesConsumed; // gives you the number of characters consumed
+        int bytesWritten;
+        var result = SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), buffer, out bytesConsumed, out bytesWritten, false); // false is for regular base64, true for base64url
+        // result == OperationStatus.Done
+        // Encoding.UTF8.GetString(buffer.AsSpan().Slice(0, bytesWritten)) == "Hello, World!"
+
+```
 
 
 ## Running tests

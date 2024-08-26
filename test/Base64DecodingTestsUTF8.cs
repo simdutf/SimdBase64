@@ -61,7 +61,7 @@ public partial class Base64DecodingTests
         DecodeBase64CasesUTF8(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Trait("Category", "arm")]
+    [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void DecodeBase64CasesARM()
     {
@@ -136,7 +136,7 @@ public partial class Base64DecodingTests
         CompleteDecodeBase64CasesUTF8(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace, SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Trait("Category", "arm")]
+    [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void CompleteDecodeBase64CasesARM()
     {
@@ -229,14 +229,14 @@ public partial class Base64DecodingTests
     }
 
 
-    [Trait("Category", "SSE")]
+    [Trait("Category", "sse")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void Issue511SSEUTF8()
     {
         Issue511UTF8(SimdBase64.SSE.Base64.DecodeFromBase64SSE);
     }
 
-    [Trait("Category", "ARM")]
+    [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void Issue511ARMUTF8()
     {
@@ -312,7 +312,7 @@ public partial class Base64DecodingTests
         MoreDecodeTestsUrlUTF8(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace, SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar);
     }
 
-    [Trait("Category", "arm")]
+    [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void MoreDecodeTestsUrlARMUTF8()
     {

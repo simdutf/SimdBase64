@@ -276,6 +276,8 @@ namespace SimdBase64
         // Caller is responsible for checking that Ssse3.IsSupported && Popcnt.IsSupported
         public unsafe static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
+
+
             if (isUrl)
             {
                 return InnerDecodeFromBase64SSEUrl(source, dest, out bytesConsumed, out bytesWritten);
@@ -352,6 +354,8 @@ namespace SimdBase64
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
+
+
                             Base64.Block64 b;
                             Base64.LoadBlock(&b, src);
                             src += 64;
@@ -386,9 +390,12 @@ namespace SimdBase64
                                 bufferBytesConsumed += compressedBytesCount;
 
 
+
                             }
                             else if (bufferPtr != startOfBuffer)
                             {
+
+
                                 CopyBlock(&b, bufferPtr);
                                 bufferPtr += 64;
                                 bufferBytesConsumed += 64;
@@ -397,10 +404,14 @@ namespace SimdBase64
                             {
                                 if (dst >= endOfSafe64ByteZone)
                                 {
+
+
                                     Base64DecodeBlockSafe(dst, &b);
                                 }
                                 else
                                 {
+
+
                                     Base64DecodeBlock(dst, &b);
                                 }
                                 bufferBytesWritten += 48;
@@ -438,10 +449,14 @@ namespace SimdBase64
                     }
                     // Optimization note: if this is almost full, then it is worth our
                     // time, otherwise, we should just decode directly.
+
+
                     int lastBlock = (int)((bufferPtr - startOfBuffer) % 64);
                     // There is at some bytes remaining beyond the last 64 bit block remaining
                     if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) // We first check if there is any error and eliminate white spaces?:
                     {
+
+
                         int lastBlockSrcCount = 0;
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                         {
@@ -466,11 +481,15 @@ namespace SimdBase64
                             src++;
                             lastBlockSrcCount++;
                         }
+
+
                     }
 
                     byte* subBufferPtr = startOfBuffer;
                     for (; subBufferPtr + 64 <= bufferPtr; subBufferPtr += 64)
                     {
+
+
                         if (dst >= endOfSafe64ByteZone)
                         {
                             Base64DecodeBlockSafe(dst, subBufferPtr);
@@ -486,6 +505,8 @@ namespace SimdBase64
                     {
                         while (subBufferPtr + 4 < bufferPtr) // we decode one base64 element (4 bit) at a time
                         {
+
+
                             UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
@@ -499,6 +520,8 @@ namespace SimdBase64
                         }
                         if (subBufferPtr + 4 <= bufferPtr) // this may be the very last element, might be incomplete
                         {
+
+
                             UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
                                                 ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
@@ -530,6 +553,8 @@ namespace SimdBase64
 
                             if (leftover == 1)
                             {
+
+
                                 bytesConsumed = (int)(src - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.NeedMoreData;
@@ -577,11 +602,16 @@ namespace SimdBase64
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
 
+
+
+
                         int remainderBytesConsumed = 0;
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
                             SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+
+
 
 
                         if (result == OperationStatus.InvalidData)

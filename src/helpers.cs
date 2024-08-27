@@ -11,10 +11,5 @@ using System.Text;
 
 namespace SimdBase64
 {
-
-    public static partial class Base64
-
-    {
-    }
 }
 

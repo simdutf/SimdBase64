@@ -1,7 +1,4 @@
 using System;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics.Arm;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
@@ -11,7 +8,9 @@ using System.Text;
 
 namespace SimdBase64
 {
-    public static partial class Base64
+    namespace Scalar {
+
+    public static class Base64
     {
         public enum Endianness
         {
@@ -35,31 +34,17 @@ namespace SimdBase64
             Url = 1      // Base64url format
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T> input)
         {
             // We follow https://infra.spec.whatwg.org/#forgiving-base64-decode
-            int padding = 0;
             int length = input.Length;
-            if (length > 0)
+            if (length % 4 <= 1)
             {
-#pragma warning disable CS8602
-                if (input[length - 1].Equals('='))
-                {
-                    padding++;
-                    if (length > 1 && input[length - 2].Equals('='))
-                    {
-
-                        padding++;
-                    }
-                }
-            }
-            int actualLength = length - padding;
-            if (actualLength % 4 <= 1)
-            {
-                return actualLength / 4 * 3;
+                return length / 4 * 3;
             }
             // If we have a valid input, then the remainder must be 2 or 3 adding one or two extra bytes.
-            return actualLength / 4 * 3 + (actualLength % 4) - 1;
+            return length / 4 * 3 + (length % 4) - 1;
         }
 
 
@@ -1048,6 +1033,7 @@ namespace SimdBase64
 
 
 
+    }
     }
 
 }

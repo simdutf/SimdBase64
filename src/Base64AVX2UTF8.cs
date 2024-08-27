@@ -14,7 +14,8 @@ using System.Numerics;
 
 namespace SimdBase64
 {
-    public static partial class Base64AVX2
+    namespace AVX2 {
+    public static partial class Base64
     {
         /*
         // If needed for debugging, you can do the following:
@@ -89,7 +90,7 @@ namespace SimdBase64
 
 
 
-            Vector256<byte> deltaValues = base64Url //DEBUG: this is byte in the SSE?
+            Vector256<byte> deltaValues = base64Url
                 ? Vector256.Create(                    
                     0x0, 0x0, 0x0, 0x13, 0x4, 0xBF, 0xBF, 0xB9,
                     0xB9, 0x0, 0x11, 0xC3, 0xBF, 0xE0,
@@ -126,9 +127,9 @@ namespace SimdBase64
                             0x91, 0x80);
 
 
-            Vector256<Int32> shifted = Avx2.ShiftRightLogical(src.AsInt32(), 3); //DEBUG: this is suspect, the comments in the Runtime seem erroneous? The online documentation says otherwise
+            Vector256<Int32> shifted = Avx2.ShiftRightLogical(src.AsInt32(), 3);
 
-            Vector256<byte> deltaHash = Avx2.Average(Avx2.Shuffle(deltaAsso,// DEBUG: the Runtime comments says this uses _mm256_blend_epi32 and not _mm256_avg_epu8?  The online documentation says oth
+            Vector256<byte> deltaHash = Avx2.Average(Avx2.Shuffle(deltaAsso,
                                                                     src.AsSByte()).
                                                                     AsByte(),
                                                     shifted.AsByte());
@@ -139,9 +140,7 @@ namespace SimdBase64
 
 
             Vector256<sbyte> outVector = Avx2.AddSaturate(Avx2.Shuffle(deltaValues.AsByte(), deltaHash).AsSByte(),
-                                                        src.AsSByte());             /// DEBUG: manual checking ends here
-            // Vector256<sbyte> chkVector = Avx2.AddSaturate(Avx2.Shuffle(checkValues.AsByte(), checkHash).AsSByte(),
-            //                                             src.AsSByte());
+                                                        src.AsSByte());
 
             Vector256<byte> chkVector = Avx2.AddSaturate(Avx2.Shuffle(checkValues.AsByte(), checkHash).AsByte(),
                                             src.AsByte());
@@ -220,7 +219,7 @@ namespace SimdBase64
             }
             
             // Perform compression on the lower 128 bits
-            Compress(data.GetLower().AsByte(), (ushort)mask, output); // DEBUG:this sounds sketch
+            Compress(data.GetLower().AsByte(), (ushort)mask, output);
             
             // Perform compression on the upper 128 bits, shifting output pointer by the number of 1's in the lower 16 bits of mask
             int popCount = (int)Popcnt.PopCount(~mask & 0xFFFF);
@@ -301,21 +300,21 @@ namespace SimdBase64
         }
 
         // Caller is responsible for checking that Avx2.IsSupported && Popcnt.IsSupported
-        public unsafe static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
+        public unsafe static OperationStatus DecodeFromBase64(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
 
 
             if (isUrl)
             {
-                return InnerDecodeFromBase64AVX2Url(source, dest, out bytesConsumed, out bytesWritten);
+                return InnerDecodeFromBase64Url(source, dest, out bytesConsumed, out bytesWritten);
             }
             else
             {
-                return InnerDecodeFromBase64AVX2Regular(source, dest, out bytesConsumed, out bytesWritten);
+                return InnerDecodeFromBase64Regular(source, dest, out bytesConsumed, out bytesWritten);
             }
         }
 
-        private unsafe static OperationStatus InnerDecodeFromBase64AVX2Regular(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
+        private unsafe static OperationStatus InnerDecodeFromBase64Regular(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
         {
             // translation from ASCII to 6 bit values
             bool isUrl = false;
@@ -382,12 +381,12 @@ namespace SimdBase64
                         while (src <= srcEnd64)
                         {
 
-                            Base64AVX2.Block64 b;
-                            Base64AVX2.LoadBlock(&b, src);
+                            Base64.Block64 b;
+                            Base64.LoadBlock(&b, src);
                             src += 64;
                             bufferBytesConsumed += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64AVX2.ToBase64Mask(isUrl, &b, ref error);
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
                             if (error == true)
                             {
                                 src -= bufferBytesConsumed;
@@ -535,8 +534,6 @@ namespace SimdBase64
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             Buffer.MemoryCopy(&triple, dst, 4, 4);
 
-                            // bufferBytesWritten += 3;//DEBUG
-
                             dst += 3;
                             subBufferPtr += 4;
                         }
@@ -551,8 +548,6 @@ namespace SimdBase64
                                                 << 8;
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             Buffer.MemoryCopy(&triple, dst, 3, 3);
-
-                            // bufferBytesWritten +=3;//DEBUG
 
                             dst += 3;
                             subBufferPtr += 4;
@@ -592,7 +587,6 @@ namespace SimdBase64
                                 triple >>= 8;
                                 Buffer.MemoryCopy(&triple, dst, 1, 1);
 
-                                // bufferBytesWritten +=1;//DEBUG
                                 dst += 1;
                             }
                             else if (leftover == 3)
@@ -605,7 +599,6 @@ namespace SimdBase64
                                 triple >>= 8;
 
                                 Buffer.MemoryCopy(&triple, dst, 2, 2);
-                                // bufferBytesWritten +=2;//DEBUG
                                 dst += 2;
                             }
                             else
@@ -617,8 +610,6 @@ namespace SimdBase64
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
                                 Buffer.MemoryCopy(&triple, dst, 3, 3);
-
-                                // bufferBytesWritten +=3;//DEBUG
                                 dst += 3;
                             }
                         }
@@ -682,7 +673,7 @@ namespace SimdBase64
             }
         }
 
-        private unsafe static OperationStatus InnerDecodeFromBase64AVX2Url(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
+        private unsafe static OperationStatus InnerDecodeFromBase64Url(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten)
         {
             // translation from ASCII to 6 bit values
             bool isUrl = true;
@@ -748,12 +739,12 @@ namespace SimdBase64
                         byte* srcEnd64 = srcInit + bytesToProcess - 64;
                         while (src <= srcEnd64)
                         {
-                            Base64AVX2.Block64 b;
-                            Base64AVX2.LoadBlock(&b, src);
+                            Base64.Block64 b;
+                            Base64.LoadBlock(&b, src);
                             src += 64;
                             bufferBytesConsumed += 64;
                             bool error = false;
-                            UInt64 badCharMask = Base64AVX2.ToBase64Mask(isUrl, &b, ref error);
+                            UInt64 badCharMask = Base64.ToBase64Mask(isUrl, &b, ref error);
                             if (error == true)
                             {
                                 src -= bufferBytesConsumed;
@@ -1022,4 +1013,5 @@ namespace SimdBase64
             }
         }
     }
+}
 }

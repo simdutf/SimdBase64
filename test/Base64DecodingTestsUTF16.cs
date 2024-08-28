@@ -54,7 +54,7 @@ public partial class Base64DecodingTests
     }
 
     [Fact]
-    [Trait("Category", "SSE")]
+    [Trait("Category", "sse")]
     public void DecodeBase64CasesSSETUF16()
     {
         DecodeBase64CasesUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE);
@@ -201,7 +201,7 @@ public partial class Base64DecodingTests
 
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
-    [Trait("Category", "SSE")]
+    [Trait("Category", "sse")]
     public void MoreDecodeTestsSSEUTF16()
     {
         MoreDecodeTestsUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
@@ -329,8 +329,9 @@ public partial class Base64DecodingTests
         RoundtripBase64UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
-    [Trait("Category", "ARM64")]
+
+   [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    [Trait("Category", "arm64")]
     public void RoundtripBase64ARMUtf16()
     {
         RoundtripBase64UTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
@@ -1541,13 +1542,12 @@ public partial class Base64DecodingTests
     }
 
 
-    [Trait("Category", "SSE")]
+    [Trait("Category", "sse")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void Issue511SSEUTF16()
     {
         Issue511UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE);
     }
-
     [Trait("Category", "AVX2")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void Issue511AVX2UTF16()
@@ -1555,7 +1555,7 @@ public partial class Base64DecodingTests
         Issue511UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2);
     }
 
-    [Trait("Category", "Arm64")]
+    [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void Issue511ARMUTF16()
     {

@@ -1,16 +1,11 @@
 namespace tests;
 using System.Text;
 using SimdBase64;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics.Arm;
 using System.Buffers;
-using Newtonsoft.Json;
 
 #pragma warning disable CA1515
-public partial class Base64DecodingTests{
+public partial class Base64DecodingTests
+{
 #pragma warning disable CA1515
     public delegate OperationStatus DecodeFromBase64DelegateFncFromUTF16(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl);
 #pragma warning disable CA1515
@@ -63,6 +58,13 @@ public partial class Base64DecodingTests{
     public void DecodeBase64CasesSSETUF16()
     {
         DecodeBase64CasesUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DecodeBase64CasesAvx2UTF16()
+    {
+        DecodeBase64CasesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2);
     }
 
     protected static void CompleteDecodeBase64CasesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
@@ -126,10 +128,17 @@ public partial class Base64DecodingTests{
         CompleteDecodeBase64CasesUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void CompleteDecodeBase64CasesAvx2UTF16()
+    {
+        CompleteDecodeBase64CasesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
 
     protected static void MoreDecodeTestsUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -198,9 +207,16 @@ public partial class Base64DecodingTests{
         MoreDecodeTestsUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+        [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void MoreDecodeTestsAVX2UTF16()
+    {
+        MoreDecodeTestsUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected static void MoreDecodeTestsUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -267,6 +283,13 @@ public partial class Base64DecodingTests{
         MoreDecodeTestsUrlUTF16(SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void MoreDecodeTestsUrlAvx2UTF16()
+    {
+        MoreDecodeTestsUrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         for (int len = 0; len < 2048; len++)
@@ -306,16 +329,23 @@ public partial class Base64DecodingTests{
         RoundtripBase64UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-   [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "ARM64")]
     public void RoundtripBase64ARMUtf16()
     {
         RoundtripBase64UTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64Avx2UTF16()
+    {
+        RoundtripBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64UrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -357,9 +387,16 @@ public partial class Base64DecodingTests{
         RoundtripBase64UrlUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.SSE.Base64.DecodeFromBase64SSE);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64UrlAVX2UTF16()
+    {
+        RoundtripBase64UrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.SSE.Base64.DecodeFromBase64SSE);
+    }
+
     protected static void BadPaddingBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -484,6 +521,13 @@ public partial class Base64DecodingTests{
         BadPaddingBase64UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void BadPaddingBase64Avx2UTF16()
+    {
+        BadPaddingBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void BadPaddingUTF16Base64ARM()
@@ -493,7 +537,7 @@ public partial class Base64DecodingTests{
 
     protected void DoomedBase64RoundtripUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -550,6 +594,13 @@ public partial class Base64DecodingTests{
         DoomedBase64RoundtripUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedBase64RoundtripAvx2UTF16()
+    {
+        DoomedBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void DoomedBase64RoundtripARMUTF16()
@@ -560,7 +611,7 @@ public partial class Base64DecodingTests{
 
     protected void TruncatedDoomedBase64RoundtripUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -624,9 +675,16 @@ public partial class Base64DecodingTests{
         TruncatedDoomedBase64RoundtripUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void TruncatedDoomedBase64RoundtripAVX2UTF16()
+    {
+        TruncatedDoomedBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64WithSpacesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -690,6 +748,13 @@ public partial class Base64DecodingTests{
         RoundtripBase64WithSpacesUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void RoundtripBase64WithSpacesAvx2UTF16()
+    {
+        RoundtripBase64WithSpacesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void RoundtripBase64WithSpacesARMUTF16()
@@ -699,7 +764,7 @@ public partial class Base64DecodingTests{
 
     protected void AbortedSafeRoundtripBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -765,6 +830,13 @@ public partial class Base64DecodingTests{
         AbortedSafeRoundtripBase64UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void AbortedSafeRoundtripBase64AVX2UTF16()
+    {
+        AbortedSafeRoundtripBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "arm64")]
@@ -775,7 +847,7 @@ public partial class Base64DecodingTests{
 
     protected void AbortedSafeRoundtripBase64WithSpacesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -840,6 +912,13 @@ public partial class Base64DecodingTests{
     public void AbortedSafeRoundtripBase64WithSpacesSSEUTF16()
     {
         AbortedSafeRoundtripBase64WithSpacesUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void AbortedSafeRoundtripBase64WithSpacesAVX2UTF16()
+    {
+        AbortedSafeRoundtripBase64WithSpacesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -921,6 +1000,13 @@ public partial class Base64DecodingTests{
         StreamingBase64RoundtripUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void StreamingBase64RoundtripAvx2UTF16()
+    {
+        StreamingBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void StreamingBase64RoundtripARMUTF16()
@@ -999,6 +1085,14 @@ public partial class Base64DecodingTests{
         ReadmeTestUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void ReadmeTestAvx2UTF16()
+    {
+        ReadmeTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void ReadmeTestARMUTF16()
@@ -1054,6 +1148,13 @@ public partial class Base64DecodingTests{
         ReadmeTestSafeUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void ReadmeTestSafeAvx2UTF16()
+    {
+        ReadmeTestSafeUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void ReadmeTestSafeARMUTF16()
@@ -1064,7 +1165,7 @@ public partial class Base64DecodingTests{
 
     protected void DoomedBase64AtPos0(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
-        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar. Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
+        if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
         {
 #pragma warning disable CA2208
             throw new ArgumentNullException("Unexpected null parameter");
@@ -1132,6 +1233,13 @@ public partial class Base64DecodingTests{
         DoomedBase64AtPos0(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedBase64AtPos0Avx2UTF16()
+    {
+        DoomedBase64AtPos0(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void DoomedBase64AtPos0ARMUTF16()
@@ -1166,8 +1274,8 @@ public partial class Base64DecodingTests{
 
             Assert.True(result == resultScalar);
             Assert.True(result == OperationStatus.Done);
-            Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
-            Assert.True(bytesWritten== bytesWrittenScalar);
+            Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+            Assert.True(bytesWritten == bytesWrittenScalar);
         }
     }
 
@@ -1183,6 +1291,13 @@ public partial class Base64DecodingTests{
     public void EnronFilesTestSSEUTF16()
     {
         EnronFilesTestUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void EnronFilesTestAvx2UTF16()
+    {
+        EnronFilesTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1215,8 +1330,8 @@ public partial class Base64DecodingTests{
 
         var resultScalar = DecodeFromBase64DelegateSafeFromUTF16(base64Bytes.AsSpan(), output, out bytesConsumedScalar, out bytesWrittenScalar, false);
 
-        Assert.True( result == resultScalar,"result != resultScalar");
-        Assert.True(bytesConsumed== bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
+        Assert.True(result == resultScalar, "result != resultScalar");
+        Assert.True(bytesConsumed == bytesConsumedScalar, $"bytesConsumed: {bytesConsumed},bytesConsumedScalar:{bytesConsumedScalar}");
         Assert.True(bytesWritten == bytesWrittenScalar, $"bytesWritten: {bytesWritten},bytesWrittenScalar:{bytesWrittenScalar}");
     }
 
@@ -1234,6 +1349,13 @@ public partial class Base64DecodingTests{
         SwedenZoneBaseFileTestUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void SwedenZoneBaseFileTestAvx2UTF16()
+    {
+        SwedenZoneBaseFileTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void SwedenZoneBaseFileTestARMUTF16()
@@ -1247,7 +1369,7 @@ public partial class Base64DecodingTests{
         (char)0x6D,(char) 0x6A,(char) 0x6D,(char) 0x73,(char) 0x41,(char) 0x71,(char) 0x39,(char) 0x75,
         (char)0x76,(char) 0x6C,(char) 0x77,(char) 0x48,(char) 0x20,(char) 0x77,(char) 0x33,(char) 0x53
     };
-        
+
         for (int len = 0; len < 2048; len++)
         {
             byte[] source = new byte[len];
@@ -1299,7 +1421,7 @@ public partial class Base64DecodingTests{
 
                 Assert.True(result == safeResult);
                 Assert.True(bytesConsumedSafe == bytesConsumed, $"bytesConsumedSafe :{bytesConsumedSafe} != bytesConsumed {bytesConsumed}");
-                Assert.True(bytesWrittenSafe == bytesWritten,$"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
+                Assert.True(bytesWrittenSafe == bytesWritten, $"bytesWrittenSafe :{bytesWrittenSafe} != bytesWritten {bytesWritten}");
 
             }
         }
@@ -1317,6 +1439,13 @@ public partial class Base64DecodingTests{
     public void DoomedPartialBufferSSEUTF16()
     {
         DoomedPartialBufferUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
+    public void DoomedPartialBufferAvx2UTF16()
+    {
+        DoomedPartialBufferUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1418,6 +1547,14 @@ public partial class Base64DecodingTests{
     {
         Issue511UTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE);
     }
+
+    [Trait("Category", "AVX2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void Issue511AVX2UTF16()
+    {
+        Issue511UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2);
+    }
+
     [Trait("Category", "Arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void Issue511ARMUTF16()
@@ -1425,7 +1562,7 @@ public partial class Base64DecodingTests{
         Issue511UTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM);
     }
 
-    protected void TruncatedCharErrorUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16,DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
+    protected void TruncatedCharErrorUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
 
         string badNonASCIIString = "♡♡♡♡";
@@ -1443,7 +1580,7 @@ public partial class Base64DecodingTests{
 
                 string base64 = Convert.ToBase64String(source);
 
-                int location = random.Next(0, base64.Length + 1)/4;
+                int location = random.Next(0, base64.Length + 1) / 4;
                 char[] base64WithGarbage = base64.Insert(location, badNonASCIIString).ToCharArray();
 
                 // Prepare a buffer for decoding the base64 back to binary
@@ -1468,14 +1605,14 @@ public partial class Base64DecodingTests{
             }
         }
 
-        
+
     }
 
     [Fact]
     [Trait("Category", "scalar")]
     public void TruncatedCharErrorScalarUTF16()
     {
-        TruncatedCharErrorUTF16(SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUTF16(SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 
@@ -1483,18 +1620,25 @@ public partial class Base64DecodingTests{
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void TruncatedCharErrorUTF16SSE()
     {
-        TruncatedCharErrorUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "AVX2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void TruncatedCharErrorUTF16AVX2()
+    {
+        TruncatedCharErrorUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void TruncatedCharErrorUTF16ARM()
     {
-        TruncatedCharErrorUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 
-    protected void TruncatedCharErrorUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16,DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
+    protected void TruncatedCharErrorUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
 
         string badNonASCIIString = "♡♡♡♡";
@@ -1512,7 +1656,7 @@ public partial class Base64DecodingTests{
 
                 string base64 = Convert.ToBase64String(source).Replace('+', '-').Replace('/', '_');
 
-                int location = random.Next(0, base64.Length + 1)/4;
+                int location = random.Next(0, base64.Length + 1) / 4;
 
                 char[] base64WithGarbage = base64.Insert(location, badNonASCIIString).ToCharArray();
 
@@ -1538,14 +1682,14 @@ public partial class Base64DecodingTests{
             }
         }
 
-        
+
     }
 
     [Fact]
     [Trait("Category", "scalar")]
     public void TruncatedCharErrorUrlScalarUTF16()
     {
-        TruncatedCharErrorUrlUTF16(SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUrlUTF16(SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 
@@ -1553,14 +1697,21 @@ public partial class Base64DecodingTests{
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     public void TruncatedCharErrorUrlUTF16SSE()
     {
-        TruncatedCharErrorUrlUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUrlUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "AVX2")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
+    public void TruncatedCharErrorUrlUTF16AVX2()
+    {
+        TruncatedCharErrorUrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void TruncatedCharErrorUrlUTF16ARM()
     {
-        TruncatedCharErrorUrlUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        TruncatedCharErrorUrlUTF16(SimdBase64.Arm.Base64.DecodeFromBase64ARM, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 }

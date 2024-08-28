@@ -344,6 +344,83 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+        public unsafe void RunAVX2DecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunAVX2DecodingBenchmarkUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                ReadOnlySpan<char> base64 = s.AsSpan();
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+
+
+        public unsafe void RunAVX2DecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                byte[] base64 = input[i];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64.AsSpan())];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunAVX2DecodingBenchmarkWithAllocUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                char[] base64 = input16[i];
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64.AsSpan())];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
 
         public unsafe void RunARMDecodingBenchmarkUTF8(string[] data, int[] lengths)
         {
@@ -503,6 +580,23 @@ namespace SimdUnicodeBenchmarks
         }
 
         [Benchmark]
+        [BenchmarkCategory("AVX")]
+        public unsafe void AVX2DecodingRealDataUTF8()
+        {
+            RunAVX2DecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("AVX")]
+        public unsafe void AVX2DecodingRealDataWithAllocUTF8()
+        {
+            RunAVX2DecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
+        }
+
+
+        
+
+        [Benchmark]
         [BenchmarkCategory("arm64")]
         public unsafe void ARMDecodingRealDataUTF8()
         {
@@ -536,6 +630,21 @@ namespace SimdUnicodeBenchmarks
         {
             RunSSEDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
+
+        [Benchmark]
+        [BenchmarkCategory("AVX2")]
+        public unsafe void AVX2DecodingRealDataUTF16()
+        {
+            RunAVX2DecodingBenchmarkUTF16(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("AVX2")]
+        public unsafe void AVX2DecodingRealDataWithAllocUTF16()
+        {
+            RunAVX2DecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
+        }
+
     }
 #pragma warning disable CA1515
     public class Program

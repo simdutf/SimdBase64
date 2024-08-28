@@ -632,14 +632,14 @@ namespace SimdUnicodeBenchmarks
         }
 
         [Benchmark]
-        [BenchmarkCategory("AVX2")]
+        [BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataUTF16()
         {
             RunAVX2DecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
         [Benchmark]
-        [BenchmarkCategory("AVX2")]
+        [BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataWithAllocUTF16()
         {
             RunAVX2DecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);

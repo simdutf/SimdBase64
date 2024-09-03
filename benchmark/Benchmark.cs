@@ -594,7 +594,7 @@ namespace SimdUnicodeBenchmarks
         }
 
 
-        
+
 
         [Benchmark]
         [BenchmarkCategory("arm64")]

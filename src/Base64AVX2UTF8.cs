@@ -5,16 +5,13 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Buffers;
 using System.Buffers.Binary;
-
-
-using System.Text;
 namespace SimdBase64
 {
     namespace AVX2
     {
         public static partial class Base64
         {
-            
+
             // If needed for debugging, you can do the following:
             /*
             static string VectorToString(Vector256<byte> vector)

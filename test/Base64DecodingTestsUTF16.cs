@@ -207,11 +207,11 @@ public partial class Base64DecodingTests
         MoreDecodeTestsUTF16(SimdBase64.SSE.Base64.DecodeFromBase64SSE, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
-        [Trait("Category", "avx2")]
+    [Trait("Category", "avx2")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx2)]
     public void MoreDecodeTestsAVX2UTF16()
     {
-        MoreDecodeTestsUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2,SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+        MoreDecodeTestsUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     protected static void MoreDecodeTestsUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
@@ -330,7 +330,7 @@ public partial class Base64DecodingTests
     }
 
 
-   [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void RoundtripBase64ARMUtf16()
     {

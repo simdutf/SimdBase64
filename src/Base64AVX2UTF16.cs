@@ -192,8 +192,6 @@ namespace SimdBase64
                     // There is at some bytes remaining beyond the last 64 bit block remaining
                     if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) // We first check if there is any error and eliminate white spaces?:
                     {
-
-                        // int lastBlockSrcCount = 0;
                         while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd) 
                         {
                             if (!SimdBase64.Scalar.Base64.IsValidBase64Index(*src))
@@ -247,7 +245,6 @@ namespace SimdBase64
                         {
                             Base64DecodeBlock(dst, subBufferPtr);
                         }
-                        // bufferBytesWritten += 48;
                         dst += 48;// 64 bits of base64 decodes to 48 bits
                     }
                     if ((bufferPtr - subBufferPtr) % 64 != 0)
@@ -302,8 +299,6 @@ namespace SimdBase64
                                 }
                                 subBufferPtr[leftover] = (byte)(val);
                                 leftover += (val <= 63) ? 1 : 0;
-
-                                // bufferBytesConsumed +=1;
                                 src++;
                             }
 
@@ -356,19 +351,11 @@ namespace SimdBase64
                         bytesConsumed = (int)(src - srcInit);
                         bytesWritten = (int)(dst - dstInit);
 
-                        // bytesConsumed = Math.Max(0,(int)(src - srcInit) - (int)bufferBytesConsumed);
-                        // bytesWritten = Math.Max(0,(int)(dst - dstInit)  - (int)bufferBytesWritten);
-
-
-
                         int remainderBytesConsumed = 0;
                         int remainderBytesWritten = 0;
 
                         OperationStatus result =
                             SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
-
-
 
                         if (result == OperationStatus.InvalidData)
                         {

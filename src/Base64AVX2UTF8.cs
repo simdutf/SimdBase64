@@ -6,17 +6,20 @@ using System.Runtime.InteropServices;
 using System.Buffers;
 using System.Buffers.Binary;
 
+
+using System.Text;
 namespace SimdBase64
 {
     namespace AVX2
     {
         public static partial class Base64
         {
-            /*
+            
             // If needed for debugging, you can do the following:
+            /*
             static string VectorToString(Vector256<byte> vector)
             {
-                Span<byte> bytes = new byte[16];
+                Span<byte> bytes = new byte[32];
                 vector.CopyTo(bytes);
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in bytes)
@@ -24,7 +27,20 @@ namespace SimdBase64
                     sb.Append(b.ToString("X2") + " ");
                 }
                 return sb.ToString().TrimEnd();
-            }*/
+            }
+
+            static string VectorToStringChar(Vector256<byte> vector)
+            {
+                Span<byte> bytes = new byte[32];
+                vector.CopyTo(bytes);
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    sb.Append((char)b);
+                }
+                return sb.ToString().TrimEnd();
+            }
+            */
 
             [StructLayout(LayoutKind.Sequential)]
             private struct Block64
@@ -60,14 +76,15 @@ namespace SimdBase64
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static unsafe UInt64 ToBase64Mask(bool base64Url, Block64* b, ref bool error)
             {
-                ulong m0 = ToBase64Mask(base64Url, ref b->chunk0, ref error);
-                ulong m1 = ToBase64Mask(base64Url, ref b->chunk1, ref error);
+                UInt64 m0 = ToBase64Mask(base64Url, ref b->chunk0, ref error);
+                UInt64 m1 = ToBase64Mask(base64Url, ref b->chunk1, ref error);
                 return m0 | (m1 << 32);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static ushort ToBase64Mask(bool base64Url, ref Vector256<byte> src, ref bool error)
+            private static UInt64 ToBase64Mask(bool base64Url, ref Vector256<byte> src, ref bool error)
             {
+
                 Vector256<sbyte> asciiSpaceTbl = Vector256.Create(
                            0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9, 0xa,
                            0x0, 0xc, 0xd, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -137,18 +154,19 @@ namespace SimdBase64
                 Vector256<sbyte> outVector = Avx2.AddSaturate(Avx2.Shuffle(deltaValues.AsByte(), deltaHash).AsSByte(),
                                                             src.AsSByte());
 
-                Vector256<byte> chkVector = Avx2.AddSaturate(Avx2.Shuffle(checkValues.AsByte(), checkHash).AsByte(),
-                                                src.AsByte());
+                Vector256<sbyte> chkVector = Avx2.AddSaturate(Avx2.Shuffle(checkValues.AsByte(), checkHash).AsSByte(),
+                                                src.AsSByte());
 
-                int mask = Avx2.MoveMask(chkVector.AsByte());
+                UInt32 mask = (uint)Avx2.MoveMask(chkVector.AsByte());
                 if (mask != 0)
                 {
                     Vector256<byte> asciiSpace = Avx2.CompareEqual(Avx2.Shuffle(asciiSpaceTbl.AsByte(), src), src);
-                    error |= (mask != Avx2.MoveMask(asciiSpace));
+                    UInt32 spaces = (uint)Avx2.MoveMask(asciiSpace);
+                    error |= (mask != spaces);
                 }
 
                 src = outVector.AsByte();
-                return (ushort)mask;
+                return (UInt64)mask;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -260,7 +278,6 @@ namespace SimdBase64
                 Vector256<byte> t2 = Avx2.Shuffle(t1.AsSByte(), packShuffle).AsByte();
 
                 // Store the output. This writes 16 bytes, but we only need 12.
-                // Avx2.Store(output, t2);
                 Sse2.Store(output, t2.GetLower());
                 Sse2.Store(output + 12, t2.GetUpper());
             }
@@ -290,7 +307,7 @@ namespace SimdBase64
                 {
                     // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
                     // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
-                    Buffer.MemoryCopy(bufferPtr, outPtr + 24, 24, 24);// DEGUG:Uncomment
+                    Buffer.MemoryCopy(bufferPtr, outPtr + 24, 24, 24);
                 }
             }
 
@@ -412,7 +429,6 @@ namespace SimdBase64
                                 }
                                 else if (bufferPtr != startOfBuffer)
                                 {
-
                                     CopyBlock(&b, bufferPtr);
                                     bufferPtr += 64;
                                     bufferBytesConsumed += 64;
@@ -421,14 +437,10 @@ namespace SimdBase64
                                 {
                                     if (dst >= endOfSafe64ByteZone)
                                     {
-
-
                                         Base64DecodeBlockSafe(dst, &b);
                                     }
                                     else
                                     {
-
-
                                         Base64DecodeBlock(dst, &b);
                                     }
                                     bufferBytesWritten += 48;
@@ -452,8 +464,6 @@ namespace SimdBase64
                                         Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
                                     }
 
-
-
                                     dst += 48;
                                     Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
                                     bufferPtr -= (blocksSize - 1) * 64;
@@ -467,14 +477,11 @@ namespace SimdBase64
                         // Optimization note: if this is almost full, then it is worth our
                         // time, otherwise, we should just decode directly.
 
-
                         int lastBlock = (int)((bufferPtr - startOfBuffer) % 64);
                         int lastBlockSrcCount = 0;
                         // There is at some bytes remaining beyond the last 64 bit block remaining
                         if (lastBlock != 0 && srcEnd - src + lastBlock >= 64) // We first check if there is any error and eliminate white spaces?:
                         {
-
-                            // int lastBlockSrcCount = 0;
                             while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                             {
                                 byte val = toBase64[(int)*src];
@@ -513,8 +520,7 @@ namespace SimdBase64
                             {
                                 Base64DecodeBlock(dst, subBufferPtr);
                             }
-                            // bufferBytesWritten += 48;
-                            dst += 48;// 64 bits of base64 decodes to 48 bits
+                            dst += 48; // 64 bits of base64 decodes to 48 bits
                         }
                         if ((bufferPtr - subBufferPtr) % 64 != 0)
                         {
@@ -528,14 +534,11 @@ namespace SimdBase64
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
                                 Buffer.MemoryCopy(&triple, dst, 4, 4);
-
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
                             if (subBufferPtr + 4 <= bufferPtr) // this may be the very last element, might be incomplete
                             {
-
-
                                 UInt32 triple = (((UInt32)((byte)(subBufferPtr[0])) << 3 * 6) +
                                                     ((UInt32)((byte)(subBufferPtr[1])) << 2 * 6) +
                                                     ((UInt32)((byte)(subBufferPtr[2])) << 1 * 6) +
@@ -543,14 +546,12 @@ namespace SimdBase64
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
                                 Buffer.MemoryCopy(&triple, dst, 3, 3);
-
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
                             int leftover = (int)(bufferPtr - subBufferPtr);
                             if (leftover > 0)
                             {
-
                                 while (leftover < 4 && src < srcEnd)
                                 {
                                     byte val = toBase64[(byte)*src];
@@ -562,8 +563,6 @@ namespace SimdBase64
                                     }
                                     subBufferPtr[leftover] = (byte)(val);
                                     leftover += (val <= 63) ? 1 : 0;
-
-                                    // bufferBytesConsumed +=1;
                                     src++;
                                 }
 
@@ -609,7 +608,6 @@ namespace SimdBase64
                                 }
                             }
                         }
-
 
                         if (src < srcEnd + equalsigns) // We finished processing 64-bit blocks, we're not quite at the end yet
                         {

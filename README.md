@@ -71,7 +71,7 @@ To run just one benchmark, use a filter:
 
 ```
 cd benchmark
-dotnet run --configuration Release --filter "*somefilter*"
+dotnet run -c Release --filter "SimdUnicodeBenchmarks.RealDataBenchmark.AVX2DecodingRealDataUTF8(FileName: \"data/email/\")"
 ```
 
 If you are under macOS or Linux, you may want to run the benchmarks in privileged mode:

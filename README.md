@@ -116,6 +116,8 @@ You can print the content of a vector register like so:
         }
 ```
 
+You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
+
 ## Performance tips
 
 - Be careful: `Vector128.Shuffle` is not the same as `Ssse3.Shuffle` nor is  `Vector256.Shuffle` the same as `Avx2.Shuffle`. Prefer the latter.

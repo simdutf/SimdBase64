@@ -124,6 +124,10 @@ You can print the content of a vector register like so:
 - In C#, `struct` might be preferable to `class` instances as it makes it clear that the data is thread local.
 - You can ask for an asm dump: `DOTNET_JitDisasm=NEON64HTMLScan dotnet run -c Release`.  See [Viewing JIT disassembly and dumps](https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/jit/viewing-jit-dumps.md).
 
+## Scientific References
+
+- Wojciech Muła, Daniel Lemire, [Base64 encoding and decoding at almost the speed of a memory copy](https://arxiv.org/abs/1910.05109), Software: Practice and Experience 50 (2), 2020.
+- Wojciech Muła, Daniel Lemire, [Faster Base64 Encoding and Decoding using AVX2 Instructions](https://arxiv.org/abs/1704.00605), ACM Transactions on the Web 12 (3), 2018.
 
 ## References
 

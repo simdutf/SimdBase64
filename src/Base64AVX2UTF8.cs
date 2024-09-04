@@ -327,6 +327,8 @@ namespace SimdBase64
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
+                // Should be 
+                //Span<byte> buffer = stackalloc byte[blocksSize * 64];
                 Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 // Define pointers within the fixed blocks
                 fixed (byte* srcInit = source)
@@ -526,7 +528,8 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Buffer.MemoryCopy(&triple, dst, 4, 4);
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 4);
+                                //Buffer.MemoryCopy(&triple, dst, 4, 4);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -538,7 +541,8 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                                //Buffer.MemoryCopy(&triple, dst, 3, 3);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -572,8 +576,8 @@ namespace SimdBase64
                                                     ((UInt32)(subBufferPtr[1]) << 2 * 6);
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
-
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 1);
+                                    //Buffer.MemoryCopy(&triple, dst, 1, 1);
                                     dst += 1;
                                 }
                                 else if (leftover == 3)
@@ -584,8 +588,8 @@ namespace SimdBase64
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
 
                                     triple >>= 8;
-
-                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    //Buffer.MemoryCopy(&triple, dst, 2, 2);
                                     dst += 2;
                                 }
                                 else
@@ -596,7 +600,8 @@ namespace SimdBase64
                                                         ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                         << 8;
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
-                                    Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                                    //Buffer.MemoryCopy(&triple, dst, 3, 3);
                                     dst += 3;
                                 }
                             }
@@ -659,6 +664,8 @@ namespace SimdBase64
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
+                // Should be 
+                // Span<byte> buffer = stackalloc byte[blocksSize * 64];
                 Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 // Define pointers within the fixed blocks
                 fixed (byte* srcInit = source)
@@ -857,8 +864,8 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Buffer.MemoryCopy(&triple, dst, 4, 4);
-
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 4);
+                                //Buffer.MemoryCopy(&triple, dst, 4, 4);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -870,7 +877,8 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                                //Buffer.MemoryCopy(&triple, dst, 3, 3);
 
                                 dst += 3;
                                 subBufferPtr += 4;
@@ -905,7 +913,8 @@ namespace SimdBase64
                                                     ((UInt32)(subBufferPtr[1]) << 2 * 6);
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 1);
+                                    //Buffer.MemoryCopy(&triple, dst, 1, 1);
 
                                     dst += 1;
                                 }
@@ -917,8 +926,8 @@ namespace SimdBase64
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
 
                                     triple >>= 8;
-
-                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    //Buffer.MemoryCopy(&triple, dst, 2, 2);
 
                                     dst += 2;
                                 }
@@ -930,7 +939,8 @@ namespace SimdBase64
                                                         ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                         << 8;
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
-                                    Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                                    //Buffer.MemoryCopy(&triple, dst, 3, 3);
 
                                     dst += 3;
                                 }

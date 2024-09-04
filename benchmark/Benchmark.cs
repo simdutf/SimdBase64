@@ -66,7 +66,7 @@ namespace SimdUnicodeBenchmarks
         public string Legend { get; } = "The speed in gigabytes per second";
     }
 
-    [SimpleJob(launchCount: 1, warmupCount: 5, iterationCount: 5)]
+    [SimpleJob(launchCount: 1, warmupCount: 10, iterationCount: 10)]
     [Config(typeof(Config))]
 #pragma warning disable CA1515
     public class RealDataBenchmark

@@ -698,12 +698,8 @@ namespace SimdBase64
 
                         if (src < srcEnd + equalsigns) // We finished processing 64-bit blocks, we're not quite at the end yet
                         {
-
-
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
-
-
 
                             int remainderBytesConsumed = 0;
                             int remainderBytesWritten = 0;

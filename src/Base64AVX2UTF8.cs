@@ -309,8 +309,6 @@ namespace SimdBase64
             // Caller is responsible for checking that Avx2.IsSupported && Popcnt.IsSupported
             public unsafe static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-
-
                 if (isUrl)
                 {
                     return InnerDecodeFromBase64AVX2Url(source, dest, out bytesConsumed, out bytesWritten);

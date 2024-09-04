@@ -153,8 +153,8 @@ namespace SimdUnicodeBenchmarks
         }
         // Parameters and variables for real data
         [Params(
-                @"data/email/",
-                @"data/dns/swedenzonebase.txt"
+                @"data/email/" //,
+                //@"data/dns/swedenzonebase.txt"
                 )]
 #pragma warning disable CA1051
         public string? FileName;
@@ -552,8 +552,8 @@ namespace SimdUnicodeBenchmarks
             RunRuntimeSIMDDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("default", "runtime")]
+        //[Benchmark]
+        //[BenchmarkCategory("default", "runtime")]
         public unsafe void DotnetRuntimeBase64RealDataUTF16()
         {
             RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
@@ -602,36 +602,36 @@ namespace SimdUnicodeBenchmarks
             RunARMDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("arm64")]
+        //[Benchmark]
+        //[BenchmarkCategory("arm64")]
         public unsafe void ARMDecodingRealDataUTF16()
         {
             RunARMDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("SSE")]
+        //[Benchmark]
+        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataUTF16()
         {
             RunSSEDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("SSE")]
+        //[Benchmark]
+        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataWithAllocUTF16()
         {
             RunSSEDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("AVX")]
+        //[Benchmark]
+        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataUTF16()
         {
             RunAVX2DecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("AVX")]
+        //[Benchmark]
+        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataWithAllocUTF16()
         {
             RunAVX2DecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);

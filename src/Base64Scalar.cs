@@ -71,7 +71,7 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    byte[] buffer = new byte[4];
+                    byte[] buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -217,7 +217,7 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    byte[] buffer = new byte[4];
+                    byte[] buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -372,7 +372,7 @@ namespace SimdBase64
                     uint x;
                     uint triple;
                     int idx;
-                    byte[] buffer = new byte[4];
+                    byte[] buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -547,7 +547,7 @@ namespace SimdBase64
                     uint x;
                     uint triple;
                     int idx;
-                    byte[] buffer = new byte[4];
+                    byte[] buffer = [0, 0, 0, 0];
 
                     while (true)
                     {

@@ -45,12 +45,8 @@ namespace SimdBase64
                 return length / 4 * 3 + (length % 4) - 1;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-
-
-
                 byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
                 uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
                 uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
@@ -194,7 +190,6 @@ namespace SimdBase64
                 return b < 256;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
@@ -346,7 +341,6 @@ namespace SimdBase64
             }
 
             // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 
@@ -521,7 +515,6 @@ namespace SimdBase64
             }
 
             // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 byte[] toBase64 = isUrl != false ? Tables.ToBase64UrlValue : Tables.ToBase64Value;
@@ -757,7 +750,6 @@ namespace SimdBase64
                 return r;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 int length = input.Length;
@@ -831,7 +823,6 @@ namespace SimdBase64
                 return (length + 2) / 3 * 4;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 // The implementation could be nicer, but we expect that most times, the user
@@ -931,7 +922,6 @@ namespace SimdBase64
                 return r;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 // The implementation could be nicer, but we expect that most times, the user

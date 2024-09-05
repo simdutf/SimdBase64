@@ -16,7 +16,7 @@ namespace SimdBase64
             /*
             static string VectorToString(Vector256<byte> vector)
             {
-                Span<byte> bytes = new byte[32];
+                Span<byte> bytes = stackalloc byte[32];
                 vector.CopyTo(bytes);
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in bytes)
@@ -28,7 +28,7 @@ namespace SimdBase64
 
             static string VectorToStringChar(Vector256<byte> vector)
             {
-                Span<byte> bytes = new byte[32];
+                Span<byte> bytes = stackalloc byte[32];
                 vector.CopyTo(bytes);
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in bytes)
@@ -165,17 +165,17 @@ namespace SimdBase64
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
+            private unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output, byte* tablePtr)
             {
                 ulong nmask = ~mask;
-                Compress(b.chunk0, (UInt32)mask, output);
-                Compress(b.chunk1, (UInt32)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
+                Compress(b.chunk0, (UInt32)mask, output, tablePtr);
+                Compress(b.chunk1, (UInt32)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF), tablePtr);
 
                 return Popcnt.X64.PopCount(nmask);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)] // This Compress is the same as in SSE
-            private static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output)
+            private static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output, byte* tablePtr)
             {
                 if (mask == 0)
                 {
@@ -191,8 +191,8 @@ namespace SimdBase64
                                                 // thintable_epi8[mask2] into a 128-bit register, using only
                                                 // two instructions on most compilers.
 
-                ulong value1 = Tables.thintableEpi8[mask1];
-                ulong value2 = Tables.thintableEpi8[mask2];
+                ulong value1 = Tables.GetThintableEpi8(mask1);
+                ulong value2 = Tables.GetThintableEpi8(mask2);
 
                 Vector128<sbyte> shufmask = Vector128.Create(value2, value1).AsSByte();
 
@@ -203,22 +203,18 @@ namespace SimdBase64
                 Vector128<sbyte> pruned = Ssse3.Shuffle(data.AsSByte(), shufmask);
                 // we still need to put the two halves together.
                 // we compute the popcount of the first half:
-                int pop1 = Tables.BitsSetTable256mul2[mask1];
+                int pop1 = Tables.GetBitsSetTable256mul2(mask1);
                 // then load the corresponding mask, what it does is to write
                 // only the first pop1 bytes from the first 8 bytes, and then
                 // it fills in with the bytes from the second 8 bytes + some filling
                 // at the end.
+                Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
 
-                fixed (byte* tablePtr = Tables.pshufbCombineTable)
-                {
-                    Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
-
-                    Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
-                    Sse2.Store(output, answer);
-                }
+                Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
+                Sse2.Store(output, answer);
             }
 
-            public static unsafe void Compress(Vector256<byte> data, uint mask, byte* output)
+            public static unsafe void Compress(Vector256<byte> data, uint mask, byte* output, byte* tablePtr)
             {
                 if (mask == 0)
                 {
@@ -227,11 +223,11 @@ namespace SimdBase64
                 }
 
                 // Perform compression on the lower 128 bits
-                Compress(data.GetLower().AsByte(), (ushort)mask, output);
+                Compress(data.GetLower().AsByte(), (ushort)mask, output, tablePtr);
 
                 // Perform compression on the upper 128 bits, shifting output pointer by the number of 1's in the lower 16 bits of mask
                 int popCount = (int)Popcnt.PopCount(~mask & 0xFFFF);
-                Compress(Avx2.ExtractVector128(data.AsByte(), 1), (ushort)(mask >> 16), output + popCount);
+                Compress(Avx2.ExtractVector128(data.AsByte(), 1), (ushort)(mask >> 16), output + popCount, tablePtr);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -246,7 +242,9 @@ namespace SimdBase64
             private static unsafe void Base64DecodeBlockSafe(byte* outPtr, Block64* b)
             {
                 Base64Decode(outPtr, b->chunk0);
-                byte[] buffer = new byte[32];
+                // Should be:
+                // Span<byte> buffer = stackalloc byte[32];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
                 // Safe memory copy for the last part of the data
                 fixed (byte* bufferStart = buffer)
@@ -296,10 +294,12 @@ namespace SimdBase64
             private static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
             {
                 Base64Decode(outPtr, Avx2.LoadVector256(srcPtr));
-                Base64Decode(outPtr + 24, Avx2.LoadVector256(srcPtr + 32));
-                byte[] buffer = new byte[32];
+                // should be:
+                // Span<byte> buffer = stackalloc byte[32];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 fixed (byte* bufferPtr = buffer)
                 {
+                    Base64Decode(bufferPtr, Avx2.LoadVector256(srcPtr + 32));
                     // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
                     // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
                     Buffer.MemoryCopy(bufferPtr, outPtr + 24, 24, 24);
@@ -323,17 +323,17 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = false;
-                byte[] toBase64 = Tables.ToBase64Value;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
                 // Should be 
-                //Span<byte> buffer = stackalloc byte[blocksSize * 64];
+                // Span<byte> buffer = stackalloc byte[blocksSize * 64];
                 Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 // Define pointers within the fixed blocks
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     byte* srcEnd = srcInit + source.Length;
                     byte* src = srcInit;
@@ -417,7 +417,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 
@@ -479,7 +479,7 @@ namespace SimdBase64
                         {
                             while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                             {
-                                byte val = toBase64[(int)*src];
+                                byte val = SimdBase64.Tables.GetToBase64Value((uint)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -528,8 +528,7 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 4);
-                                //Buffer.MemoryCopy(&triple, dst, 4, 4);
+                                Buffer.MemoryCopy(&triple, dst, 4, 4);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -541,8 +540,7 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-                                //Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                Buffer.MemoryCopy(&triple, dst, 3, 3);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -551,7 +549,7 @@ namespace SimdBase64
                             {
                                 while (leftover < 4 && src < srcEnd)
                                 {
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = SimdBase64.Tables.GetToBase64Value((uint)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);
@@ -576,8 +574,7 @@ namespace SimdBase64
                                                     ((UInt32)(subBufferPtr[1]) << 2 * 6);
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 1);
-                                    //Buffer.MemoryCopy(&triple, dst, 1, 1);
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                     dst += 1;
                                 }
                                 else if (leftover == 3)
@@ -588,8 +585,7 @@ namespace SimdBase64
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
 
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
-                                    //Buffer.MemoryCopy(&triple, dst, 2, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                     dst += 2;
                                 }
                                 else
@@ -600,8 +596,7 @@ namespace SimdBase64
                                                         ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                         << 8;
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-                                    //Buffer.MemoryCopy(&triple, dst, 3, 3);
+                                    Buffer.MemoryCopy(&triple, dst, 3, 3);
                                     dst += 3;
                                 }
                             }
@@ -660,7 +655,6 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = true;
-                byte[] toBase64 = Tables.ToBase64UrlValue;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
@@ -671,6 +665,7 @@ namespace SimdBase64
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     byte* srcEnd = srcInit + source.Length;
                     byte* src = srcInit;
@@ -753,7 +748,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 
@@ -817,7 +812,7 @@ namespace SimdBase64
                             int lastBlockSrcCount = 0;
                             while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                             {
-                                byte val = toBase64[(int)*src];
+                                byte val = Tables.GetToBase64UrlValue((byte)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -864,8 +859,7 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 4);
-                                //Buffer.MemoryCopy(&triple, dst, 4, 4);
+                                Buffer.MemoryCopy(&triple, dst, 4, 4);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -877,9 +871,7 @@ namespace SimdBase64
                                                     ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                     << 8;
                                 triple = BinaryPrimitives.ReverseEndianness(triple);
-                                Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-                                //Buffer.MemoryCopy(&triple, dst, 3, 3);
-
+                                Buffer.MemoryCopy(&triple, dst, 3, 3);
                                 dst += 3;
                                 subBufferPtr += 4;
                             }
@@ -889,7 +881,7 @@ namespace SimdBase64
 
                                 while (leftover < 4 && src < srcEnd)
                                 {
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = Tables.GetToBase64UrlValue((byte)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);
@@ -913,9 +905,7 @@ namespace SimdBase64
                                                     ((UInt32)(subBufferPtr[1]) << 2 * 6);
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 1);
-                                    //Buffer.MemoryCopy(&triple, dst, 1, 1);
-
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                     dst += 1;
                                 }
                                 else if (leftover == 3)
@@ -926,9 +916,7 @@ namespace SimdBase64
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
 
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
-                                    //Buffer.MemoryCopy(&triple, dst, 2, 2);
-
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                     dst += 2;
                                 }
                                 else
@@ -939,9 +927,7 @@ namespace SimdBase64
                                                         ((UInt32)((byte)(subBufferPtr[3])) << 0 * 6))
                                                         << 8;
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-                                    //Buffer.MemoryCopy(&triple, dst, 3, 3);
-
+                                    Buffer.MemoryCopy(&triple, dst, 3, 3);
                                     dst += 3;
                                 }
                             }

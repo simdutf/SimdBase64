@@ -27,8 +27,9 @@ as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 
 | processor       | SimdBase64(GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
-| Apple M2 processor (ARM)   | 6.2                      | 3.8               | 1.6 x |
-| Intel Ice Lake (AVX2)   | 5.3                      | 3.4              | 1.6 x |
+| Apple M2 processor (ARM)   | 6.3                      | 3.8               | 1.7 x |
+| Intel Ice Lake (AVX2)   | 5.8                      | 3.4              | 1.7 x |
+| Intel Ice Lake (SSSE3)   | 4.7                      | 3.4              | 1.4 x |
 
 Our results are more impressive when comparing against the standard base64 string decoding
 function (`Convert.FromBase64String(mystring)`), but we omit these results for simplicity.

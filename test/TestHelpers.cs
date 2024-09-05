@@ -71,7 +71,7 @@ public partial class Base64DecodingTests
             do
             {
                 c = (byte)gen.Next(256);
-            } while (c == '=' || SimdBase64.Tables.ToBase64Value[c] != 255);
+            } while (c == '=' || ToBase64Value[c] != 255);
         }
 
         v.Insert(i, c);
@@ -112,7 +112,7 @@ public partial class Base64DecodingTests
         do
         {
             c = (char)gen.Next(256);
-        } while (c == '=' || SimdBase64.Tables.ToBase64Value[c] != 255);
+        } while (c == '=' || ToBase64Value[c] != 255);
 
         v.Insert(i, c);
 

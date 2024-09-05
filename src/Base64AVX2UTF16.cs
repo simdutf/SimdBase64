@@ -35,6 +35,7 @@ namespace SimdBase64
                 fixed (char* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     char* srcEnd = srcInit + source.Length;
                     char* src = srcInit;
@@ -118,7 +119,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 
@@ -399,6 +400,7 @@ namespace SimdBase64
                 fixed (char* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     char* srcEnd = srcInit + source.Length;
                     char* src = srcInit;
@@ -481,7 +483,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 

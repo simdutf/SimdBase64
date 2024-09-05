@@ -57,7 +57,6 @@ namespace SimdBase64
 
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
-
                 {
                     byte* srcEnd = srcInit + length;
                     byte* src = srcInit;
@@ -359,7 +358,6 @@ namespace SimdBase64
                 // Define pointers within the fixed blocks
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
-
                 {
                     byte* srcEnd = srcInit + length;
                     byte* src = srcInit;

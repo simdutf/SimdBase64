@@ -129,19 +129,19 @@ namespace SimdBase64
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output)
+            private unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output, byte* tablePtr)
             {
                 ulong nmask = ~mask;
-                Compress(b.chunk0, (ushort)mask, output);
-                Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF));
-                Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF));
-                Compress(b.chunk3, (ushort)(mask >> 48), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL));
+                Compress(b.chunk0, (ushort)mask, output, tablePtr);
+                Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF), tablePtr);
+                Compress(b.chunk2, (ushort)(mask >> 32), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFF), tablePtr);
+                Compress(b.chunk3, (ushort)(mask >> 48), output + Popcnt.X64.PopCount(nmask & 0xFFFFFFFFFFFFUL), tablePtr);
 
                 return Popcnt.X64.PopCount(nmask);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output)
+            private static unsafe void Compress(Vector128<byte> data, ushort mask, byte* output, byte* tablePtr)
             {
                 if (mask == 0)
                 {
@@ -175,13 +175,10 @@ namespace SimdBase64
                 // it fills in with the bytes from the second 8 bytes + some filling
                 // at the end.
 
-                fixed (byte* tablePtr = Tables.pshufbCombineTable)
-                {
-                    Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
+                Vector128<byte> compactmask = Sse2.LoadVector128(tablePtr + pop1 * 8);
 
-                    Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
-                    Sse2.Store(output, answer);
-                }
+                Vector128<byte> answer = Ssse3.Shuffle(pruned.AsByte(), compactmask);
+                Sse2.Store(output, answer);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -302,6 +299,7 @@ namespace SimdBase64
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     byte* srcEnd = srcInit + source.Length;
                     byte* src = srcInit;
@@ -384,7 +382,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 
@@ -641,6 +639,7 @@ namespace SimdBase64
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
                 fixed (byte* startOfBuffer = buffer)
+                fixed (byte* tablePtr = Tables.pshufbCombineTable)
                 {
                     byte* srcEnd = srcInit + source.Length;
                     byte* src = srcInit;
@@ -723,7 +722,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 

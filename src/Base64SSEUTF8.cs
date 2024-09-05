@@ -200,7 +200,9 @@ namespace SimdBase64
                 Base64Decode(outPtr, b->chunk0);
                 Base64Decode(outPtr + 12, b->chunk1);
                 Base64Decode(outPtr + 24, b->chunk2);
-                Span<byte> buffer = stackalloc byte[16];
+                // should be:
+                //Span<byte> buffer = stackalloc byte[16];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
                 // Safe memory copy for the last part of the data
                 fixed (byte* bufferStart = buffer)
@@ -258,7 +260,9 @@ namespace SimdBase64
                 Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
                 Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
                 Vector128<byte> tempBlock = Sse2.LoadVector128(srcPtr + 48);
-                Span<byte> buffer = stackalloc byte[16];
+                // should be:
+                // Span<byte> buffer = stackalloc byte[16];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 fixed (byte* bufferPtr = buffer)
                 {
                     Base64Decode(bufferPtr, tempBlock);

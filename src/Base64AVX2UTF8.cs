@@ -246,7 +246,9 @@ namespace SimdBase64
             private static unsafe void Base64DecodeBlockSafe(byte* outPtr, Block64* b)
             {
                 Base64Decode(outPtr, b->chunk0);
-                Span<byte> buffer = stackalloc byte[32];
+                // Should be:
+                // Span<byte> buffer = stackalloc byte[32];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
                 // Safe memory copy for the last part of the data
                 fixed (byte* bufferStart = buffer)
@@ -296,10 +298,12 @@ namespace SimdBase64
             private static unsafe void Base64DecodeBlockSafe(byte* outPtr, byte* srcPtr)
             {
                 Base64Decode(outPtr, Avx2.LoadVector256(srcPtr));
-                Base64Decode(outPtr + 24, Avx2.LoadVector256(srcPtr + 32));
-                Span<byte> buffer = stackalloc byte[32];
+                // should be:
+                // Span<byte> buffer = stackalloc byte[32];
+                Span<byte> buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 fixed (byte* bufferPtr = buffer)
                 {
+                    Base64Decode(bufferPtr, Avx2.LoadVector256(srcPtr + 32));
                     // Copy only the first 12 bytes of the decoded fourth block into the output buffer, offset by 36 bytes.
                     // This step is necessary because the fourth block may not need all 16 bytes if it contains padding characters.
                     Buffer.MemoryCopy(bufferPtr, outPtr + 24, 24, 24);

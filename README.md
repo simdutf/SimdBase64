@@ -6,7 +6,7 @@ really fast base64 decoding function. The initial work that lead to the fast fun
 was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
 
 -  There are accelerated base64 functions for UTF-8 inputs in the .NET runtime, but they are not optimal: 
-we can make them 50% to 2x or 3x faster.
+we can make them 50% faster.
 - There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be 2x faster
 or more.
 
@@ -17,6 +17,18 @@ Importantly, we only focus on base64 decoding. It is a more challenging problem 
 of the presence of allowable white space characters and the need to validate the input. Indeed, all
 inputs are valid for encoding, but only some inputs are valid for decoding. Having to skip white space 
 characters makes accelerated decoding somewhat difficult.
+
+## Results (SimdBase64 vs. fast .NET functions)
+
+We use the enron base64 data for benchmarking, see benchmark/data/email.
+We process the data as UTF-8 (ASCII) using the .NET accelerated functions
+as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
+
+
+| processor       | SimdBase64(GB/s) | .NET speed (GB/s) | speed up |
+|:----------------|:------------------------|:-------------------|:-------------------|
+| Apple M2 processor (ARM)   | 6.2                      | 3.8               | 1.6 x |
+| Intel Ice Lake (AVX2)   | 5.3                      | 3.4              | 1.6 x |
 
 
 ## Requirements
@@ -71,7 +83,7 @@ To run just one benchmark, use a filter:
 
 ```
 cd benchmark
-dotnet run --configuration Release --filter "*somefilter*"
+dotnet run -c Release --filter "SimdUnicodeBenchmarks.RealDataBenchmark.AVX2DecodingRealDataUTF8(FileName: \"data/email/\")"
 ```
 
 If you are under macOS or Linux, you may want to run the benchmarks in privileged mode:

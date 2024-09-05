@@ -1,19 +1,15 @@
 namespace tests;
 using System.Text;
-using SimdBase64;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
-using System.Buffers;
-using Newtonsoft.Json;
 
 public partial class Base64DecodingTests
 {
     Random random = new Random(12345680);
 
-    private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r', '\f'};
+    private static readonly char[] SpaceCharacters = { ' ', '\t', '\n', '\r', '\f' };
 #pragma warning disable CA1002
     protected static void AddSpace(List<byte> list, Random random)
     {
@@ -85,8 +81,8 @@ public partial class Base64DecodingTests
         return (modifiedArray, i);
     }
 
-        public static (char[] modifiedArray, int location) AddGarbage(
-        char[] inputArray, Random gen, int? specificLocation = null, byte? specificGarbage = null)
+    public static (char[] modifiedArray, int location) AddGarbage(
+    char[] inputArray, Random gen, int? specificLocation = null, byte? specificGarbage = null)
     {
         ArgumentNullException.ThrowIfNull(inputArray);
         ArgumentNullException.ThrowIfNull(gen);
@@ -117,7 +113,7 @@ public partial class Base64DecodingTests
         {
             c = (char)gen.Next(256);
         } while (c == '=' || SimdBase64.Tables.ToBase64Value[c] != 255);
-        
+
         v.Insert(i, c);
 
         char[] modifiedArray = v.ToArray();

@@ -30,6 +30,8 @@ as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 | Apple M2 processor (ARM)   | 6.2                      | 3.8               | 1.6 x |
 | Intel Ice Lake (AVX2)   | 5.3                      | 3.4              | 1.6 x |
 
+Our results are more impressive when comparing against the standard base64 string decoding
+function (`Convert.FromBase64String(mystring)`), but we omit these results for simplicity.
 
 ## Requirements
 

@@ -1227,9 +1227,9 @@ public partial class Base64DecodingTests
         }
 
         List<int> positions = new List<int>();
-        for (int i = 0; i < Tables.ToBase64Value.Length; i++)
+        for (int i = 0; i < ToBase64Value.Length; i++)
         {
-            if (Tables.ToBase64Value[i] == 255)
+            if (ToBase64Value[i] == 255)
             {
                 positions.Add(i);
             }

@@ -2,10 +2,10 @@ using System.Diagnostics;
 
 namespace SimdBase64
 {
-    public static class Base64Default
+    internal static class Base64Default
     {
 
-        public static readonly char[] e0 = new char[256] {
+        internal static readonly char[] e0 = new char[256] {
     'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D',
     'D', 'E', 'E', 'E', 'E', 'F', 'F', 'F', 'F', 'G', 'G', 'G', 'G', 'H', 'H',
     'H', 'H', 'I', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'L',
@@ -25,7 +25,7 @@ namespace SimdBase64
     '8', '8', '8', '8', '9', '9', '9', '9', '+', '+', '+', '+', '/', '/', '/',
     '/'};
 
-        public static readonly char[] e1 = new char[256] {
+        internal static readonly char[] e1 = new char[256] {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -45,7 +45,7 @@ namespace SimdBase64
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+',
     '/'};
 
-        public static readonly char[] e2 = new char[256] {
+        internal static readonly char[] e2 = new char[256] {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -65,7 +65,7 @@ namespace SimdBase64
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+',
     '/'};
 
-        public static readonly uint[] d0 = new uint[256] {
+        internal static readonly uint[] d0 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -110,7 +110,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        public static readonly uint[] d1 = new uint[256] {
+        internal static readonly uint[] d1 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -155,7 +155,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        public static readonly uint[] d2 = new uint[256] {
+        internal static readonly uint[] d2 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -200,7 +200,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        public static readonly uint[] d3 = new uint[256] {
+        internal static readonly uint[] d3 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -246,10 +246,10 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
     }
 
-    public static class Base64Url
+    internal static class Base64Url
     {
 
-        public static readonly char[] e0 = new char[256] {
+        internal static readonly char[] e0 = new char[256] {
     'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D',
     'D', 'E', 'E', 'E', 'E', 'F', 'F', 'F', 'F', 'G', 'G', 'G', 'G', 'H', 'H',
     'H', 'H', 'I', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'L',
@@ -269,7 +269,7 @@ namespace SimdBase64
     '8', '8', '8', '8', '9', '9', '9', '9', '-', '-', '-', '-', '_', '_', '_',
     '_'};
 
-        public static readonly char[] e1 = new char[256] {
+        internal static readonly char[] e1 = new char[256] {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -289,7 +289,7 @@ namespace SimdBase64
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
     '_'};
 
-        public static readonly char[] e2 = new char[256] {
+        internal static readonly char[] e2 = new char[256] {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -309,7 +309,7 @@ namespace SimdBase64
     'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
     '_'};
 
-        public static readonly uint[] d0 = new uint[256] {
+        internal static readonly uint[] d0 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -353,7 +353,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        public static readonly uint[] d1 = new uint[256] {
+        internal static readonly uint[] d1 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -397,7 +397,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        public static readonly uint[] d2 = new uint[256] {
+        internal static readonly uint[] d2 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -441,7 +441,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        public static readonly uint[] d3 = new uint[256] {
+        internal static readonly uint[] d3 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -488,10 +488,10 @@ namespace SimdBase64
     }
 
 
-    public static class Tables
+    internal static class Tables
     {
 
-        public static readonly ulong[] thintableEpi8 = new ulong[256]
+        internal static readonly ulong[] thintableEpi8 = new ulong[256]
         {    0x0706050403020100, 0x0007060504030201, 0x0007060504030200,
     0x0000070605040302, 0x0007060504030100, 0x0000070605040301,
     0x0000070605040300, 0x0000000706050403, 0x0007060504020100,
@@ -580,7 +580,7 @@ namespace SimdBase64
     0x0000000000000000,
         };
 
-        public static readonly byte[] pshufbCombineTable = new byte[144]
+        internal static readonly byte[] pshufbCombineTable = new byte[144]
         {    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
     0x0c, 0x0d, 0x0e, 0x0f, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08,
     0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0x00, 0x01, 0x02, 0x03,
@@ -595,7 +595,7 @@ namespace SimdBase64
     0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         };
 
-        public static readonly byte[] BitsSetTable256mul2 = new byte[256]
+        internal static readonly byte[] BitsSetTable256mul2 = new byte[256]
         {   0,  2,  2,  4,  2,  4,  4,  6,  2,  4,  4,  6,  4,  6,  6,  8,  2,  4,  4,
     6,  4,  6,  6,  8,  4,  6,  6,  8,  6,  8,  8,  10, 2,  4,  4,  6,  4,  6,
     6,  8,  4,  6,  6,  8,  6,  8,  8,  10, 4,  6,  6,  8,  6,  8,  8,  10, 6,
@@ -611,7 +611,7 @@ namespace SimdBase64
     8,  10, 10, 12, 8,  10, 10, 12, 10, 12, 12, 14, 8,  10, 10, 12, 10, 12, 12,
     14, 10, 12, 12, 14, 12, 14, 14, 16};
 
-        public static readonly byte[] ToBase64Value = new byte[]
+        internal static readonly byte[] ToBase64Value = new byte[]
         {    255, 255, 255, 255, 255, 255, 255, 255, 255, 64,  64,  255, 64, 64,  255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 64,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
@@ -631,7 +631,7 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
 
-        public static readonly byte[] ToBase64UrlValue = new byte[] {
+        internal static readonly byte[] ToBase64UrlValue = new byte[] {
     255, 255, 255, 255, 255, 255, 255, 255, 255, 64,  64,  255, 64, 64,  255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 64,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -650,7 +650,7 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
-        public static void Validate()
+        internal static void Validate()
         {
             byte[] toBase64Value = ToBase64Value;
             byte[] toBase64UrlValue = ToBase64UrlValue;

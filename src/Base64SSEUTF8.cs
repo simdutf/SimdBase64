@@ -16,7 +16,7 @@ namespace SimdBase64
             // If needed for debugging, you can do the following:
             static string VectorToString(Vector128<byte> vector)
             {
-                Span<byte> bytes = new byte[16];
+                Span<byte> bytes = stackalloc byte[16];
                 vector.CopyTo(bytes);
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in bytes)
@@ -157,8 +157,8 @@ namespace SimdBase64
                                                 // thintable_epi8[mask2] into a 128-bit register, using only
                                                 // two instructions on most compilers.
 
-                ulong value1 = Tables.thintableEpi8[mask1];
-                ulong value2 = Tables.thintableEpi8[mask2];
+                ulong value1 = Tables.GetThintableEpi8(mask1);
+                ulong value2 = Tables.GetThintableEpi8(mask2);
 
                 Vector128<sbyte> shufmask = Vector128.Create(value2, value1).AsSByte();
 
@@ -169,7 +169,7 @@ namespace SimdBase64
                 Vector128<sbyte> pruned = Ssse3.Shuffle(data.AsSByte(), shufmask);
                 // we still need to put the two halves together.
                 // we compute the popcount of the first half:
-                int pop1 = Tables.BitsSetTable256mul2[mask1];
+                int pop1 = Tables.GetBitsSetTable256mul2(mask1);
                 // then load the corresponding mask, what it does is to write
                 // only the first pop1 bytes from the first 8 bytes, and then
                 // it fills in with the bytes from the second 8 bytes + some filling
@@ -200,7 +200,7 @@ namespace SimdBase64
                 Base64Decode(outPtr, b->chunk0);
                 Base64Decode(outPtr + 12, b->chunk1);
                 Base64Decode(outPtr + 24, b->chunk2);
-                byte[] buffer = new byte[16];
+                Span<byte> buffer = stackalloc byte[16];
 
                 // Safe memory copy for the last part of the data
                 fixed (byte* bufferStart = buffer)
@@ -258,7 +258,7 @@ namespace SimdBase64
                 Base64Decode(outPtr + 12, Sse2.LoadVector128(srcPtr + 16));
                 Base64Decode(outPtr + 24, Sse2.LoadVector128(srcPtr + 32));
                 Vector128<byte> tempBlock = Sse2.LoadVector128(srcPtr + 48);
-                byte[] buffer = new byte[16];
+                Span<byte> buffer = stackalloc byte[16];
                 fixed (byte* bufferPtr = buffer)
                 {
                     Base64Decode(bufferPtr, tempBlock);
@@ -288,7 +288,6 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = false;
-                byte[] toBase64 = Tables.ToBase64Value;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
@@ -445,7 +444,7 @@ namespace SimdBase64
                             int lastBlockSrcCount = 0;
                             while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                             {
-                                byte val = toBase64[(int)*src];
+                                byte val = SimdBase64.Tables.GetToBase64Value((uint)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -516,7 +515,7 @@ namespace SimdBase64
 
                                 while (leftover < 4 && src < srcEnd)
                                 {
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = SimdBase64.Tables.GetToBase64Value((uint)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);
@@ -628,7 +627,6 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = true;
-                byte[] toBase64 = Tables.ToBase64UrlValue;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
@@ -785,7 +783,7 @@ namespace SimdBase64
                             int lastBlockSrcCount = 0;
                             while ((bufferPtr - startOfBuffer) % 64 != 0 && src < srcEnd)
                             {
-                                byte val = toBase64[(int)*src];
+                                byte val = Tables.GetToBase64UrlValue((byte)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -856,7 +854,7 @@ namespace SimdBase64
 
                                 while (leftover < 4 && src < srcEnd)
                                 {
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = Tables.GetToBase64UrlValue((byte)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);

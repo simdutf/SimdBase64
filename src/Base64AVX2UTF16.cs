@@ -25,7 +25,6 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = false;
-                byte[] toBase64 = Tables.ToBase64Value;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
@@ -200,7 +199,7 @@ namespace SimdBase64
                                     bytesWritten += remainderBytesWritten;
                                     return result;
                                 }
-                                byte val = toBase64[(int)*src];
+                                byte val = SimdBase64.Tables.GetToBase64Value((uint)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -281,7 +280,7 @@ namespace SimdBase64
                                         bytesWritten = (int)(dst - dstInit);
                                         return OperationStatus.InvalidData;
                                     }
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = SimdBase64.Tables.GetToBase64Value((byte)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);
@@ -390,7 +389,6 @@ namespace SimdBase64
             {
                 // translation from ASCII to 6 bit values
                 bool isUrl = true;
-                byte[] toBase64 = Tables.ToBase64UrlValue;
                 bytesConsumed = 0;
                 bytesWritten = 0;
                 const int blocksSize = 6;
@@ -563,7 +561,7 @@ namespace SimdBase64
                                     bytesWritten += remainderBytesWritten;
                                     return result;
                                 }
-                                byte val = toBase64[(int)*src];
+                                byte val = Tables.GetToBase64UrlValue((byte)*src);
                                 *bufferPtr = val;
                                 if (val > 64)
                                 {
@@ -642,7 +640,7 @@ namespace SimdBase64
 
                                 while (leftover < 4 && src < srcEnd)
                                 {
-                                    byte val = toBase64[(byte)*src];
+                                    byte val = Tables.GetToBase64UrlValue((byte)*src);
                                     if (val > 64)
                                     {
                                         bytesConsumed = (int)(src - srcInit);

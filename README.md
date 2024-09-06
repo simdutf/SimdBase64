@@ -6,9 +6,8 @@ really fast base64 decoding function. The initial work that lead to the fast fun
 was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
 
 -  There are accelerated base64 functions for UTF-8 inputs in the .NET runtime, but they are not optimal: 
-we can make them 50% faster.
-- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be 2x faster
-or more.
+we can make them 50% faster or more.
+- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be several times faster.
 
 The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
 used in major JavaScript runtimes (Node.js and Bun) to C#.

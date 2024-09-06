@@ -15,15 +15,31 @@ namespace SimdBase64
                 LITTLE = 0,
                 BIG = 1
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static bool MatchSystem(Endianness e)
             {
                 return e == (BitConverter.IsLittleEndian ? Endianness.LITTLE : Endianness.BIG);
             }
 
-            public static bool IsAsciiWhiteSpace(char c)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static bool IsAsciiWhiteSpace(byte c)
             {
-                return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f';
+                ReadOnlySpan<bool> table = new bool[] {
+            false, false, false, false, false, false, false, false, false, true, true, false, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+                return Unsafe.AddByteOffset(ref MemoryMarshal.GetReference(table), (nint)c);
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static bool IsAsciiWhiteSpace(char c)
+            {
+                if (c > 127)
+                {
+                    return false;
+                }
+                return IsAsciiWhiteSpace((byte)c);
+            }
+
 
             [Flags]
             public enum Base64Options
@@ -127,8 +143,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    byte[] byteTriple = BitConverter.GetBytes(triple);
-                                    dst[0] = byteTriple[0];  // Copy only the first byte
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                 }
                                 dst += 1;
                             }
@@ -147,7 +162,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 dst += 2;
                             }
@@ -171,13 +186,12 @@ namespace SimdBase64
                         {
                             triple <<= 8;
                             Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-
                         }
                         else
                         {
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             triple >>= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         dst += 3;
                     }
@@ -285,8 +299,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    byte[] byteTriple = BitConverter.GetBytes(triple);
-                                    dst[0] = byteTriple[0];  // Copy only the first byte
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                 }
                                 dst += 1;
                             }
@@ -305,7 +318,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 dst += 2;
                             }
@@ -329,13 +342,12 @@ namespace SimdBase64
                         {
                             triple <<= 8;
                             Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-
                         }
                         else
                         {
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             triple >>= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         dst += 3;
                     }
@@ -444,8 +456,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    byte[] byteTriple = BitConverter.GetBytes(triple);
-                                    dst[0] = byteTriple[0];  // Copy only the first byte
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                 }
                                 dst += 1;
                             }
@@ -470,7 +481,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 dst += 2;
                             }
@@ -500,13 +511,12 @@ namespace SimdBase64
                         {
                             triple <<= 8;
                             Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-
                         }
                         else
                         {
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             triple >>= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         dst += 3;
                     }
@@ -615,8 +625,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    byte[] byteTriple = BitConverter.GetBytes(triple);
-                                    dst[0] = byteTriple[0];  // Copy only the first byte
+                                    Buffer.MemoryCopy(&triple, dst, 1, 1);
                                 }
                                 dst += 1;
                             }
@@ -641,7 +650,7 @@ namespace SimdBase64
                                 {
                                     triple = BinaryPrimitives.ReverseEndianness(triple);
                                     triple >>= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 dst += 2;
                             }
@@ -671,13 +680,12 @@ namespace SimdBase64
                         {
                             triple <<= 8;
                             Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
-
                         }
                         else
                         {
                             triple = BinaryPrimitives.ReverseEndianness(triple);
                             triple >>= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         dst += 3;
                     }

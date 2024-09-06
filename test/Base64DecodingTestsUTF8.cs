@@ -1,6 +1,5 @@
 namespace tests;
 using System.Text;
-using SimdBase64;
 using System.Buffers;
 
 #pragma warning disable CA1515

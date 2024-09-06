@@ -582,11 +582,11 @@ namespace SimdBase64
     0x0000000000000000,
         };
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ulong GetThintableEpi8(uint n)
-    {
-      ref ulong tableRef = ref MemoryMarshal.GetReference<ulong>(thintableEpi8);
-      return Unsafe.AddByteOffset(ref tableRef, (nint)n);
-    }
+        public static ulong GetThintableEpi8(uint n)
+        {
+            ref ulong tableRef = ref MemoryMarshal.GetReference<ulong>(thintableEpi8);
+            return Unsafe.AddByteOffset(ref tableRef, (nint)n);
+        }
 
         internal static readonly byte[] pshufbCombineTable = new byte[144]
         {    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
@@ -620,11 +620,11 @@ namespace SimdBase64
     14, 10, 12, 12, 14, 12, 14, 14, 16};
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte GetBitsSetTable256mul2(uint n)
-    {
-      ref byte tableRef = ref MemoryMarshal.GetReference<byte>(BitsSetTable256mul2);
-      return Unsafe.AddByteOffset(ref tableRef, (nint)n);
-    }
+        public static byte GetBitsSetTable256mul2(uint n)
+        {
+            ref byte tableRef = ref MemoryMarshal.GetReference<byte>(BitsSetTable256mul2);
+            return Unsafe.AddByteOffset(ref tableRef, (nint)n);
+        }
 
         private static readonly byte[] ToBase64Value = new byte[]
         {    255, 255, 255, 255, 255, 255, 255, 255, 255, 64,  64,  255, 64, 64,  255,
@@ -645,13 +645,13 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte GetToBase64Value(uint n)
-    {
-      ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64Value);
-      return Unsafe.AddByteOffset(ref tableRef, (nint)n);
-    }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte GetToBase64Value(uint n)
+        {
+            ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64Value);
+            return Unsafe.AddByteOffset(ref tableRef, (nint)n);
+        }
 
 
         private static readonly byte[] ToBase64UrlValue = new byte[] {
@@ -674,12 +674,12 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte GetToBase64UrlValue(uint n)
-    {
-      ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64UrlValue);
-      return Unsafe.AddByteOffset(ref tableRef, (nint)n);
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte GetToBase64UrlValue(uint n)
+        {
+            ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64UrlValue);
+            return Unsafe.AddByteOffset(ref tableRef, (nint)n);
+        }
 
         internal static void Validate()
         {

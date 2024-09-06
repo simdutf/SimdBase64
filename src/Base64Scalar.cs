@@ -63,11 +63,11 @@ namespace SimdBase64
 
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-                //var toBase64 = isUrl != false ? Tables.GetToBase64UrlValue : Tables.GetToBase64Value;
-                uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
+
+                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
+                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
+                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
+                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
 
                 int length = source.Length;
 
@@ -81,7 +81,7 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    // Should be 
+                    // Should be
                     // Span<byte> buffer = stackalloc byte[4];
                     byte[] buffer = [0, 0, 0, 0];
 
@@ -106,7 +106,7 @@ namespace SimdBase64
                         while (idx < 4 && src < srcEnd)
                         {
                             char c = (char)*src;
-                            byte code = isUrl != false ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
+                            byte code = isUrl ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
                             buffer[idx] = code;
 
                             if (code <= 63)
@@ -207,11 +207,11 @@ namespace SimdBase64
 
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-                //var toBase64 = isUrl != false ? Tables.GetToBase64UrlValue : Tables.GetToBase64Value;
-                uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
+
+                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
+                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
+                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
+                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
 
                 int length = source.Length;
 
@@ -226,7 +226,7 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    // Should be 
+                    // Should be
                     // Span<byte> buffer = stackalloc byte[4];
                     byte[] buffer = [0, 0, 0, 0];
 
@@ -261,7 +261,7 @@ namespace SimdBase64
                                 return OperationStatus.InvalidData;
                                 // Process code
                             }
-                            byte code = isUrl != false ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
+                            byte code = isUrl ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
                             // byte code = 1;
                             buffer[idx] = code;
 
@@ -359,11 +359,11 @@ namespace SimdBase64
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 
-                //var toBase64 = isUrl != false ? Tables.GetToBase64UrlValue : Tables.GetToBase64Value;
-                uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
+
+                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
+                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
+                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
+                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
 
                 int length = source.Length;
 
@@ -380,7 +380,7 @@ namespace SimdBase64
                     uint x;
                     uint triple;
                     int idx;
-                    // Should be 
+                    // Should be
                     // Span<byte> buffer = stackalloc byte[4];
                     byte[] buffer = [0, 0, 0, 0];
 
@@ -414,7 +414,7 @@ namespace SimdBase64
                         while (idx < 4 && src < srcEnd)
                         {
                             char c = (char)*src;
-                            byte code = isUrl != false ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
+                            byte code = isUrl ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
                             buffer[idx] = code;
 
                             if (code <= 63)
@@ -527,11 +527,11 @@ namespace SimdBase64
             // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-                //var toBase64 = isUrl != false ? Tables.GetToBase64UrlValue : Tables.GetToBase64Value;
-                uint[] d0 = isUrl != false ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl != false ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl != false ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl != false ? Base64Url.d3 : Base64Default.d3;
+
+                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
+                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
+                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
+                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
 
                 int length = source.Length;
 
@@ -549,7 +549,7 @@ namespace SimdBase64
                     uint x;
                     uint triple;
                     int idx;
-                    // Should be 
+                    // Should be
                     // Span<byte> buffer = stackalloc byte[4];
                     byte[] buffer = [0, 0, 0, 0];
 
@@ -583,7 +583,7 @@ namespace SimdBase64
                         while (idx < 4 && src < srcEnd)
                         {
                             char c = (char)*src;
-                            byte code = isUrl != false ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
+                            byte code = isUrl ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
                             buffer[idx] = code;
 
                             if (code <= 63)
@@ -908,7 +908,7 @@ namespace SimdBase64
 
                 if (r == OperationStatus.Done && paddingCharacts > 0)
                 {
-                    // additional checks: 
+                    // additional checks:
                     if ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
                     {
                         r = OperationStatus.InvalidData;
@@ -1007,7 +1007,7 @@ namespace SimdBase64
 
                 if (r == OperationStatus.Done && paddingCharacts > 0)
                 {
-                    // additional checks: 
+                    // additional checks:
                     if ((remainingOut.Length % 3 == 0) || ((remainingOut.Length % 3) + 1 + paddingCharacts != 4))
                     {
                         r = OperationStatus.InvalidData;

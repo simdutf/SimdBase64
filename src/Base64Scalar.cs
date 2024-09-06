@@ -151,7 +151,7 @@ namespace SimdBase64
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 else
                                 {
@@ -180,7 +180,7 @@ namespace SimdBase64
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         else
                         {
@@ -300,7 +300,7 @@ namespace SimdBase64
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 else
                                 {
@@ -329,7 +329,7 @@ namespace SimdBase64
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         else
                         {
@@ -457,7 +457,7 @@ namespace SimdBase64
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 else
                                 {
@@ -492,7 +492,7 @@ namespace SimdBase64
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         else
                         {
@@ -548,7 +548,6 @@ namespace SimdBase64
                                 return OperationStatus.DestinationTooSmall;
                             }
                             Buffer.MemoryCopy(bufferPtr, dst, 3, 3);
-                            //Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
                             dst += 3;
                             src += 4;
                         }
@@ -621,7 +620,7 @@ namespace SimdBase64
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
-                                    Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 2);
+                                    Buffer.MemoryCopy(&triple, dst, 2, 2);
                                 }
                                 else
                                 {
@@ -656,7 +655,7 @@ namespace SimdBase64
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
-                            Marshal.Copy(BitConverter.GetBytes(triple), 0, (IntPtr)dst, 3);
+                            Buffer.MemoryCopy(&triple, dst, 3, 3);
                         }
                         else
                         {

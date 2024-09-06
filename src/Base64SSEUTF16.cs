@@ -119,7 +119,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 
@@ -481,7 +481,7 @@ namespace SimdBase64
                                     // optimization opportunity: check for simple masks like those made of
                                     // continuous 1s followed by continuous 0s. And masks containing a
                                     // single bad character.
-                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr, tablePtr);
+                                    ulong compressedBytesCount = CompressBlock(ref b, badCharMask, bufferPtr);
                                     bufferPtr += compressedBytesCount;
                                     bufferBytesConsumed += compressedBytesCount;
 

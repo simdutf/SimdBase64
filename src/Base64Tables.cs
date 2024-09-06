@@ -9,7 +9,7 @@ namespace SimdBase64
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe uint GetD(char* src)
         {
-            if((src[0] | src[1] | src[2] | src[3]) > 255)
+            if ((src[0] | src[1] | src[2] | src[3]) > 255)
             {
                 return 0x01ffffff;
             }
@@ -406,7 +406,7 @@ namespace SimdBase64
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe uint GetD(char* src)
         {
-            if((src[0] | src[1] | src[2] | src[3]) > 255)
+            if ((src[0] | src[1] | src[2] | src[3]) > 255)
             {
                 return 0x01ffffff;
             }

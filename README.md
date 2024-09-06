@@ -6,9 +6,8 @@ really fast base64 decoding function. The initial work that lead to the fast fun
 was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
 
 -  There are accelerated base64 functions for UTF-8 inputs in the .NET runtime, but they are not optimal: 
-we can make them 50% faster.
-- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be 2x faster
-or more.
+we can make them 50% faster or more.
+- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be several times faster.
 
 The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
 used in major JavaScript runtimes (Node.js and Bun) to C#.
@@ -27,12 +26,14 @@ as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 
 | processor       | SimdBase64(GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
-| Apple M2 processor (ARM)   | 6.3                      | 3.8               | 1.7 x |
-| Intel Ice Lake (AVX2)   | 5.8                      | 3.4              | 1.7 x |
-| Intel Ice Lake (SSSE3)   | 4.7                      | 3.4              | 1.4 x |
+| Apple M2 processor (ARM)   | 6.5                      | 3.8               | 1.7 x |
+| Intel Ice Lake (AVX2)   | 6.6                      | 3.4              | 1.9 x |
+| Intel Ice Lake (SSSE3)   | 4.9                     | 3.4              | 1.4 x |
 
 Our results are more impressive when comparing against the standard base64 string decoding
-function (`Convert.FromBase64String(mystring)`), but we omit these results for simplicity.
+function (`Convert.FromBase64String(mystring)`), but it is explained in part by the fact
+that the .NET team did not accelerated them using SIMD instructions. Thus we omit them, only
+comparing with the SIMD-accelerated .NET functions.
 
 ## Requirements
 

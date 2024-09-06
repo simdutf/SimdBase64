@@ -153,8 +153,8 @@ namespace SimdUnicodeBenchmarks
         }
         // Parameters and variables for real data
         [Params(
-                //@"data/email/" //,
-                               @"data/dns/swedenzonebase.txt"
+                               @"data/email/" //,
+                               //@"data/dns/swedenzonebase.txt"
                 )]
 #pragma warning disable CA1051
         public string? FileName;

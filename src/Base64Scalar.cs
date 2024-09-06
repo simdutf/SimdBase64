@@ -83,7 +83,7 @@ namespace SimdBase64
                     int idx;
                     // Should be
                     // Span<byte> buffer = stackalloc byte[4];
-                    byte[] buffer = [0, 0, 0, 0];
+                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -228,7 +228,7 @@ namespace SimdBase64
                     int idx;
                     // Should be
                     // Span<byte> buffer = stackalloc byte[4];
-                    byte[] buffer = [0, 0, 0, 0];
+                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -382,7 +382,7 @@ namespace SimdBase64
                     int idx;
                     // Should be
                     // Span<byte> buffer = stackalloc byte[4];
-                    byte[] buffer = [0, 0, 0, 0];
+                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -551,7 +551,7 @@ namespace SimdBase64
                     int idx;
                     // Should be
                     // Span<byte> buffer = stackalloc byte[4];
-                    byte[] buffer = [0, 0, 0, 0];
+                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {

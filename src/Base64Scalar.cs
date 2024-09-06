@@ -64,11 +64,6 @@ namespace SimdBase64
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 
-                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
-
                 int length = source.Length;
 
                 fixed (byte* srcInit = source)
@@ -89,7 +84,7 @@ namespace SimdBase64
                     {
                         // fastpath
                         while (src + 4 <= srcEnd &&
-                               (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
+                               (x = isUrl ? Base64Url.GetD(src) : Base64Default.GetD(src)) < 0x01FFFFFF)
                         {
                             if (MatchSystem(Endianness.BIG))
                             {
@@ -208,11 +203,6 @@ namespace SimdBase64
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 
-                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
-
                 int length = source.Length;
 
                 fixed (char* srcInit = source)
@@ -234,9 +224,7 @@ namespace SimdBase64
                     {
                         // fastpath
                         while (src + 4 <= srcEnd &&
-                        IsValidBase64Index(*src) && IsValidBase64Index(src[1]) &&
-                        IsValidBase64Index(src[2]) && IsValidBase64Index(src[3]) &&
-                               (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
+                               (x = isUrl ? Base64Url.GetD(src) : Base64Default.GetD(src)) < 0x01FFFFFF)
                         {
                             if (MatchSystem(Endianness.BIG))
                             {
@@ -358,18 +346,13 @@ namespace SimdBase64
             // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-
-
-                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
-
                 int length = source.Length;
+                Span<byte> buffer = [0, 0, 0, 0];
 
                 // Define pointers within the fixed blocks
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
+                fixed (byte* bufferPtr = buffer)
                 {
                     byte* srcEnd = srcInit + length;
                     byte* src = srcInit;
@@ -382,13 +365,12 @@ namespace SimdBase64
                     int idx;
                     // Should be
                     // Span<byte> buffer = stackalloc byte[4];
-                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
                         // fastpath
                         while (src + 4 <= srcEnd &&
-                               (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
+                               (x = isUrl ? Base64Url.GetD(src) : Base64Default.GetD(src)) < 0x01FFFFFF)
                         {
 
 
@@ -402,7 +384,7 @@ namespace SimdBase64
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
-                            Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
+                            Buffer.MemoryCopy(bufferPtr, dst, 3, 3);
                             dst += 3;
                             src += 4;
                         }
@@ -528,16 +510,15 @@ namespace SimdBase64
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 
-                uint[] d0 = isUrl ? Base64Url.d0 : Base64Default.d0;
-                uint[] d1 = isUrl ? Base64Url.d1 : Base64Default.d1;
-                uint[] d2 = isUrl ? Base64Url.d2 : Base64Default.d2;
-                uint[] d3 = isUrl ? Base64Url.d3 : Base64Default.d3;
-
                 int length = source.Length;
 
+                // Should be
+                // Span<byte> buffer = stackalloc byte[4];
+                Span<byte> buffer = [0, 0, 0, 0];
                 // Define pointers within the fixed blocks
                 fixed (char* srcInit = source)
                 fixed (byte* dstInit = dest)
+                fixed (byte* bufferPtr = buffer)
 
                 {
                     char* srcEnd = srcInit + length;
@@ -549,18 +530,13 @@ namespace SimdBase64
                     uint x;
                     uint triple;
                     int idx;
-                    // Should be
-                    // Span<byte> buffer = stackalloc byte[4];
-                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
                         // fastpath
                         while (src + 4 <= srcEnd &&
-                               (x = d0[*src] | d1[src[1]] | d2[src[2]] | d3[src[3]]) < 0x01FFFFFF)
+                               (x = isUrl ? Base64Url.GetD(src) : Base64Default.GetD(src)) < 0x01FFFFFF)
                         {
-
-
                             if (MatchSystem(Endianness.BIG))
                             {
                                 x = BinaryPrimitives.ReverseEndianness(x);
@@ -571,7 +547,8 @@ namespace SimdBase64
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.DestinationTooSmall;
                             }
-                            Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
+                            Buffer.MemoryCopy(bufferPtr, dst, 3, 3);
+                            //Marshal.Copy(buffer, 0, (IntPtr)dst, 3); // optimization opportunity: copy 4 bytes
                             dst += 3;
                             src += 4;
                         }

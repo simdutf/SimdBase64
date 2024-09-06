@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,68 +6,24 @@ namespace SimdBase64
 {
     internal static class Base64Default
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint GetD(char* src)
+        {
+            if((src[0] | src[1] | src[2] | src[3]) > 255)
+            {
+                return 0x01ffffff;
+            }
+            Span<byte> b = [(byte)src[0], (byte)src[1], (byte)src[2], (byte)src[3]];
+            fixed (byte* p = b)
+            {
+                return GetD(p);
+            }
+        }
 
-        internal static readonly char[] e0 = new char[256] {
-    'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D',
-    'D', 'E', 'E', 'E', 'E', 'F', 'F', 'F', 'F', 'G', 'G', 'G', 'G', 'H', 'H',
-    'H', 'H', 'I', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'L',
-    'L', 'L', 'L', 'M', 'M', 'M', 'M', 'N', 'N', 'N', 'N', 'O', 'O', 'O', 'O',
-    'P', 'P', 'P', 'P', 'Q', 'Q', 'Q', 'Q', 'R', 'R', 'R', 'R', 'S', 'S', 'S',
-    'S', 'T', 'T', 'T', 'T', 'U', 'U', 'U', 'U', 'V', 'V', 'V', 'V', 'W', 'W',
-    'W', 'W', 'X', 'X', 'X', 'X', 'Y', 'Y', 'Y', 'Y', 'Z', 'Z', 'Z', 'Z', 'a',
-    'a', 'a', 'a', 'b', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd', 'd', 'd',
-    'e', 'e', 'e', 'e', 'f', 'f', 'f', 'f', 'g', 'g', 'g', 'g', 'h', 'h', 'h',
-    'h', 'i', 'i', 'i', 'i', 'j', 'j', 'j', 'j', 'k', 'k', 'k', 'k', 'l', 'l',
-    'l', 'l', 'm', 'm', 'm', 'm', 'n', 'n', 'n', 'n', 'o', 'o', 'o', 'o', 'p',
-    'p', 'p', 'p', 'q', 'q', 'q', 'q', 'r', 'r', 'r', 'r', 's', 's', 's', 's',
-    't', 't', 't', 't', 'u', 'u', 'u', 'u', 'v', 'v', 'v', 'v', 'w', 'w', 'w',
-    'w', 'x', 'x', 'x', 'x', 'y', 'y', 'y', 'y', 'z', 'z', 'z', 'z', '0', '0',
-    '0', '0', '1', '1', '1', '1', '2', '2', '2', '2', '3', '3', '3', '3', '4',
-    '4', '4', '4', '5', '5', '5', '5', '6', '6', '6', '6', '7', '7', '7', '7',
-    '8', '8', '8', '8', '9', '9', '9', '9', '+', '+', '+', '+', '/', '/', '/',
-    '/'};
-
-        internal static readonly char[] e1 = new char[256] {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-    't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', '+', '/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-    'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '+', '/', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-    'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', 'A', 'B', 'C',
-    'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+',
-    '/'};
-
-        internal static readonly char[] e2 = new char[256] {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-    't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', '+', '/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-    'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '+', '/', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-    'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', 'A', 'B', 'C',
-    'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+',
-    '/'};
-
-        internal static readonly uint[] d0 = new uint[256] {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint GetD(byte* src)
+        {
+            ReadOnlySpan<uint> d0 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -112,7 +68,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        internal static readonly uint[] d1 = new uint[256] {
+            ReadOnlySpan<uint> d1 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -157,7 +113,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        internal static readonly uint[] d2 = new uint[256] {
+            ReadOnlySpan<uint> d2 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -202,7 +158,7 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
 
-        internal static readonly uint[] d3 = new uint[256] {
+            ReadOnlySpan<uint> d3 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -246,72 +202,22 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
+
+            ref uint tableRef0 = ref MemoryMarshal.GetReference<uint>(d0);
+            ref uint tableRef1 = ref MemoryMarshal.GetReference<uint>(d1);
+            ref uint tableRef2 = ref MemoryMarshal.GetReference<uint>(d2);
+            ref uint tableRef3 = ref MemoryMarshal.GetReference<uint>(d3);
+            return Unsafe.AddByteOffset(ref tableRef0, (nint)(src[0])) | Unsafe.AddByteOffset(ref tableRef1, (nint)(src[1])) | Unsafe.AddByteOffset(ref tableRef2, (nint)(src[2])) | Unsafe.AddByteOffset(ref tableRef3, (nint)(src[3]));
+        }
     }
 
     internal static class Base64Url
     {
 
-        internal static readonly char[] e0 = new char[256] {
-    'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D',
-    'D', 'E', 'E', 'E', 'E', 'F', 'F', 'F', 'F', 'G', 'G', 'G', 'G', 'H', 'H',
-    'H', 'H', 'I', 'I', 'I', 'I', 'J', 'J', 'J', 'J', 'K', 'K', 'K', 'K', 'L',
-    'L', 'L', 'L', 'M', 'M', 'M', 'M', 'N', 'N', 'N', 'N', 'O', 'O', 'O', 'O',
-    'P', 'P', 'P', 'P', 'Q', 'Q', 'Q', 'Q', 'R', 'R', 'R', 'R', 'S', 'S', 'S',
-    'S', 'T', 'T', 'T', 'T', 'U', 'U', 'U', 'U', 'V', 'V', 'V', 'V', 'W', 'W',
-    'W', 'W', 'X', 'X', 'X', 'X', 'Y', 'Y', 'Y', 'Y', 'Z', 'Z', 'Z', 'Z', 'a',
-    'a', 'a', 'a', 'b', 'b', 'b', 'b', 'c', 'c', 'c', 'c', 'd', 'd', 'd', 'd',
-    'e', 'e', 'e', 'e', 'f', 'f', 'f', 'f', 'g', 'g', 'g', 'g', 'h', 'h', 'h',
-    'h', 'i', 'i', 'i', 'i', 'j', 'j', 'j', 'j', 'k', 'k', 'k', 'k', 'l', 'l',
-    'l', 'l', 'm', 'm', 'm', 'm', 'n', 'n', 'n', 'n', 'o', 'o', 'o', 'o', 'p',
-    'p', 'p', 'p', 'q', 'q', 'q', 'q', 'r', 'r', 'r', 'r', 's', 's', 's', 's',
-    't', 't', 't', 't', 'u', 'u', 'u', 'u', 'v', 'v', 'v', 'v', 'w', 'w', 'w',
-    'w', 'x', 'x', 'x', 'x', 'y', 'y', 'y', 'y', 'z', 'z', 'z', 'z', '0', '0',
-    '0', '0', '1', '1', '1', '1', '2', '2', '2', '2', '3', '3', '3', '3', '4',
-    '4', '4', '4', '5', '5', '5', '5', '6', '6', '6', '6', '7', '7', '7', '7',
-    '8', '8', '8', '8', '9', '9', '9', '9', '-', '-', '-', '-', '_', '_', '_',
-    '_'};
-
-        internal static readonly char[] e1 = new char[256] {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-    't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', '-', '_', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-    'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '-', '_', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-    'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_', 'A', 'B', 'C',
-    'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
-    '_'};
-
-        internal static readonly char[] e2 = new char[256] {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-    't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', '-', '_', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-    'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '-', '_', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-    'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_', 'A', 'B', 'C',
-    'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-    'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-',
-    '_'};
-
-        internal static readonly uint[] d0 = new uint[256] {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint GetD(byte* src)
+        {
+            ReadOnlySpan<uint> d0 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -355,7 +261,8 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        internal static readonly uint[] d1 = new uint[256] {
+
+            ReadOnlySpan<uint> d1 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -399,7 +306,8 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        internal static readonly uint[] d2 = new uint[256] {
+
+            ReadOnlySpan<uint> d2 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -443,7 +351,8 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
-        internal static readonly uint[] d3 = new uint[256] {
+
+            ReadOnlySpan<uint> d3 = new uint[256] {
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
@@ -487,13 +396,35 @@ namespace SimdBase64
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff,
     0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff};
+
+            ref uint tableRef0 = ref MemoryMarshal.GetReference<uint>(d0);
+            ref uint tableRef1 = ref MemoryMarshal.GetReference<uint>(d1);
+            ref uint tableRef2 = ref MemoryMarshal.GetReference<uint>(d2);
+            ref uint tableRef3 = ref MemoryMarshal.GetReference<uint>(d3);
+            return Unsafe.AddByteOffset(ref tableRef0, (nint)(src[0])) | Unsafe.AddByteOffset(ref tableRef1, (nint)(src[1])) | Unsafe.AddByteOffset(ref tableRef2, (nint)(src[2])) | Unsafe.AddByteOffset(ref tableRef3, (nint)(src[3]));
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint GetD(char* src)
+        {
+            if((src[0] | src[1] | src[2] | src[3]) > 255)
+            {
+                return 0x01ffffff;
+            }
+            Span<byte> b = [(byte)src[0], (byte)src[1], (byte)src[2], (byte)src[3]];
+            fixed (byte* p = b)
+            {
+                return GetD(p);
+            }
+        }
     }
 
 
     internal static class Tables
     {
-
-        private static readonly ulong[] thintableEpi8 = new ulong[256]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong GetThintableEpi8(uint n)
+        {
+            ReadOnlySpan<ulong> thintableEpi8 = new ulong[256]
         {    0x0706050403020100, 0x0007060504030201, 0x0007060504030200,
     0x0000070605040302, 0x0007060504030100, 0x0000070605040301,
     0x0000070605040300, 0x0000000706050403, 0x0007060504020100,
@@ -581,9 +512,6 @@ namespace SimdBase64
     0x0000000000000100, 0x0000000000000001, 0x0000000000000000,
     0x0000000000000000,
         };
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong GetThintableEpi8(uint n)
-        {
             ref ulong tableRef = ref MemoryMarshal.GetReference<ulong>(thintableEpi8);
             return Unsafe.AddByteOffset(ref tableRef, (nint)n);
         }
@@ -603,7 +531,11 @@ namespace SimdBase64
     0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         };
 
-        private static readonly byte[] BitsSetTable256mul2 = new byte[256]
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte GetBitsSetTable256mul2(uint n)
+        {
+            ReadOnlySpan<byte> BitsSetTable256mul2 = new byte[256]
         {   0,  2,  2,  4,  2,  4,  4,  6,  2,  4,  4,  6,  4,  6,  6,  8,  2,  4,  4,
     6,  4,  6,  6,  8,  4,  6,  6,  8,  6,  8,  8,  10, 2,  4,  4,  6,  4,  6,
     6,  8,  4,  6,  6,  8,  6,  8,  8,  10, 4,  6,  6,  8,  6,  8,  8,  10, 6,
@@ -618,15 +550,15 @@ namespace SimdBase64
     8,  8,  10, 8,  10, 10, 12, 8,  10, 10, 12, 10, 12, 12, 14, 6,  8,  8,  10,
     8,  10, 10, 12, 8,  10, 10, 12, 10, 12, 12, 14, 8,  10, 10, 12, 10, 12, 12,
     14, 10, 12, 12, 14, 12, 14, 14, 16};
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte GetBitsSetTable256mul2(uint n)
-        {
             ref byte tableRef = ref MemoryMarshal.GetReference<byte>(BitsSetTable256mul2);
             return Unsafe.AddByteOffset(ref tableRef, (nint)n);
         }
 
-        private static readonly byte[] ToBase64Value = new byte[]
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte GetToBase64Value(uint n)
+        {
+            ReadOnlySpan<byte> ToBase64Value = new byte[256]
         {    255, 255, 255, 255, 255, 255, 255, 255, 255, 64,  64,  255, 64, 64,  255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 64,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
@@ -645,16 +577,16 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte GetToBase64Value(uint n)
-        {
             ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64Value);
             return Unsafe.AddByteOffset(ref tableRef, (nint)n);
         }
 
 
-        private static readonly byte[] ToBase64UrlValue = new byte[] {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte GetToBase64UrlValue(uint n)
+        {
+            ReadOnlySpan<byte> toBase64UrlValue = new byte[256] {
     255, 255, 255, 255, 255, 255, 255, 255, 255, 64,  64,  255, 64, 64,  255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 64,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -673,43 +605,10 @@ namespace SimdBase64
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
     255};
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte GetToBase64UrlValue(uint n)
-        {
-            ref byte tableRef = ref MemoryMarshal.GetReference<byte>(ToBase64UrlValue);
+            ref byte tableRef = ref MemoryMarshal.GetReference<byte>(toBase64UrlValue);
             return Unsafe.AddByteOffset(ref tableRef, (nint)n);
         }
 
-        internal static void Validate()
-        {
-            byte[] toBase64Value = ToBase64Value;
-            byte[] toBase64UrlValue = ToBase64UrlValue;
-
-            Debug.Assert(toBase64Value.Length == 256, "to_base64_value must have 256 elements");
-            Debug.Assert(toBase64UrlValue.Length == 256, "to_base64_url_value must have 256 elements");
-
-            Debug.Assert(toBase64Value[' '] == 64, "space must be == 64 in to_base64_value");
-            Debug.Assert(toBase64UrlValue[' '] == 64, "space must be == 64 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['\t'] == 64, "tab must be == 64 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['\t'] == 64, "tab must be == 64 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['\r'] == 64, "cr must be == 64 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['\r'] == 64, "cr must be == 64 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['\n'] == 64, "lf must be == 64 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['\n'] == 64, "lf must be == 64 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['\f'] == 64, "ff must be == 64 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['\f'] == 64, "ff must be == 64 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['+'] == 62, "+ must be == 62 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['-'] == 62, "- must be == 62 in to_base64_url_value");
-
-            Debug.Assert(toBase64Value['/'] == 63, "/ must be == 63 in to_base64_value");
-            Debug.Assert(toBase64UrlValue['_'] == 63, "_ must be == 63 in to_base64_url_value");
-        }
     }
 }
 

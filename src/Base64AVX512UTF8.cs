@@ -59,21 +59,10 @@ namespace SimdBase64
                 var p = Avx512BW.PackUnsignedSaturate(m1, m2).AsDouble();
                 var permuteIndices = Vector512.Create(0L, 2L, 4L, 6L, 1L, 3L, 5L, 7L);
 
-                // DEBUG: _mm512_permutexvar_epi64 is missing, I replicate the functionality with  _mm512_permutex2var_epi64, will check the index later 
-                
-                // b->chunk0 = Avx512F.PermuteVar8x64x2(p, permuteIndices,p).AsByte();
                 b->chunk0 = Avx512F.PermuteVar8x64(p, permuteIndices).AsByte();
             }
 
-            // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            // private static unsafe UInt64 ToBase64Mask(bool base64Url, Block64* b, ref bool error)
-            // {
-            //     UInt64 m0 = ToBase64Mask(base64Url, ref b->chunk0, ref error);
-            //     UInt64 m1 = ToBase64Mask(base64Url, ref b->chunk1, ref error);
-            //     return m0 | (m1 << 32);
-            // }
-
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static unsafe UInt64 ToBase64Mask(bool base64Url, Block64* b, ref bool error)
             {
                 Vector512<byte> input = b->chunk0;
@@ -81,7 +70,7 @@ namespace SimdBase64
                     0, 0, 13, 12, 0, 10, 9, 0, 0, 0, 0, 0, 0, 0, 0, 32,
                     0, 0, 13, 12, 0, 10, 9, 0, 0, 0, 0, 0, 0, 0, 0, 32,
                     0, 0, 13, 12, 0, 10, 9, 0, 0, 0, 0, 0, 0, 0, 0, 32,
-                    0, 0, 13, 12, 0, 10, 9, 0, 0, 0, 0, 0, 0, 0, 0, 32).AsByte(); // DEBUG this AsByte is sketch
+                    0, 0, 13, 12, 0, 10, 9, 0, 0, 0, 0, 0, 0, 0, 0, 32).AsByte();
 
                 Vector512<byte> lookup0 = base64Url ? Vector512.Create(
                         -128, -128, -128, -128, -128, -128, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 
@@ -109,7 +98,6 @@ namespace SimdBase64
                 //Vector512<byte> translated = Vector512.Permutex2var(lookup0, input, lookup1);
                 Vector512<byte> translated = Avx512Vbmi.PermuteVar64x8x2(lookup0, input, lookup1);
                 Vector512<byte> combined = Avx512F.Or(translated.AsInt64(), input.AsInt64()).AsByte();
-                // DEBUG: C# does not expose _mm512_movepi8_mask
                 UInt64 mask = combined.ExtractMostSignificantBits();
 
                 if (mask != 0)
@@ -118,7 +106,6 @@ namespace SimdBase64
                     Vector512<byte> shuffled = Avx512BW.Shuffle(asciiSpaceTbl, input);
 
                     // Compare shuffled result with input
-                    //DEBUG: this might be wrong : this says  _mm512_cmpeq_epi16 in the documentation but intuitively , doesnt make a lot of sense
                     ulong spaces = Avx512BW.CompareEqual(shuffled, input).ExtractMostSignificantBits();
 
                     error |= (mask != spaces);
@@ -187,7 +174,6 @@ namespace SimdBase64
                 Sse2.Store(output, answer);
             }
             
-            // DEBUG/ optimization: this might be faster
             // public static unsafe void Compress(Vector512<byte> data, uint mask, byte* output)
             // {
             //     if (mask == 0)
@@ -224,11 +210,10 @@ namespace SimdBase64
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 61, 62, 56, 57, 58,
                 52, 53, 54, 48, 49, 50, 44, 45, 46, 40, 41, 42, 36, 37, 38, 32, 33, 34,
                 28, 29, 30, 24, 25, 26, 20, 21, 22, 16, 17, 18, 12, 13, 14, 8, 9, 10, 4,
-                5, 6, 0, 1, 2).AsByte(); //DEBUG
+                5, 6, 0, 1, 2).AsByte(); 
 
                 // Shuffle based on the predefined pattern
-                // Vector512<byte> shuffled = Avx512Vbmi.PermuteVar(pack, merged.AsByte());
-                Vector512<byte> shuffled = Avx512Vbmi.Shuffle(pack, merged.AsByte()); //DEBUG: I do not know if this can be shuffled across lanes
+                Vector512<byte> shuffled = Avx512Vbmi.Shuffle(pack, merged.AsByte());
 
                 // Store the result back in the output (48 bytes)
                 Avx512F.Store(output, shuffled); // Assuming 48 bytes are being written
@@ -284,10 +269,10 @@ namespace SimdBase64
                     byte* dstEnd = dstInit + dest.Length;
 
                     int whiteSpaces = 0;
-                    int equalsigns = 0; //DEBUG: not present in C++?
+                    int equalsigns = 0; 
 
                     int bytesToProcess = source.Length;
-                    // skip trailing spaces, DEBUG:not present in the C++?
+                    // skip trailing spaces
                     while (bytesToProcess > 0 && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)source[bytesToProcess - 1]))
                     {
                         bytesToProcess--;
@@ -310,10 +295,6 @@ namespace SimdBase64
                             bytesToProcess -= 1;
                         }
                     }
-
-                    // round up to the nearest multiple of 4, then multiply by 3
-                    int decoded3bitsChunksToProcess = (bytesToProcess + 3) / 4 * 3;
-
 
                     {
                         byte* bufferPtr = startOfBuffer;
@@ -614,10 +595,6 @@ namespace SimdBase64
                             bytesToProcess -= 1;
                         }
                     }
-
-                    // round up to the nearest multiple of 4, then multiply by 3
-                    int decoded3bitsChunksToProcess = (bytesToProcess + 3) / 4 * 3;
-
 
                     {
                         byte* bufferPtr = startOfBuffer;

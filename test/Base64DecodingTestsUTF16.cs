@@ -33,7 +33,7 @@ public partial class Base64DecodingTests
     }
 
     [Fact]
-    public void DecodeBase64Readme()
+    public void DecodeBase64ReadmeHello()
     {
         string base64 = "SGVsbG8sIFdvcmxkIQ==";
         byte[] buffer = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace SimdBase64
 {
-    internal static class Base64Default
+    public static class Base64Default
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe uint GetD(char* src)
@@ -211,7 +211,7 @@ namespace SimdBase64
         }
     }
 
-    internal static class Base64Url
+    public static class Base64Url
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -419,7 +419,7 @@ namespace SimdBase64
     }
 
 
-    internal static class Tables
+    public static class Tables
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong GetThintableEpi8(uint n)

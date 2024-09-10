@@ -663,7 +663,7 @@ namespace SimdUnicodeBenchmarks
             RunAVX2DecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-                [Benchmark]
+        [Benchmark]
         [BenchmarkCategory("AVX512")]
         public unsafe void AVX512DecodingRealDataUTF8()
         {

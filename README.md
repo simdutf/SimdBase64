@@ -17,7 +17,9 @@ of the presence of allowable white space characters and the need to validate the
 inputs are valid for encoding, but only some inputs are valid for decoding. Having to skip white space 
 characters makes accelerated decoding somewhat difficult.
 
+
 ## Results (SimdBase64 vs. fast .NET functions)
+
 
 We use the enron base64 data for benchmarking, see benchmark/data/email.
 We process the data as UTF-8 (ASCII) using the .NET accelerated functions
@@ -35,6 +37,12 @@ function (`Convert.FromBase64String(mystring)`), but it is explained in part by 
 that the .NET team did not accelerated them using SIMD instructions. Thus we omit them, only
 comparing with the SIMD-accelerated .NET functions.
 
+
+## AVX-512
+
+As for .NET 9, the support for AVX-512 remains incomplete in C#. In particular, important
+VBMI2 instructions are missing. Hence, we are not using AVX-512 under x64 systems.
+
 ## Requirements
 
 We require .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
@@ -46,14 +54,14 @@ The library only provides Base64 decoding functions, because the .NET library al
 fast Base64 encoding functions.
 
 ```c#
-        string base64 = "SGVsbG8sIFdvcmxkIQ==";
+        string base64 = "SGVsbG8sIFdvcmxkIQ=="; // could be span<byte> in UTF-8 as well
         byte[] buffer = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
         int bytesConsumed; // gives you the number of characters consumed
         int bytesWritten;
         var result = SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), buffer, out bytesConsumed, out bytesWritten, false); // false is for regular base64, true for base64url
         // result == OperationStatus.Done
-        // Encoding.UTF8.GetString(buffer.AsSpan().Slice(0, bytesWritten)) == "Hello, World!"
-
+        var answer = buffer.AsSpan().Slice(0, bytesWritten); // decoded result
+        // Encoding.UTF8.GetString(answer) == "Hello, World!"
 ```
 
 

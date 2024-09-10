@@ -153,8 +153,8 @@ namespace SimdUnicodeBenchmarks
         }
         // Parameters and variables for real data
         [Params(
-                               @"data/email/" //,
-                               //@"data/dns/swedenzonebase.txt"
+                               @"data/email/",
+                               @"data/dns/swedenzonebase.txt"
                 )]
 #pragma warning disable CA1051
         public string? FileName;
@@ -361,6 +361,26 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+
+        public unsafe void RunOurDecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                //string s = FileContent[i];
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
         public unsafe void RunAVX2DecodingBenchmarkUTF16(string[] data, int[] lengths)
         {
             for (int i = 0; i < FileContent.Length; i++)
@@ -371,6 +391,24 @@ namespace SimdUnicodeBenchmarks
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+        public unsafe void RunOurDecodingBenchmarkUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                ReadOnlySpan<char> base64 = s.AsSpan();
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
                 if (bytesWritten != lengths[i])
                 {
                     Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
@@ -417,6 +455,43 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+
+        public unsafe void RunOurDecodingBenchmarkWithAllocUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                Span<byte> base64 = input[i].AsSpan();
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
+        public unsafe void RunOurDecodingBenchmarkWithAllocUTF16(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                string s = FileContent[i];
+                Span<char> base64 = input16[i].AsSpan();
+                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64)];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.Base64.DecodeFromBase64(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
 
         public unsafe void RunARMDecodingBenchmarkUTF8(string[] data, int[] lengths)
         {
@@ -559,8 +634,8 @@ namespace SimdUnicodeBenchmarks
             RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("SSE")]
+        //[Benchmark]
+        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataUTF8()
         {
             RunSSEDecodingBenchmarkUTF8(FileContent, DecodedLengths);
@@ -573,12 +648,20 @@ namespace SimdUnicodeBenchmarks
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        [Benchmark]
-        [BenchmarkCategory("AVX")]
+        //[Benchmark]
+        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataUTF8()
         {
             RunAVX2DecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
+
+        [Benchmark]
+        [BenchmarkCategory("default", "runtime")]
+        public unsafe void SimdBase64DecodingRealDataUTF8()
+        {
+            RunOurDecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
 
         //[Benchmark]
         //[BenchmarkCategory("AVX")]

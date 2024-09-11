@@ -29,8 +29,9 @@ as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 
 | processor       | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
-| Apple M2 processor (ARM)   | 6.5                      | 3.8               | 1.7 x |
-| Intel Ice Lake   | 6.5                      | 3.4              | 1.9 x |
+| Apple M2 processor (ARM, 3.5 Ghz)   | 6.5                      | 3.8               | 1.7 x |
+| Intel Ice Lake (2 GHz)  | 6.5                      | 3.4              | 1.9 x |
+| AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.8        | 2.9 | 2.3 x |
 
 
 As an aside, there is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). 

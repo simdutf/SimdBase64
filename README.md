@@ -161,7 +161,6 @@ You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
 - [gfoidl.Base64](https://github.com/gfoidl/Base64): original code that lead to the SIMD-based code in the runtime
 - [simdutf's base64 decode](https://github.com/simdutf/simdutf/blob/74126531454de9b06388cb2de78b18edbfcfbe3d/src/westmere/sse_base64.cpp#L337)
 - [WHATWG forgiving-base64 decode](https://infra.spec.whatwg.org/#forgiving-base64-decode)
-- The initial work that lead to the fast functions in the runtime was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
 
 ## More reading 
 

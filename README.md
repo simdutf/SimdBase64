@@ -24,7 +24,8 @@ C# code available under a liberal open-source licence (MIT).
 
 We use the enron base64 data for benchmarking, see benchmark/data/email.
 We process the data as UTF-8 (ASCII) using the .NET accelerated functions
-as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
+as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`). Our benchmark results are
+fully reproducible.
 
 
 | processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |

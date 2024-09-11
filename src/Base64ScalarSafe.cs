@@ -1,8 +1,6 @@
 // These 'safe' methods are designed to be used when the output buffer is not large enough to hold the entire decoded data.
 // We only use them in our tests.
 using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Buffers;
 using System.Buffers.Binary;
 
@@ -85,7 +83,7 @@ namespace SimdBase64
                             src++;
                         }
 
-                        // deals with reminder
+                        // deals with remainder
                         if (idx != 4)
                         {
                             if (idx == 2) // we just copy directly while converting
@@ -248,7 +246,7 @@ namespace SimdBase64
                             src++;
                         }
 
-                        // deals with reminder
+                        // deals with remainder
                         if (idx != 4)
                         {
                             if (idx == 2) // we just copy directly while converting
@@ -354,10 +352,7 @@ namespace SimdBase64
                 // The output buffer is maybe too small. We will decode a truncated version of the input.
                 int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
                 int safeInputLength = Base64LengthFromBinary(outlen3);
-
                 OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isUrl); // there might be a -1 error here
-
-
                 if (r == OperationStatus.InvalidData)
                 {
                     return r;
@@ -415,7 +410,6 @@ namespace SimdBase64
 
                 Span<byte> remainingOut = output.Slice(Math.Min(output.Length, outputIndex));
                 r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isUrl);
-
                 if (r == OperationStatus.Done && paddingCharacts > 0)
                 {
                     // additional checks:
@@ -453,10 +447,7 @@ namespace SimdBase64
                 // The output buffer is maybe too small. We will decode a truncated version of the input.
                 int outlen3 = output.Length / 3 * 3; // round down to multiple of 3
                 int safeInputLength = Base64LengthFromBinary(outlen3);
-
                 OperationStatus r = DecodeFromBase64Scalar(input.Slice(0, Math.Max(0, safeInputLength)), output, out bytesConsumed, out bytesWritten, isUrl); // there might be a -1 error here
-
-
                 if (r == OperationStatus.InvalidData)
                 {
                     return r;
@@ -514,7 +505,6 @@ namespace SimdBase64
 
                 Span<byte> remainingOut = output.Slice(Math.Min(output.Length, outputIndex));
                 r = SafeDecodeFromBase64Scalar(tailInput.Slice(0, RemainingInputLength), remainingOut, out tailBytesConsumed, out tailBytesWritten, isUrl);
-
                 if (r == OperationStatus.Done && paddingCharacts > 0)
                 {
                     // additional checks:

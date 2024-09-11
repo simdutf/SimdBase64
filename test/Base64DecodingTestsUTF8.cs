@@ -40,13 +40,14 @@ public partial class Base64DecodingTests
 
     [Fact]
     [Trait("Category", "scalar")]
-    public void DecodeBase64README() {
+    public void DecodeBase64README()
+    {
         string base64 = "SGVsbG8sIFdvcmxkIQ=="; // could be span<byte> as well
         // allocate buffer for the decoded data
         byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
         int bytesConsumed;
         int bytesWritten;
-        var result =  SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+        var result = SimdBase64.Base64.DecodeFromBase64(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
         Assert.Equal(OperationStatus.Done, result);
         var answer = dataoutput.AsSpan().Slice(0, bytesWritten);
         string utf8String = System.Text.Encoding.UTF8.GetString(answer);

@@ -11,6 +11,7 @@ namespace SimdBase64
             // Caller is responsible for checking that Avx2.IsSupported && Popcnt.IsSupported
             public unsafe static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
+
                 if (isUrl)
                 {
                     return InnerDecodeFromBase64AVX2Url(source, dest, out bytesConsumed, out bytesWritten);
@@ -161,8 +162,6 @@ namespace SimdBase64
                                     {
                                         Base64DecodeBlock(dst, startOfBuffer + (blocksSize - 2) * 64);
                                     }
-
-
 
                                     dst += 48;
                                     Buffer.MemoryCopy(startOfBuffer + (blocksSize - 1) * 64, startOfBuffer, 64, 64);
@@ -346,7 +345,7 @@ namespace SimdBase64
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                             if (result == OperationStatus.InvalidData)
                             {
@@ -356,12 +355,11 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
                             {
-
                                 // additional checks
                                 if ((remainderBytesWritten % 3 == 0) || ((remainderBytesWritten % 3) + 1 + equalsigns != 4))
                                 {
@@ -707,8 +705,7 @@ namespace SimdBase64
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                             if (result == OperationStatus.InvalidData)
                             {
@@ -718,7 +715,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)

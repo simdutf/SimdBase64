@@ -63,11 +63,12 @@ namespace SimdBase64
 
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-
                 int length = source.Length;
+                Span<byte> buffer = [0, 0, 0, 0];
 
                 fixed (byte* srcInit = source)
                 fixed (byte* dstInit = dest)
+                fixed (byte* bufferPtr = buffer)
                 {
                     byte* srcEnd = srcInit + length;
                     byte* src = srcInit;
@@ -76,9 +77,6 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    // Should be
-                    // Span<byte> buffer = stackalloc byte[4];
-                    Span<byte> buffer = [0, 0, 0, 0];
 
                     while (true)
                     {
@@ -102,7 +100,7 @@ namespace SimdBase64
                         {
                             char c = (char)*src;
                             byte code = isUrl ? Tables.GetToBase64UrlValue(c) : Tables.GetToBase64Value(c);
-                            buffer[idx] = code;
+                            bufferPtr[idx] = code;
 
                             if (code <= 63)
                             {
@@ -122,12 +120,12 @@ namespace SimdBase64
                             src++;
                         }
 
-                        // deals with reminder
+                        // deals with remainder
                         if (idx != 4)
                         {
                             if (idx == 2) // we just copy directly while converting
                             {
-                                triple = ((uint)buffer[0] << (3 * 6)) + ((uint)buffer[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
+                                triple = ((uint)bufferPtr[0] << (3 * 6)) + ((uint)bufferPtr[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
@@ -145,9 +143,9 @@ namespace SimdBase64
 
                             else if (idx == 3)
                             {
-                                triple = ((uint)buffer[0] << 3 * 6) +
-                                                ((uint)buffer[1] << 2 * 6) +
-                                                ((uint)buffer[2] << 1 * 6);
+                                triple = ((uint)bufferPtr[0] << 3 * 6) +
+                                                ((uint)bufferPtr[1] << 2 * 6) +
+                                                ((uint)bufferPtr[2] << 1 * 6);
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
@@ -164,8 +162,6 @@ namespace SimdBase64
 
                             else if (idx == 1)
                             {
-
-
                                 bytesConsumed = (int)(src - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.NeedMoreData;// The base64 input terminates with a single character, excluding padding.
@@ -175,8 +171,8 @@ namespace SimdBase64
                             return OperationStatus.Done;
                         }
                         triple =
-                            ((uint)buffer[0] << 3 * 6) + ((uint)buffer[1] << 2 * 6) +
-                            ((uint)buffer[2] << 1 * 6) + ((uint)buffer[3] << 0 * 6);
+                            ((uint)bufferPtr[0] << 3 * 6) + ((uint)bufferPtr[1] << 2 * 6) +
+                            ((uint)bufferPtr[2] << 1 * 6) + ((uint)bufferPtr[3] << 0 * 6);
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
@@ -202,12 +198,12 @@ namespace SimdBase64
 
             public unsafe static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
-
                 int length = source.Length;
+                Span<byte> buffer = [0, 0, 0, 0];
 
                 fixed (char* srcInit = source)
                 fixed (byte* dstInit = dest)
-
+                fixed (byte* bufferPtr = buffer)
                 {
                     char* srcEnd = srcInit + length;
                     char* src = srcInit;
@@ -216,10 +212,6 @@ namespace SimdBase64
                     UInt32 x;
                     uint triple;
                     int idx;
-                    // Should be
-                    // Span<byte> buffer = stackalloc byte[4];
-                    Span<byte> buffer = [0, 0, 0, 0];
-
                     while (true)
                     {
                         // fastpath
@@ -271,12 +263,12 @@ namespace SimdBase64
                             src++;
                         }
 
-                        // deals with reminder
+                        // deals with remainder
                         if (idx != 4)
                         {
                             if (idx == 2) // we just copy directly while converting
                             {
-                                triple = ((uint)buffer[0] << (3 * 6)) + ((uint)buffer[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
+                                triple = ((uint)bufferPtr[0] << (3 * 6)) + ((uint)bufferPtr[1] << (2 * 6)); // the 2 last byte are shifted 18 and 12 bits respectively
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
@@ -294,9 +286,9 @@ namespace SimdBase64
 
                             else if (idx == 3)
                             {
-                                triple = ((uint)buffer[0] << 3 * 6) +
-                                                ((uint)buffer[1] << 2 * 6) +
-                                                ((uint)buffer[2] << 1 * 6);
+                                triple = ((uint)bufferPtr[0] << 3 * 6) +
+                                                ((uint)bufferPtr[1] << 2 * 6) +
+                                                ((uint)bufferPtr[2] << 1 * 6);
                                 if (MatchSystem(Endianness.BIG))
                                 {
                                     triple <<= 8;
@@ -313,8 +305,6 @@ namespace SimdBase64
 
                             else if (idx == 1)
                             {
-
-
                                 bytesConsumed = (int)(src - srcInit);
                                 bytesWritten = (int)(dst - dstInit);
                                 return OperationStatus.NeedMoreData;// The base64 input terminates with a single character, excluding padding.
@@ -324,8 +314,8 @@ namespace SimdBase64
                             return OperationStatus.Done;
                         }
                         triple =
-                            ((uint)buffer[0] << 3 * 6) + ((uint)buffer[1] << 2 * 6) +
-                            ((uint)buffer[2] << 1 * 6) + ((uint)buffer[3] << 0 * 6);
+                            ((uint)bufferPtr[0] << 3 * 6) + ((uint)bufferPtr[1] << 2 * 6) +
+                            ((uint)bufferPtr[2] << 1 * 6) + ((uint)bufferPtr[3] << 0 * 6);
                         if (MatchSystem(Endianness.BIG))
                         {
                             triple <<= 8;
@@ -384,11 +374,8 @@ namespace SimdBase64
                     bytesWritten = 0;
                     return OperationStatus.Done;
                 }
-
                 ReadOnlySpan<byte> trimmedInput = input.Slice(0, length);
-
                 OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isUrl);
-
                 if (r == OperationStatus.Done)
                 {
                     if (equalsigns > 0)
@@ -448,9 +435,7 @@ namespace SimdBase64
                 }
 
                 ReadOnlySpan<char> trimmedInput = input.Slice(0, length);
-
                 OperationStatus r = Base64.DecodeFromBase64Scalar(trimmedInput, output, out bytesConsumed, out bytesWritten, isUrl);
-
                 if (r == OperationStatus.Done)
                 {
                     if (equalsigns > 0)

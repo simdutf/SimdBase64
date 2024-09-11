@@ -578,14 +578,11 @@ namespace SimdBase64
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
 
-
-
                             int remainderBytesConsumed = 0;
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
-
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                             if (result == OperationStatus.InvalidData)
                             {
@@ -595,7 +592,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
@@ -915,29 +912,25 @@ namespace SimdBase64
 
                         if (src < srcEnd + equalsigns) // We finished processing 64-bit blocks, we're not quite at the end yet
                         {
-
-
                             bytesConsumed = (int)(src - srcInit);
                             bytesWritten = (int)(dst - dstInit);
-
-
 
                             int remainderBytesConsumed = 0;
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                             if (result == OperationStatus.InvalidData)
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                                 return result;
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)

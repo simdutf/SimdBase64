@@ -1,57 +1,56 @@
 # SimdBase64
-## Fast WHATWG forgiving-base64 in C#
+## Fast WHATWG forgiving base64 decoding in C#
 
-The C# standard library has fast (SIMD-based) base64 encoding functions, but it lacks
-really fast base64 decoding function. The initial work that lead to the fast functions in the runtime
-was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
+Base64 is a standard approach to represent any binary data as ASCII. It is part of the email
+standard (MIME) and is commonly used to embed data in XML, HTML or JSON files. For example,
+images can be encoded as text using base64. Base64 is also used to represent cryptographic keys.
 
--  There are accelerated base64 functions for UTF-8 inputs in the .NET runtime, but they are not optimal: 
-we can make them 50% faster or more.
-- There is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). We can be several times faster.
-
-The goal of this project is to provide the fast WHATWG forgiving-base64 algorithm already
-used in major JavaScript runtimes (Node.js and Bun) to C#.
-
-Importantly, we only focus on base64 decoding. It is a more challenging problem than base64 encoding because
+Our processors have SIMD instructions that are ideally suited to encode and decode base64.
+Encoding is somewhat easier than decoding. Decoding is a more challenging problem than base64 encoding because
 of the presence of allowable white space characters and the need to validate the input. Indeed, all
 inputs are valid for encoding, but only some inputs are valid for decoding. Having to skip white space 
-characters makes accelerated decoding somewhat difficult.
+characters makes accelerated decoding somewhat difficult. We refer to this decoding as WHATWG forgiving-base64 decoding.
+
+The C# standard library has fast (SIMD-based) base64 encoding functions. It also has fast decoding
+functions. Yet these accelerated base64 decoding functions for UTF-8 inputs in the .NET runtime are not optimal: 
+we beat them by 1.7 x to 1.9 x on inputs of a few kilobytes or more by using a novel different algorithm.
+This fast WHATWG forgiving-base64 algorithm is already used in major JavaScript runtimes (Node.js and Bun).
+
 
 
 ## Results (SimdBase64 vs. fast .NET functions)
-
 
 We use the enron base64 data for benchmarking, see benchmark/data/email.
 We process the data as UTF-8 (ASCII) using the .NET accelerated functions
 as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 
 
-| processor       | SimdBase64(GB/s) | .NET speed (GB/s) | speed up |
+| processor       | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
 | Apple M2 processor (ARM)   | 6.5                      | 3.8               | 1.7 x |
-| Intel Ice Lake (AVX2)   | 6.6                      | 3.4              | 1.9 x |
-| Intel Ice Lake (SSSE3)   | 4.9                     | 3.4              | 1.4 x |
+| Intel Ice Lake   | 6.5                      | 3.4              | 1.9 x |
 
-Our results are more impressive when comparing against the standard base64 string decoding
-function (`Convert.FromBase64String(mystring)`), but it is explained in part by the fact
-that the .NET team did not accelerated them using SIMD instructions. Thus we omit them, only
-comparing with the SIMD-accelerated .NET functions.
 
+As an aside, there is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). 
+We can multiply the decoding speed compared to the .NET standard library (`Convert.FromBase64String(mystring)`),
+but we omit the numbers for simplicity.
 
 ## AVX-512
 
 As for .NET 9, the support for AVX-512 remains incomplete in C#. In particular, important
-VBMI2 instructions are missing. Hence, we are not using AVX-512 under x64 systems.
+VBMI2 instructions are missing. Hence, we are not using AVX-512 under x64 systems at this time.
+However, as soon as .NET offers the necessary support, we will update our results.
 
 ## Requirements
 
 We require .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
 
-
 ## Usage
 
 The library only provides Base64 decoding functions, because the .NET library already has
-fast Base64 encoding functions.
+fast Base64 encoding functions. We support both `Span<byte>` (ASCII or UTF-8) and
+`Span<char>` (UTF-16) as input. If you have C# string, you can get its `Span<char>` with
+the `AsSpan()` method.
 
 ```c#
         string base64 = "SGVsbG8sIFdvcmxkIQ=="; // could be span<byte> in UTF-8 as well
@@ -63,7 +62,6 @@ fast Base64 encoding functions.
         var answer = buffer.AsSpan().Slice(0, bytesWritten); // decoded result
         // Encoding.UTF8.GetString(answer) == "Hello, World!"
 ```
-
 
 ## Running tests
 
@@ -161,6 +159,7 @@ You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
 - [gfoidl.Base64](https://github.com/gfoidl/Base64): original code that lead to the SIMD-based code in the runtime
 - [simdutf's base64 decode](https://github.com/simdutf/simdutf/blob/74126531454de9b06388cb2de78b18edbfcfbe3d/src/westmere/sse_base64.cpp#L337)
 - [WHATWG forgiving-base64 decode](https://infra.spec.whatwg.org/#forgiving-base64-decode)
+- The initial work that lead to the fast functions in the runtime was carried out by [gfoidl](https://github.com/gfoidl/Base64). 
 
 ## More reading 
 

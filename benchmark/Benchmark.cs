@@ -66,7 +66,63 @@ namespace SimdUnicodeBenchmarks
         public string Legend { get; } = "The speed in gigabytes per second";
     }
 
-    [SimpleJob(launchCount: 1, warmupCount: 10, iterationCount: 10)]
+#pragma warning disable CA1515
+    public class DataVolume : IColumn
+    {
+        static double GetDirectorySize(string folderPath)
+        {
+            double totalSize = 0;
+            DirectoryInfo di = new DirectoryInfo(folderPath);
+            long fileCount = di.EnumerateFiles("*.*", SearchOption.AllDirectories).Count();
+
+            foreach (FileInfo fi in di.EnumerateFiles("*.*", SearchOption.AllDirectories))
+            {
+                totalSize += fi.Length;
+            }
+
+            return totalSize / fileCount;
+        }
+        public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
+        {
+#pragma warning disable CA1062
+            var ourReport = summary.Reports.First(x => x.BenchmarkCase.Equals(benchmarkCase));
+            var fileName = (string)benchmarkCase.Parameters["FileName"];
+            double length = 0;
+            if (File.Exists(fileName))
+            {
+                FileInfo fi = new FileInfo(fileName);
+                length = fi.Length;
+                length /= File.ReadAllLines(fi.FullName).Length;
+            }
+            else if (Directory.Exists(fileName))
+            {
+                length = GetDirectorySize(fileName);
+            }
+            if (ourReport.ResultStatistics is null)
+            {
+                return "N/A";
+            }
+            return $"{length / 1000:#####.00}";
+        }
+
+        public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style) => GetValue(summary, benchmarkCase);
+        public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => false;
+        public bool IsAvailable(Summary summary) => true;
+
+        public string Id { get; } = nameof(DataVolume);
+        public string ColumnName { get; } = "kiB/input";
+        public bool AlwaysShow { get; } = true;
+        public ColumnCategory Category { get; } = ColumnCategory.Custom;
+#pragma warning disable CA1805
+        public int PriorityInCategory { get; } = 0;
+#pragma warning disable CA1805
+        public bool IsNumeric { get; } = false;
+        public UnitType UnitType { get; } = UnitType.Dimensionless;
+        public string Legend { get; } = "The average data volume in kilobytes per input";
+    }
+
+
+    [SimpleJob(launchCount: 1, warmupCount: 10, iterationCount: 20)]
     [Config(typeof(Config))]
 #pragma warning disable CA1515
     public class RealDataBenchmark
@@ -77,9 +133,8 @@ namespace SimdUnicodeBenchmarks
             static bool warned;
             public Config()
             {
+                AddColumn(new DataVolume());
                 AddColumn(new Speed());
-
-
                 if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
                 {
                     if (!warned)
@@ -88,7 +143,7 @@ namespace SimdUnicodeBenchmarks
                         Console.WriteLine("ARM64 system detected.");
                         warned = true;
                     }
-                    AddFilter(new AnyCategoriesFilter(["arm64", "runtime", "gfoidl"]));
+                    AddFilter(new AnyCategoriesFilter(["ARM64", "runtime"]));
 
                 }
                 else if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
@@ -101,7 +156,7 @@ namespace SimdUnicodeBenchmarks
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX-512 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["avx512", "avx", "sse", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["avx512", "AVX", "SSE", "runtime"]));
                     }
                     else if (Avx2.IsSupported)
                     {
@@ -111,7 +166,7 @@ namespace SimdUnicodeBenchmarks
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with AVX2 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["avx", "sse", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["AVX", "SSE", "runtime"]));
                     }
                     else if (Ssse3.IsSupported && Popcnt.IsSupported)
                     {
@@ -121,7 +176,7 @@ namespace SimdUnicodeBenchmarks
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with Ssse3 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["sse", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["SSE", "runtime"]));
                     }
                     else if (Sse3.IsSupported && Popcnt.IsSupported)
                     {
@@ -131,7 +186,7 @@ namespace SimdUnicodeBenchmarks
                             Console.WriteLine("X64 system detected (Intel, AMD,...) with Sse3 support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["sse", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["SSE", "runtime"]));
                     }
                     else
                     {
@@ -141,12 +196,12 @@ namespace SimdUnicodeBenchmarks
                             Console.WriteLine("X64 system detected (Intel, AMD,...) without relevant SIMD support.");
                             warned = true;
                         }
-                        AddFilter(new AnyCategoriesFilter(["scalar", "runtime", "gfoidl"]));
+                        AddFilter(new AnyCategoriesFilter(["scalar", "runtime"]));
                     }
                 }
                 else
                 {
-                    AddFilter(new AnyCategoriesFilter(["scalar", "runtime", "gfoidl"]));
+                    AddFilter(new AnyCategoriesFilter(["scalar", "runtime"]));
                 }
 
             }
@@ -346,7 +401,6 @@ namespace SimdUnicodeBenchmarks
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
@@ -366,7 +420,6 @@ namespace SimdUnicodeBenchmarks
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
@@ -620,36 +673,26 @@ namespace SimdUnicodeBenchmarks
             RunRuntimeSIMDDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("default", "runtime")]
         public unsafe void DotnetRuntimeSIMDBase64RealDataWithAllocUTF8()
         {
             RunRuntimeSIMDDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("default", "runtime")]
         public unsafe void DotnetRuntimeBase64RealDataUTF16()
         {
             RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataUTF8()
         {
             RunSSEDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataWithAllocUTF8()
         {
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataUTF8()
         {
             RunAVX2DecodingBenchmarkUTF8(FileContent, DecodedLengths);
@@ -662,59 +705,43 @@ namespace SimdUnicodeBenchmarks
             RunOurDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
-
-        //[Benchmark]
-        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataWithAllocUTF8()
         {
             RunAVX2DecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-
-        [Benchmark]
-        [BenchmarkCategory("arm64")]
         public unsafe void ARMDecodingRealDataUTF8()
         {
             RunARMDecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("arm64")]
         public unsafe void ARMDecodingRealDataWithAllocUTF8()
         {
             RunARMDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("arm64")]
+
         public unsafe void ARMDecodingRealDataUTF16()
         {
             RunARMDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("SSE")]
+
         public unsafe void SSEDecodingRealDataUTF16()
         {
             RunSSEDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("SSE")]
         public unsafe void SSEDecodingRealDataWithAllocUTF16()
         {
             RunSSEDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataUTF16()
         {
             RunAVX2DecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
 
-        //[Benchmark]
-        //[BenchmarkCategory("AVX")]
         public unsafe void AVX2DecodingRealDataWithAllocUTF16()
         {
             RunAVX2DecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);

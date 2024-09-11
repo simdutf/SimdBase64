@@ -611,7 +611,7 @@ namespace SimdBase64
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
                             if (result == OperationStatus.InvalidData)
                             {
@@ -621,7 +621,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
@@ -942,7 +942,7 @@ namespace SimdBase64
                             int remainderBytesWritten = 0;
 
                             OperationStatus result =
-                                SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(source.Slice(bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
+                                SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(source.Slice(bytesConsumed, bytesToProcess - bytesConsumed), dest.Slice(bytesWritten), out remainderBytesConsumed, out remainderBytesWritten, isUrl);
 
 
                             if (result == OperationStatus.InvalidData)
@@ -953,7 +953,7 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed;
+                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)

@@ -13,7 +13,7 @@ characters makes accelerated decoding somewhat difficult. We refer to this decod
 
 The C# standard library has fast (SIMD-based) base64 encoding functions. It also has fast decoding
 functions. Yet these accelerated base64 decoding functions for UTF-8 inputs in the .NET runtime are not optimal: 
-we beat them by 1.7 x to 1.9 x on inputs of a few kilobytes or more by using a novel different algorithm.
+we beat them by 1.7 x to 2.3 x on inputs of a few kilobytes by using a novel different algorithm.
 This fast WHATWG forgiving-base64 algorithm is already used in major JavaScript runtimes (Node.js and Bun).
 
 A full description of the new algorithm will be published soon. The algorithm is unpatented (free) and we make our
@@ -27,10 +27,11 @@ We process the data as UTF-8 (ASCII) using the .NET accelerated functions
 as a reference (`System.Buffers.Text.Base64.DecodeFromUtf8`).
 
 
-| processor       | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
+| processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
 | Apple M2 processor (ARM, 3.5 Ghz)   | 6.5                      | 3.8               | 1.7 x |
-| Intel Ice Lake (2 GHz)  | 6.5                      | 3.4              | 1.9 x |
+| AWS Graviton 3 (ARM, 2.6 GHz)   | 3.6  | 2.0 | 1.8 x |
+| Intel Ice Lake (2.0 GHz)  | 6.5                      | 3.4              | 1.9 x |
 | AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.8        | 2.9 | 2.3 x |
 
 

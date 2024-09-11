@@ -16,6 +16,8 @@ functions. Yet these accelerated base64 decoding functions for UTF-8 inputs in t
 we beat them by 1.7 x to 1.9 x on inputs of a few kilobytes or more by using a novel different algorithm.
 This fast WHATWG forgiving-base64 algorithm is already used in major JavaScript runtimes (Node.js and Bun).
 
+A full description of the new algorithm will be published soon. The algorithm is unpatented (free) and we make our
+C# code available under a liberal open-source licence (MIT).
 
 
 ## Results (SimdBase64 vs. fast .NET functions)

@@ -5,18 +5,20 @@ Base64 is a standard approach to represent any binary data as ASCII. It is part 
 standard (MIME) and is commonly used to embed data in XML, HTML or JSON files. For example,
 images can be encoded as text using base64. Base64 is also used to represent cryptographic keys.
 
-Our processors have SIMD instructions that are ideally suited to encode and decode base64.
+Our processors have fast instructions (SIMD) that can process blocks of data at once. They are ideally 
+suited to encode and decode base64.
+The C# .NET runtime library has fast (SIMD-based) base64 functions[^1] when the input is UTF-8. 
+
 Encoding is somewhat easier than decoding. Decoding is a more challenging problem than base64 encoding because
 of the presence of allowable white space characters and the need to validate the input. Indeed, all
 inputs are valid for encoding, but only some inputs are valid for decoding. Having to skip white space 
 characters makes accelerated decoding somewhat difficult. We refer to this decoding as WHATWG forgiving-base64 decoding.
 
-The C# standard library has fast (SIMD-based) base64 encoding functions. It also has fast decoding
-functions. Yet these accelerated base64 decoding functions for UTF-8 inputs in the .NET runtime are not optimal: 
-we beat them by 1.7 x to 2.3 x on inputs of a few kilobytes by using a novel different algorithm.
-This fast WHATWG forgiving-base64 algorithm is already used in major JavaScript runtimes (Node.js and Bun).
+To handle spaces and validation, we recently designed faster base64 decoding algorithm. It has been deployed
+in the [simdutf](https://github.com/simdutf/simdutf) C++ library and used in production systems (e.g., the JavaScript runtime systems Node.js and Bun).
+With this new algorithm, we beat the C# .NET runtime functions by 1.7 x to 2.3 x on realistic inputs of a few kilobytes.
 
-A full description of the new algorithm will be published soon. The algorithm is unpatented (free) and we make our
+The algorithm is unpatented (free) and we make our
 C# code available under a liberal open-source licence (MIT).
 
 
@@ -169,3 +171,6 @@ You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
 
 - https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/
 - https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
+
+
+[^1]: The .NET runtime appear to have received some of its fast SIMD base64 functions from [gfoidl.Base64](https://github.com/gfoidl/Base64) who built on earlier work by Klomp, Muła and others. See [Faster Base64 Encoding and Decoding using AVX2 Instructions](https://arxiv.org/abs/1704.00605) for a review.

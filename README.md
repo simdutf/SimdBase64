@@ -57,7 +57,7 @@ byte[] newBytes = SimdBase64.Base64.FromBase64String(s);
 | processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
 | Apple M2 processor (ARM, 3.5 Ghz)   | 4.0                     | 1.1              | 3.6 x |
-| Intel Ice Lake (2.0 GHz)  | 6.5                      | 3.4              | 1.9 x |
+| Intel Ice Lake (2.0 GHz)  | 2.5                      | 0.65             | 3.8 x |
 
 ## AVX-512
 

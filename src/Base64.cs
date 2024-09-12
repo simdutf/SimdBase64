@@ -14,6 +14,16 @@ namespace SimdBase64
         {
             return Scalar.Base64.MaximalBinaryLengthFromBase64Scalar(input);
         }
+        public static byte[] FromBase64String(string s) {
+            ReadOnlySpan<char> base64 = s.AsSpan();
+            byte[] newBytes = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<char>(base64)];
+            int bytesConsumed = 0;
+            int bytesWritten = 0;
+            SimdBase64.Base64.DecodeFromBase64(base64, newBytes, out bytesConsumed, out bytesWritten, false);
+            Array.Resize(ref newBytes, bytesWritten);
+            return newBytes;
+        }
+
         public unsafe static OperationStatus DecodeFromBase64(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
         {
 

@@ -135,6 +135,7 @@ namespace SimdUnicodeBenchmarks
             {
                 AddColumn(new DataVolume());
                 AddColumn(new Speed());
+                /*
                 if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
                 {
                     if (!warned)
@@ -203,6 +204,7 @@ namespace SimdUnicodeBenchmarks
                 {
                     AddFilter(new AnyCategoriesFilter(["scalar", "runtime"]));
                 }
+                */
 
             }
         }
@@ -365,7 +367,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 Span<byte> base64 = input[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<byte>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -384,7 +386,7 @@ namespace SimdUnicodeBenchmarks
             {
                 string s = FileContent[i];
                 Span<char> base64 = input16[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<char>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.SSE.Base64.DecodeFromBase64SSE(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -476,7 +478,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 Span<byte> base64 = input[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<byte>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -495,7 +497,7 @@ namespace SimdUnicodeBenchmarks
             {
                 string s = FileContent[i];
                 Span<char> base64 = input16[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<char>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -514,7 +516,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 Span<byte> base64 = input[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<byte>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Base64.DecodeFromBase64(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -532,14 +534,11 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 string s = FileContent[i];
-                Span<char> base64 = input16[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64)];
-                int bytesConsumed = 0;
-                int bytesWritten = 0;
-                SimdBase64.Base64.DecodeFromBase64(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
-                if (bytesWritten != lengths[i])
+                byte[] dataoutput = SimdBase64.Base64.FromBase64String(s);
+
+                if (dataoutput.Length != lengths[i])
                 {
-                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+                    Console.WriteLine($"Error: {dataoutput.Length } != {lengths[i]}");
 #pragma warning disable CA2201
                     throw new Exception("Error");
                 }
@@ -589,7 +588,7 @@ namespace SimdUnicodeBenchmarks
             for (int i = 0; i < FileContent.Length; i++)
             {
                 Span<byte> base64 = input[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<byte>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<byte>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -608,7 +607,7 @@ namespace SimdUnicodeBenchmarks
             {
                 string s = FileContent[i];
                 Span<char> base64 = input16[i].AsSpan();
-                byte[] dataoutput = new byte[SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char>(base64)];
+                byte[] dataoutput = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<char>(base64)];
                 int bytesConsumed = 0;
                 int bytesWritten = 0;
                 SimdBase64.Arm.Base64.DecodeFromBase64ARM(base64, dataoutput, out bytesConsumed, out bytesWritten, false);
@@ -678,6 +677,8 @@ namespace SimdUnicodeBenchmarks
             RunRuntimeSIMDDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
+        [Benchmark]
+        [BenchmarkCategory("UTF16")]
         public unsafe void DotnetRuntimeBase64RealDataUTF16()
         {
             RunRuntimeDecodingBenchmarkUTF16(FileContent, DecodedLengths);
@@ -699,10 +700,17 @@ namespace SimdUnicodeBenchmarks
         }
 
         [Benchmark]
-        [BenchmarkCategory("default", "runtime")]
+        [BenchmarkCategory("default")]
         public unsafe void SimdBase64DecodingRealDataUTF8()
         {
             RunOurDecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("UTF16")]
+        public unsafe void SimdBase64DecodingRealDataWithAllocUTF16()
+        {
+            RunOurDecodingBenchmarkWithAllocUTF16(FileContent, DecodedLengths);
         }
 
         public unsafe void AVX2DecodingRealDataWithAllocUTF8()
@@ -720,12 +728,10 @@ namespace SimdUnicodeBenchmarks
             RunARMDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
-
         public unsafe void ARMDecodingRealDataUTF16()
         {
             RunARMDecodingBenchmarkUTF16(FileContent, DecodedLengths);
         }
-
 
         public unsafe void SSEDecodingRealDataUTF16()
         {
@@ -755,7 +761,7 @@ namespace SimdUnicodeBenchmarks
         {
             if (args.Length == 0)
             {
-                args = new string[] { "--filter", "*" };
+                args = new string[] { "--filter", "*", "--anyCategories", "default" };
             }
             var job = Job.Default
                 .WithWarmupCount(1)

@@ -37,10 +37,27 @@ fully reproducible.
 | Intel Ice Lake (2.0 GHz)  | 6.5                      | 3.4              | 1.9 x |
 | AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.8        | 2.9 | 2.3 x |
 
+## Results (SimdBase64 vs. string .NET functions)
 
-As an aside, there is no accelerated base64 functions for UTF-16 inputs (e.g., `string` types). 
-We can multiply the decoding speed compared to the .NET standard library (`Convert.FromBase64String(mystring)`),
-but we omit the numbers for simplicity.
+The .NET runtime did not accelerate the `Convert.FromBase64String(mystring)` functions.
+We can multiply the decoding speed compared to the .NET standard library.
+
+Replace the following code based on the standard library...
+
+```C#
+byte[] newBytes = Convert.FromBase64String(s);
+```
+
+with our version...
+
+```C#
+byte[] newBytes = SimdBase64.Base64.FromBase64String(s);
+```
+
+| processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
+|:----------------|:------------------------|:-------------------|:-------------------|
+| Apple M2 processor (ARM, 3.5 Ghz)   | 4.0                     | 1.1              | 3.6 x |
+| Intel Ice Lake (2.0 GHz)  | 6.5                      | 3.4              | 1.9 x |
 
 ## AVX-512
 
@@ -109,6 +126,14 @@ If you are under macOS or Linux, you may want to run the benchmarks in privilege
 cd benchmark
 sudo dotnet run -c Release
 ```
+
+For UTF-16 benchmarks, you need to pass a flag as they are not enabled by default:
+
+```
+cd benchmark
+dotnet run -c Release --anyCategories UTF16
+```
+
 
 ## Building the library
 

@@ -62,7 +62,7 @@ namespace SimdBase64
             //}
             if (Avx2.IsSupported)
             {
-                return GetPointerToFirstInvalidByteAvx2(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
+                return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
             if (Ssse3.IsSupported && Popcnt.IsSupported)
             {

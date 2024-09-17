@@ -55,15 +55,15 @@ namespace SimdBase64
             {
                 return Arm.Base64.DecodeFromBase64ARM(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
-            // To be comleted
+            // To be comleted, this may have to wait for .NET 10.
             //if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported)
             //{
             //    return GetPointerToFirstInvalidByteAvx512(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
             //}
-            //if (Avx2.IsSupported)
-            //{
-            //    return GetPointerToFirstInvalidByteAvx2(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
-            //}
+            if (Avx2.IsSupported)
+            {
+                return GetPointerToFirstInvalidByteAvx2(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
+            }
             if (Ssse3.IsSupported && Popcnt.IsSupported)
             {
                 return SSE.Base64.DecodeFromBase64SSE(source, dest, out bytesConsumed, out bytesWritten, isUrl);

@@ -28,6 +28,6 @@
   <None Update="data\email\enron*.txt">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </None>
-</ItemGroup>
+  </ItemGroup>
 
 </Project>

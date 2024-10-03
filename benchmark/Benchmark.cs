@@ -290,7 +290,6 @@ namespace SimdUnicodeBenchmarks
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
@@ -328,7 +327,6 @@ namespace SimdUnicodeBenchmarks
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;
@@ -549,7 +547,6 @@ namespace SimdUnicodeBenchmarks
         {
             for (int i = 0; i < FileContent.Length; i++)
             {
-                //string s = FileContent[i];
                 byte[] base64 = input[i];
                 byte[] dataoutput = output[i];
                 int bytesConsumed = 0;

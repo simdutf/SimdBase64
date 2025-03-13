@@ -130,7 +130,6 @@ namespace SimdUnicodeBenchmarks
 #pragma warning disable CA1812
         private sealed class Config : ManualConfig
         {
-            static bool warned;
             public Config()
             {
                 AddColumn(new DataVolume());

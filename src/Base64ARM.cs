@@ -11,7 +11,7 @@ namespace SimdBase64
 {
     namespace Arm
     {
-        public static partial class Base64
+        public static class Base64
         {
             // If needed for debugging, you can do the following:
             /*static string VectorToString(Vector128<byte> vector)

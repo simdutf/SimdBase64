@@ -32,7 +32,7 @@ fully reproducible.
 
 | processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
-| Apple M2 processor (ARM, 3.5 Ghz)   | 6.5                      | 3.8               | 1.7 x |
+| Apple M2 processor (ARM, 3.5 Ghz)   | 10                     | 3.8               | 2.6 x |
 | AWS Graviton 3 (ARM, 2.6 GHz)   | 3.6  | 2.0 | 1.8 x |
 | Intel Ice Lake (2.0 GHz)  | 6.5                      | 3.4              | 1.9 x |
 | AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.8        | 2.9 | 2.3 x |

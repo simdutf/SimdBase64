@@ -2,13 +2,9 @@
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
-using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
 using System.Text;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Columns;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 
 namespace SimdUnicodeBenchmarks
 {
@@ -464,7 +460,7 @@ namespace SimdUnicodeBenchmarks
 
                 if (dataoutput.Length != lengths[i])
                 {
-                    Console.WriteLine($"Error: {dataoutput.Length } != {lengths[i]}");
+                    Console.WriteLine($"Error: {dataoutput.Length} != {lengths[i]}");
 #pragma warning disable CA2201
                     throw new Exception("Error");
                 }

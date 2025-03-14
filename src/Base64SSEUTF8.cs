@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.CompilerServices;
@@ -131,6 +132,68 @@ namespace SimdBase64
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private unsafe static ulong CompressBlock(ref Block64 b, ulong mask, byte* output, byte* tablePtr)
             {
+                // if mask is a power of 2, we can use a simpler version
+                if ((mask & (mask - 1)) == 0) // check if mask is a power of 2
+                {
+                    int pos64 = BitOperations.TrailingZeroCount(mask);
+                    int pos = pos64 & 0xf;
+                    Vector128<byte> v1 = Vector128.Create((byte)0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+                    Vector128<byte> v0 = Vector128.Create((byte)(pos-1));
+                    switch (pos64 >> 4)
+                    {
+                        case 0:
+                            {
+                                Vector128<byte> v2 = Sse2.CompareGreaterThan (v1.AsSByte(), v0.AsSByte()).AsByte();
+                                Vector128<byte> sh = Sse2.Subtract(v1, v2);
+                                Vector128<byte> compressed = Ssse3.Shuffle(b.chunk0, sh);
+                                Vector128.Store(compressed, output + 0 * 16);
+                                Vector128.Store(b.chunk1, output + 1 * 16 - 1);
+                                Vector128.Store(b.chunk2, output + 2 * 16 - 1);
+                                Vector128.Store(b.chunk3, output + 3 * 16 - 1);
+
+                            }
+                            break;
+
+                        case 1:
+                            {
+                                Vector128<byte> v2 = Sse2.CompareGreaterThan(v1.AsSByte(), v0.AsSByte()).AsByte();
+                                Vector128<byte> sh = Sse2.Subtract(v1, v2);
+                                Vector128<byte> compressed = Ssse3.Shuffle(b.chunk1, sh);
+                                Vector128.Store(b.chunk0, output + 0 * 16);
+                                Vector128.Store(compressed, output + 1 * 16);
+                                Vector128.Store(b.chunk2, output + 2 * 16 - 1);
+                                Vector128.Store(b.chunk3, output + 3 * 16 - 1);
+
+                            }
+                            break;
+
+                        case 2:
+                            {
+                                Vector128<byte> v2 = Sse2.CompareGreaterThan (v1.AsSByte(), v0.AsSByte()).AsByte();
+                                Vector128<byte> sh = Sse2.Subtract(v1, v2);
+                                Vector128<byte> compressed = Ssse3.Shuffle(b.chunk2, sh);
+                                Vector128.Store(b.chunk0, output + 0 * 16);
+                                Vector128.Store(b.chunk1, output + 1 * 16);
+                                Vector128.Store(compressed, output + 2 * 16);
+                                Vector128.Store(b.chunk3, output + 3 * 16 - 1);
+
+                            }
+                            break;
+
+                        case 3:
+                            {
+                                Vector128<byte> v2 = Sse2.CompareGreaterThan (v1.AsSByte(), v0.AsSByte()).AsByte();
+                                Vector128<byte> sh = Sse2.Subtract(v1, v2);
+                                Vector128<byte> compressed = Ssse3.Shuffle(b.chunk3, sh);
+                                Vector128.Store(b.chunk0, output + 0 * 16);
+                                Vector128.Store(b.chunk1, output + 1 * 16);
+                                Vector128.Store(b.chunk2, output + 2 * 16);
+                                Vector128.Store(compressed, output + 3 * 16);
+                            }
+                            break;
+                    }
+                    return 63;
+                }
                 ulong nmask = ~mask;
                 Compress(b.chunk0, (ushort)mask, output, tablePtr);
                 Compress(b.chunk1, (ushort)(mask >> 16), output + Popcnt.X64.PopCount(nmask & 0xFFFF), tablePtr);

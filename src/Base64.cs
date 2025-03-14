@@ -14,7 +14,8 @@ namespace SimdBase64
         {
             return Scalar.Base64.MaximalBinaryLengthFromBase64Scalar(input);
         }
-        public static byte[] FromBase64String(string s) {
+        public static byte[] FromBase64String(string s)
+        {
             ReadOnlySpan<char> base64 = s.AsSpan();
             byte[] newBytes = new byte[SimdBase64.Base64.MaximalBinaryLengthFromBase64<char>(base64)];
             int bytesConsumed = 0;
@@ -35,7 +36,7 @@ namespace SimdBase64
             //if (Vector512.IsHardwareAccelerated && Avx512Vbmi2.IsSupported)
             //{
             //}
-            if (Avx2.IsSupported)
+            if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
@@ -60,7 +61,7 @@ namespace SimdBase64
             //{
             //    return GetPointerToFirstInvalidByteAvx512(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
             //}
-            if (Avx2.IsSupported)
+            if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }

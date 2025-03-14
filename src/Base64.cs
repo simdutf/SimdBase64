@@ -36,7 +36,7 @@ namespace SimdBase64
             //if (Vector512.IsHardwareAccelerated && Avx512Vbmi2.IsSupported)
             //{
             //}
-            if (Avx2.IsSupported)
+            if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
@@ -61,7 +61,7 @@ namespace SimdBase64
             //{
             //    return GetPointerToFirstInvalidByteAvx512(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
             //}
-            if (Avx2.IsSupported)
+            if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }

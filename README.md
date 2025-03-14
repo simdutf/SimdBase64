@@ -35,7 +35,7 @@ fully reproducible.
 | Apple M2 processor (ARM, 3.5 Ghz)   | 10                     | 3.8               | 2.6 x |
 | AWS Graviton 3 (ARM, 2.6 GHz)   | 5.1 | 2.0 | 2.6 x |
 | Intel Ice Lake (2.0 GHz)  | 7.6                     | 3.4              | 2.2 x |
-| AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.8        | 2.9 | 2.3 x |
+| AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.9       | 3.0 | 2.3 x |
 
 ## Results (SimdBase64 vs. string .NET functions)
 

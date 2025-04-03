@@ -344,23 +344,15 @@ namespace SimdBase64
                 // Load 4 vectors from src
                 var (str0, str1, str2, str3) = AdvSimd.Arm64.Load4xVector128AndUnzip(srcPtr);
 
-
-
                 // Perform bitwise operations to simulate NEON intrinsics
-                Vector128<byte> outvec0 = AdvSimd.Or(
-                    AdvSimd.ShiftLeftLogical(str0, 2),
-                    AdvSimd.ShiftRightLogical(str1, 4)
-                );
+                Vector128<byte> outvec0 = AdvSimd.ShiftLeftAndInsert(
+                    AdvSimd.ShiftRightLogical(str1, 4), str0, 2);
 
-                Vector128<byte> outvec1 = AdvSimd.Or(
-                    AdvSimd.ShiftLeftLogical(str1, 4),
-                    AdvSimd.ShiftRightLogical(str2, 2)
-                );
+                Vector128<byte> outvec1 = AdvSimd.ShiftLeftAndInsert(
+                    AdvSimd.ShiftRightLogical(str2, 2), str1, 4);
 
-                Vector128<byte> outvec2 = AdvSimd.Or(
-                    AdvSimd.ShiftLeftLogical(str2, 6),
-                    str3
-                );
+                Vector128<byte> outvec2 = AdvSimd.ShiftLeftAndInsert(
+                    str3, str2, 6);
 
                 // Store the result in outData
                 AdvSimd.Arm64.StoreVectorAndZip(outPtr, (outvec0, outvec1, outvec2));

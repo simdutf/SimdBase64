@@ -1,4 +1,6 @@
 # SimdBase64
+[![.NET](https://github.com/simdutf/SimdBase64/actions/workflows/dotnet.yml/badge.svg)](https://github.com/simdutf/SimdBase64/actions/workflows/dotnet.yml)
+
 ## Fast WHATWG forgiving base64 decoding in C#
 
 Base64 is a standard approach to represent any binary data as ASCII. It is part of the email

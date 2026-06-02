@@ -473,7 +473,7 @@ public partial class Base64DecodingTests
                         catch (FormatException)
                         {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                            Console.WriteLine($"Wrong OperationStatus when substracting one padding character");
+                            Console.WriteLine($"Wrong OperationStatus when subtracting one padding character");
                         }
                     }
                 }
@@ -499,7 +499,7 @@ public partial class Base64DecodingTests
                     catch (FormatException)
                     {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                        Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding charater");
+                        Console.WriteLine($"Wrong OperationStatus when adding one padding character to base64 string with no padding character");
                     }
                 }
 

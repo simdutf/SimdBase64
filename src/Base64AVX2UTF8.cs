@@ -513,7 +513,7 @@ namespace SimdBase64
                                         bufferBytesWritten += 48;
                                         dst += 48;
                                     }
-                                    if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
+                                    if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to check if it's unsafe to proceed
                                     {
                                         Base64DecodeBlockSafe(dst, startOfBuffer + (blocksSize - 2) * 64);
                                     }
@@ -845,7 +845,7 @@ namespace SimdBase64
                                         bufferBytesWritten += 48;
                                         dst += 48;
                                     }
-                                    if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to chcek if its unsafe to proceed
+                                    if (dst >= endOfSafe64ByteZone) // for the second to last block, we may need to check if it's unsafe to proceed
                                     {
                                         Base64DecodeBlockSafe(dst, startOfBuffer + (blocksSize - 2) * 64);
                                     }

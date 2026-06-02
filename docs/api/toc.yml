@@ -1,0 +1,53 @@
+### YamlMime:TableOfContent
+items:
+- uid: SimdBase64
+  name: SimdBase64
+  type: Namespace
+  items:
+  - uid: SimdBase64.Base64
+    name: Base64
+    type: Class
+  - uid: SimdBase64.Base64Default
+    name: Base64Default
+    type: Class
+  - uid: SimdBase64.Base64Url
+    name: Base64Url
+    type: Class
+  - uid: SimdBase64.Tables
+    name: Tables
+    type: Class
+- uid: SimdBase64.AVX2
+  name: SimdBase64.AVX2
+  type: Namespace
+  items:
+  - uid: SimdBase64.AVX2.Base64
+    name: Base64
+    type: Class
+- uid: SimdBase64.Arm
+  name: SimdBase64.Arm
+  type: Namespace
+  items:
+  - uid: SimdBase64.Arm.Base64
+    name: Base64
+    type: Class
+- uid: SimdBase64.SSE
+  name: SimdBase64.SSE
+  type: Namespace
+  items:
+  - uid: SimdBase64.SSE.Base64
+    name: Base64
+    type: Class
+- uid: SimdBase64.Scalar
+  name: SimdBase64.Scalar
+  type: Namespace
+  items:
+  - uid: SimdBase64.Scalar.Base64
+    name: Base64
+    type: Class
+  - uid: SimdBase64.Scalar.Base64.Base64Options
+    name: Base64.Base64Options
+    type: Enum
+  - uid: SimdBase64.Scalar.Base64.Endianness
+    name: Base64.Endianness
+    type: Enum
+memberLayout: SeparatePages

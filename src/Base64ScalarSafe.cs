@@ -10,7 +10,7 @@ namespace SimdBase64
     {
         public static partial class Base64
         {
-            // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
+            // like DecodeFromBase64Scalar, but it will not write past the end of the output buffer.
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
                 int length = source.Length;
@@ -173,7 +173,7 @@ namespace SimdBase64
                 }
             }
 
-            // like DecodeFromBase64Scalar, but it will not write past the end of the ouput buffer.
+            // like DecodeFromBase64Scalar, but it will not write past the end of the output buffer.
             public unsafe static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false)
             {
 

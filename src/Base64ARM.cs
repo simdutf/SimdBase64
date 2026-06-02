@@ -98,7 +98,7 @@ namespace SimdBase64
                 Vector128<byte> lo3 = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles3);
                 Vector128<byte> hi3 = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles3);
                 // Check for invalid characters
-                // Note that the maxaccross can be replaced.
+                // Note that the maxacross can be replaced.
                 byte check = AdvSimd.Arm64.MaxAcross((hi0 & lo0) | (lo1 & hi1) | (lo2 & hi2) | (lo3 & hi3)).ToScalar();
 
                 error = (check > 0x3);
@@ -178,7 +178,7 @@ namespace SimdBase64
                 hi3 = AdvSimd.BitwiseClear(hi3, underscore3);
 
                 // Check for invalid characters
-                // Note that the maxaccross can be replaced.
+                // Note that the maxacross can be replaced.
                 byte check = AdvSimd.Arm64.MaxAcross((hi0 & lo0) | (lo1 & hi1) | (lo2 & hi2) | (lo3 & hi3)).ToScalar();
 
                 error = (check > 0x3);

@@ -205,7 +205,7 @@ namespace SimdBase64
                         case 2:
                             {
                                 Vector128<byte> chunk0 = Avx2.ExtractVector128(b.chunk1, 0);
-                                Vector128<byte> chunk1 = Avx2.ExtractVector128(b.chunk0, 1);
+                                Vector128<byte> chunk1 = Avx2.ExtractVector128(b.chunk1, 1);
                                 Vector128<byte> v2 = Sse2.CompareGreaterThan (v1.AsSByte(), v0.AsSByte()).AsByte();
                                 Vector128<byte> sh = Sse2.Subtract(v1, v2);
                                 Vector128<byte> compressed = Ssse3.Shuffle(chunk0, sh);
@@ -218,7 +218,7 @@ namespace SimdBase64
                         case 3:
                             {
                                 Vector128<byte> chunk0 = Avx2.ExtractVector128(b.chunk1, 0);
-                                Vector128<byte> chunk1 = Avx2.ExtractVector128(b.chunk0, 1);
+                                Vector128<byte> chunk1 = Avx2.ExtractVector128(b.chunk1, 1);
                                 Vector128<byte> v2 = Sse2.CompareGreaterThan (v1.AsSByte(), v0.AsSByte()).AsByte();
                                 Vector128<byte> sh = Sse2.Subtract(v1, v2);
                                 Vector128<byte> compressed = Ssse3.Shuffle(chunk1, sh);

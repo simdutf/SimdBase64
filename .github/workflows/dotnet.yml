@@ -1,6 +1,6 @@
 name: .NET
 
-on: [pull_request] # add push later
+on: [push, pull_request]
 
 jobs:
   build:

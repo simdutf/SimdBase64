@@ -593,6 +593,12 @@ namespace SimdBase64
 
                                 if (leftover == 1)
                                 {
+                                    // Trailing white space must not be counted as consumed when
+                                    // we need more data, to stay consistent with the scalar decoder.
+                                    while (src > srcInit && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)*(src - 1)))
+                                    {
+                                        src--;
+                                    }
                                     bytesConsumed = (int)(src - srcInit);
                                     bytesWritten = (int)(dst - dstInit);
                                     return OperationStatus.NeedMoreData;
@@ -652,7 +658,13 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
+                                // Trailing white space (and padding) is only consumed when decoding
+                                // completes; on NeedMoreData it must not be counted, to match the scalar decoder.
+                                bytesConsumed += remainderBytesConsumed;
+                                if (result == OperationStatus.Done)
+                                {
+                                    bytesConsumed += source.Length - bytesToProcess;
+                                }
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
@@ -913,6 +925,12 @@ namespace SimdBase64
 
                                 if (leftover == 1)
                                 {
+                                    // Trailing white space must not be counted as consumed when
+                                    // we need more data, to stay consistent with the scalar decoder.
+                                    while (src > srcInit && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)*(src - 1)))
+                                    {
+                                        src--;
+                                    }
                                     bytesConsumed = (int)(src - srcInit);
                                     bytesWritten = (int)(dst - dstInit);
                                     return OperationStatus.NeedMoreData;
@@ -974,7 +992,13 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
+                                // Trailing white space (and padding) is only consumed when decoding
+                                // completes; on NeedMoreData it must not be counted, to match the scalar decoder.
+                                bytesConsumed += remainderBytesConsumed;
+                                if (result == OperationStatus.Done)
+                                {
+                                    bytesConsumed += source.Length - bytesToProcess;
+                                }
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
@@ -1213,6 +1237,12 @@ namespace SimdBase64
 
                                 if (leftover == 1)
                                 {
+                                    // Trailing white space must not be counted as consumed when
+                                    // we need more data, to stay consistent with the scalar decoder.
+                                    while (src > srcInit && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)*(src - 1)))
+                                    {
+                                        src--;
+                                    }
                                     bytesConsumed = (int)(src - srcInit);
                                     bytesWritten = (int)(dst - dstInit);
                                     return OperationStatus.NeedMoreData;
@@ -1274,7 +1304,13 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
+                                // Trailing white space (and padding) is only consumed when decoding
+                                // completes; on NeedMoreData it must not be counted, to match the scalar decoder.
+                                bytesConsumed += remainderBytesConsumed;
+                                if (result == OperationStatus.Done)
+                                {
+                                    bytesConsumed += source.Length - bytesToProcess;
+                                }
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)
@@ -1540,6 +1576,12 @@ namespace SimdBase64
 
                                 if (leftover == 1)
                                 {
+                                    // Trailing white space must not be counted as consumed when
+                                    // we need more data, to stay consistent with the scalar decoder.
+                                    while (src > srcInit && SimdBase64.Scalar.Base64.IsAsciiWhiteSpace((char)*(src - 1)))
+                                    {
+                                        src--;
+                                    }
                                     bytesConsumed = (int)(src - srcInit);
                                     bytesWritten = (int)(dst - dstInit);
                                     return OperationStatus.NeedMoreData;
@@ -1601,7 +1643,13 @@ namespace SimdBase64
                             }
                             else
                             {
-                                bytesConsumed += remainderBytesConsumed + (source.Length - bytesToProcess);
+                                // Trailing white space (and padding) is only consumed when decoding
+                                // completes; on NeedMoreData it must not be counted, to match the scalar decoder.
+                                bytesConsumed += remainderBytesConsumed;
+                                if (result == OperationStatus.Done)
+                                {
+                                    bytesConsumed += source.Length - bytesToProcess;
+                                }
                                 bytesWritten += remainderBytesWritten;
                             }
                             if (result == OperationStatus.Done && equalsigns > 0)

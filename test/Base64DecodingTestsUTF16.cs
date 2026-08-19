@@ -66,6 +66,13 @@ public partial class Base64DecodingTests
         DecodeBase64CasesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void DecodeBase64CasesAvx512UTF16()
+    {
+        DecodeBase64CasesUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512);
+    }
+
     protected static void CompleteDecodeBase64CasesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         List<(string decoded, string base64)> cases = new List<(string, string)>
@@ -132,6 +139,13 @@ public partial class Base64DecodingTests
     public void CompleteDecodeBase64CasesAvx2UTF16()
     {
         CompleteDecodeBase64CasesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void CompleteDecodeBase64CasesAvx512UTF16()
+    {
+        CompleteDecodeBase64CasesUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
 
@@ -213,6 +227,13 @@ public partial class Base64DecodingTests
         MoreDecodeTestsUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void MoreDecodeTestsAVX512UTF16()
+    {
+        MoreDecodeTestsUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected static void MoreDecodeTestsUrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
@@ -289,6 +310,13 @@ public partial class Base64DecodingTests
         MoreDecodeTestsUrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void MoreDecodeTestsUrlAvx512UTF16()
+    {
+        MoreDecodeTestsUrlUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         for (int len = 0; len < 2048; len++)
@@ -343,6 +371,13 @@ public partial class Base64DecodingTests
         RoundtripBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void RoundtripBase64Avx512UTF16()
+    {
+        RoundtripBase64UTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64UrlUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
@@ -392,6 +427,13 @@ public partial class Base64DecodingTests
     public void RoundtripBase64UrlAVX2UTF16()
     {
         RoundtripBase64UrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.SSE.Base64.DecodeFromBase64SSE);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void RoundtripBase64UrlAVX512UTF16()
+    {
+        RoundtripBase64UrlUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.SSE.Base64.DecodeFromBase64SSE);
     }
 
     protected static void BadPaddingBase64UTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
@@ -528,6 +570,13 @@ public partial class Base64DecodingTests
         BadPaddingBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void BadPaddingBase64Avx512UTF16()
+    {
+        BadPaddingBase64UTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void BadPaddingUTF16Base64ARM()
@@ -599,6 +648,13 @@ public partial class Base64DecodingTests
     public void DoomedBase64RoundtripAvx2UTF16()
     {
         DoomedBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void DoomedBase64RoundtripAvx512UTF16()
+    {
+        DoomedBase64RoundtripUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -682,6 +738,13 @@ public partial class Base64DecodingTests
         TruncatedDoomedBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void TruncatedDoomedBase64RoundtripAVX512UTF16()
+    {
+        TruncatedDoomedBase64RoundtripUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     protected void RoundtripBase64WithSpacesUTF16(Base64WithWhiteSpaceToBinaryFromUTF16 Base64WithWhiteSpaceToBinaryFromUTF16, DecodeFromBase64DelegateSafeFromUTF16 DecodeFromBase64DelegateSafeFromUTF16)
     {
         if (Base64WithWhiteSpaceToBinaryFromUTF16 == null || DecodeFromBase64DelegateSafeFromUTF16 == null || SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<char> == null)
@@ -753,6 +816,13 @@ public partial class Base64DecodingTests
     public void RoundtripBase64WithSpacesAvx2UTF16()
     {
         RoundtripBase64WithSpacesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void RoundtripBase64WithSpacesAvx512UTF16()
+    {
+        RoundtripBase64WithSpacesUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -837,6 +907,13 @@ public partial class Base64DecodingTests
         AbortedSafeRoundtripBase64UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void AbortedSafeRoundtripBase64AVX512UTF16()
+    {
+        AbortedSafeRoundtripBase64UTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Sse)]
     [Trait("Category", "arm64")]
@@ -919,6 +996,13 @@ public partial class Base64DecodingTests
     public void AbortedSafeRoundtripBase64WithSpacesAVX2UTF16()
     {
         AbortedSafeRoundtripBase64WithSpacesUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void AbortedSafeRoundtripBase64WithSpacesAVX512UTF16()
+    {
+        AbortedSafeRoundtripBase64WithSpacesUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1007,6 +1091,13 @@ public partial class Base64DecodingTests
         StreamingBase64RoundtripUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void StreamingBase64RoundtripAvx512UTF16()
+    {
+        StreamingBase64RoundtripUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void StreamingBase64RoundtripARMUTF16()
@@ -1092,6 +1183,13 @@ public partial class Base64DecodingTests
         ReadmeTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void ReadmeTestAvx512UTF16()
+    {
+        ReadmeTestUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
@@ -1153,6 +1251,13 @@ public partial class Base64DecodingTests
     public void ReadmeTestSafeAvx2UTF16()
     {
         ReadmeTestSafeUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void ReadmeTestSafeAvx512UTF16()
+    {
+        ReadmeTestSafeUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1258,6 +1363,13 @@ public partial class Base64DecodingTests
         DoomedBase64AtPos0(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void DoomedBase64AtPos0Avx512UTF16()
+    {
+        DoomedBase64AtPos0(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void DoomedBase64AtPos0ARMUTF16()
@@ -1318,6 +1430,13 @@ public partial class Base64DecodingTests
         EnronFilesTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void EnronFilesTestAvx512UTF16()
+    {
+        EnronFilesTestUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     [Trait("Category", "arm64")]
     public void EnronFilesTestARMUTF16()
@@ -1372,6 +1491,13 @@ public partial class Base64DecodingTests
     public void SwedenZoneBaseFileTestAvx2UTF16()
     {
         SwedenZoneBaseFileTestUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void SwedenZoneBaseFileTestAvx512UTF16()
+    {
+        SwedenZoneBaseFileTestUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1464,6 +1590,13 @@ public partial class Base64DecodingTests
     public void DoomedPartialBufferAvx2UTF16()
     {
         DoomedPartialBufferUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void DoomedPartialBufferAvx512UTF16()
+    {
+        DoomedPartialBufferUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
@@ -1572,6 +1705,13 @@ public partial class Base64DecodingTests
         Issue511UTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2);
     }
 
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void Issue511AVX512UTF16()
+    {
+        Issue511UTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512);
+    }
+
     [Trait("Category", "arm64")]
     [FactOnSystemRequirementAttribute(TestSystemRequirements.Arm64)]
     public void Issue511ARMUTF16()
@@ -1645,6 +1785,13 @@ public partial class Base64DecodingTests
     public void TruncatedCharErrorUTF16AVX2()
     {
         TruncatedCharErrorUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void TruncatedCharErrorUTF16AVX512()
+    {
+        TruncatedCharErrorUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [Trait("Category", "arm64")]
@@ -1722,6 +1869,13 @@ public partial class Base64DecodingTests
     public void TruncatedCharErrorUrlUTF16AVX2()
     {
         TruncatedCharErrorUrlUTF16(SimdBase64.AVX2.Base64.DecodeFromBase64AVX2, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
+    }
+
+    [Trait("Category", "avx512")]
+    [FactOnSystemRequirementAttribute(TestSystemRequirements.X64Avx512)]
+    public void TruncatedCharErrorUrlUTF16AVX512()
+    {
+        TruncatedCharErrorUrlUTF16(SimdBase64.AVX512.Base64.DecodeFromBase64AVX512, SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace);
     }
 
     [Trait("Category", "arm64")]

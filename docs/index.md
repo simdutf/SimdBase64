@@ -6,7 +6,7 @@ title: SimdBase64 — fast base64 decoding for .NET
 <div class="hero">
   <div class="hero-inner">
     <h1 class="hero-title">SimdBase64</h1>
-    <p class="hero-tagline">A blazing-fast C# library for WHATWG forgiving-base64 decoding — <strong>up to&nbsp;2.3&times; faster</strong> than the accelerated .NET functions and <strong>3.8&times;</strong> faster than <code>Convert.FromBase64String</code>, using AVX2, SSE and ARM&nbsp;NEON.</p>
+    <p class="hero-tagline">A blazing-fast C# library for WHATWG forgiving-base64 decoding — <strong>up to&nbsp;2.6&times; faster</strong> than the accelerated .NET functions and <strong>3.8&times;</strong> faster than <code>Convert.FromBase64String</code>, using AVX-512, AVX2, SSE and ARM&nbsp;NEON.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="articles/getting-started.md">Get started &rarr;</a>
       <a class="btn btn-ghost" href="api/index.md">API reference</a>
@@ -25,8 +25,8 @@ title: SimdBase64 — fast base64 decoding for .NET
     <div class="stat-label">faster than <code>Convert.FromBase64String</code></div>
   </div>
   <div class="stat-card">
-    <div class="stat-num">3</div>
-    <div class="stat-label">SIMD back-ends: AVX2, SSE4.2, NEON</div>
+    <div class="stat-num">4</div>
+    <div class="stat-label">SIMD back-ends: AVX-512, AVX2, SSE4.2, NEON</div>
   </div>
   <div class="stat-card">
     <div class="stat-num">0</div>
@@ -62,7 +62,7 @@ Already calling `Convert.FromBase64String`? Swap in the accelerated version with
 byte[] bytes = SimdBase64.Base64.FromBase64String(s);
 ```
 
-The right SIMD kernel is selected automatically at runtime: **ARM64 NEON**, **AVX2**, **SSE4.2 / SSSE3**, or a portable scalar fallback.
+The right SIMD kernel is selected automatically at runtime: **ARM64 NEON**, **AVX-512**, **AVX2**, **SSE4.2 / SSSE3**, or a portable scalar fallback.
 
 <div class="feature-grid">
   <div class="feature">
@@ -73,7 +73,7 @@ The right SIMD kernel is selected automatically at runtime: **ARM64 NEON**, **AV
   <div class="feature">
     <div class="feature-icon">🧭</div>
     <h3>Runtime dispatch</h3>
-    <p>One call, the best available kernel. AVX2, SSE4.2, ARM NEON or a scalar fallback — chosen for your CPU.</p>
+    <p>One call, the best available kernel. AVX-512, AVX2, SSE4.2, ARM NEON or a scalar fallback — chosen for your CPU.</p>
   </div>
   <div class="feature">
     <div class="feature-icon">🧹</div>
@@ -92,10 +92,11 @@ The right SIMD kernel is selected automatically at runtime: **ARM64 NEON**, **AV
 Decoding throughput against the accelerated .NET functions (`System.Buffers.Text.Base64.DecodeFromUtf8`) on the enron email corpus. Longer bars are faster — SimdBase64 in purple, the .NET standard library in grey.
 
 <div class="bench" data-unit="GB/s">
-  <div class="bench-row"><span class="bench-name">Apple M2 (NEON)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:100%"><span>10 GB/s</span></div><div class="bar bar-net" style="--v:38%"><span>3.8</span></div></div><span class="bench-x">2.6&times;</span></div>
-  <div class="bench-row"><span class="bench-name">Intel Ice Lake</span><div class="bench-bars"><div class="bar bar-simd" style="--v:76%"><span>7.6 GB/s</span></div><div class="bar bar-net" style="--v:34%"><span>3.4</span></div></div><span class="bench-x">2.2&times;</span></div>
-  <div class="bench-row"><span class="bench-name">AMD EPYC (Zen 2)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:69%"><span>6.9 GB/s</span></div><div class="bar bar-net" style="--v:30%"><span>3.0</span></div></div><span class="bench-x">2.3&times;</span></div>
-  <div class="bench-row"><span class="bench-name">AWS Graviton 3</span><div class="bench-bars"><div class="bar bar-simd" style="--v:51%"><span>5.1 GB/s</span></div><div class="bar bar-net" style="--v:20%"><span>2.0</span></div></div><span class="bench-x">2.6&times;</span></div>
+  <div class="bench-row"><span class="bench-name">Xeon Gold 6548N (AVX-512)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:100%"><span>11.3 GB/s</span></div><div class="bar bar-net" style="--v:42%"><span>4.7</span></div></div><span class="bench-x">2.4&times;</span></div>
+  <div class="bench-row"><span class="bench-name">Apple M2 (NEON)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:88%"><span>10 GB/s</span></div><div class="bar bar-net" style="--v:34%"><span>3.8</span></div></div><span class="bench-x">2.6&times;</span></div>
+  <div class="bench-row"><span class="bench-name">Intel Ice Lake (AVX2)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:67%"><span>7.6 GB/s</span></div><div class="bar bar-net" style="--v:30%"><span>3.4</span></div></div><span class="bench-x">2.2&times;</span></div>
+  <div class="bench-row"><span class="bench-name">AMD EPYC (Zen 2)</span><div class="bench-bars"><div class="bar bar-simd" style="--v:61%"><span>6.9 GB/s</span></div><div class="bar bar-net" style="--v:27%"><span>3.0</span></div></div><span class="bench-x">2.3&times;</span></div>
+  <div class="bench-row"><span class="bench-name">AWS Graviton 3</span><div class="bench-bars"><div class="bar bar-simd" style="--v:45%"><span>5.1 GB/s</span></div><div class="bar bar-net" style="--v:18%"><span>2.0</span></div></div><span class="bench-x">2.6&times;</span></div>
 </div>
 
 <p class="bench-note">Against the unaccelerated <code>Convert.FromBase64String</code>, the gap is even larger — 3.6&times;–3.8&times;. See the full set of measurements in the <a href="articles/benchmarks.md">benchmarks</a>.</p>

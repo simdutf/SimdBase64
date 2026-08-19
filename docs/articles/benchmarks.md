@@ -29,7 +29,8 @@ decoder. SimdBase64 is **1.7×–2.6×** faster on realistic inputs of a few kil
 |:------------------------------------|:-----------------:|:-----------:|:--------:|
 | Apple M2 (ARM, 3.5 GHz)             | 10  | 3.8 | 2.6× |
 | AWS Graviton 3 (ARM, 2.6 GHz)       | 5.1 | 2.0 | 2.6× |
-| Intel Ice Lake (2.0 GHz)            | 7.6 | 3.4 | 2.2× |
+| Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) | 11.3 | 4.7 | 2.4× |
+| Intel Ice Lake (AVX2, 2.0 GHz)      | 7.6 | 3.4 | 2.2× |
 | AMD EPYC 7R32 (Zen 2, 2.8 GHz)      | 6.9 | 3.0 | 2.3× |
 
 ## vs. `Convert.FromBase64String`
@@ -40,6 +41,7 @@ The .NET runtime does **not** accelerate `Convert.FromBase64String`. Replacing i
 | processor and base freq.            | SimdBase64 (GB/s) | .NET (GB/s) | speed-up |
 |:------------------------------------|:-----------------:|:-----------:|:--------:|
 | Apple M2 (ARM, 3.5 GHz)             | 4.0 | 1.1  | 3.6× |
+| Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) | 2.1 | 0.71 | 2.9× |
 | Intel Ice Lake (2.0 GHz)            | 2.5 | 0.65 | 3.8× |
 
 > Hardware, runtime version and input all affect these numbers. Treat the tables as

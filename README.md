@@ -36,7 +36,8 @@ fully reproducible.
 |:----------------|:------------------------|:-------------------|:-------------------|
 | Apple M2 processor (ARM, 3.5 Ghz)   | 10                     | 3.8               | 2.6 x |
 | AWS Graviton 3 (ARM, 2.6 GHz)   | 5.1 | 2.0 | 2.6 x |
-| Intel Ice Lake (2.0 GHz)  | 7.6                     | 3.4              | 2.2 x |
+| Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) | 11.3 | 4.7 | 2.4 x |
+| Intel Ice Lake (AVX2, 2.0 GHz)  | 7.6                     | 3.4              | 2.2 x |
 | AMD EPYC 7R32 (Zen 2, 2.8 GHz)    |  6.9       | 3.0 | 2.3 x |
 
 ## Results (SimdBase64 vs. string .NET functions)
@@ -59,17 +60,20 @@ byte[] newBytes = SimdBase64.Base64.FromBase64String(s);
 | processor and base freq.      | SimdBase64 (GB/s) | .NET speed (GB/s) | speed up |
 |:----------------|:------------------------|:-------------------|:-------------------|
 | Apple M2 processor (ARM, 3.5 Ghz)   | 4.0                     | 1.1              | 3.6 x |
+| Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) | 2.1 | 0.71 | 2.9 x |
 | Intel Ice Lake (2.0 GHz)  | 2.5                      | 0.65             | 3.8 x |
 
 ## AVX-512
 
-As for .NET 9, the support for AVX-512 remains incomplete in C#. In particular, important
-VBMI2 instructions are missing. Hence, we are not using AVX-512 under x64 systems at this time.
-However, as soon as .NET offers the necessary support, we will update our results.
+On .NET 10, we use AVX-512 VBMI / VBMI2 when the CPU supports them (Ice Lake and later,
+including the Xeon Gold 6548N numbers above). The kernel is a C# port of the
+[simdutf Ice Lake decoder](https://github.com/simdutf/simdutf): a 64-byte
+`VPERMI2B` lookup, `VPCOMPRESSB` to strip white space, and a masked 48-byte store.
+On older x64 CPUs the library still dispatches to AVX2 or SSSE3.
 
 ## Requirements
 
-We require .NET 9 or better: https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+We require .NET 10 or better: https://dotnet.microsoft.com/en-us/download/dotnet/10.0
 
 ## Usage
 
@@ -177,6 +181,7 @@ You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
 ## Performance tips
 
 - Be careful: `Vector128.Shuffle` is not the same as `Ssse3.Shuffle` nor is  `Vector256.Shuffle` the same as `Avx2.Shuffle`. Prefer the latter.
+- Likewise `Vector512.Shuffle` is a full 64-byte permute; `Avx512BW.Shuffle` is lane-wise `VPSHUFB`. For the Ice Lake kernel use `Avx512Vbmi.PermuteVar64x8` / `PermuteVar64x8x2`.
 - Similarly `Vector128.Shuffle` is not the same as `AdvSimd.Arm64.VectorTableLookup`, use the latter.
 - `stackalloc` arrays should probably not be used in class instances.
 - In C#, `struct` might be preferable to `class` instances as it makes it clear that the data is thread local.

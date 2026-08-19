@@ -35,25 +35,27 @@ At a high level, each vectorized block:
 A single public method picks the best kernel for the host CPU, in priority order:
 
 ```text
-ARM64 NEON  →  AVX2  →  SSE4.2 / SSSE3  →  scalar fallback
+ARM64 NEON  →  AVX-512 VBMI2  →  AVX2  →  SSSE3  →  scalar fallback
 ```
 
-This means you write one call and automatically get NEON on an Apple M-series laptop, AVX2 on a
-current x64 server, and a correct scalar implementation everywhere else.
+This means you write one call and automatically get NEON on an Apple M-series laptop, AVX-512
+on Ice Lake and later x64 servers, AVX2 on older x64, and a correct scalar implementation
+everywhere else.
 
 | Back-end | Vector width | Typical hardware |
 |----------|--------------|------------------|
+| AVX-512 VBMI2 | 512-bit | Ice Lake, Sapphire Rapids, Emerald Rapids, Zen 4+ |
 | AVX2 | 256-bit | Most current x64 |
 | SSE4.2 / SSSE3 | 128-bit | Older x64 |
 | ARM64 NEON | 128-bit | Apple Silicon, AWS Graviton, Snapdragon |
 | Scalar | — | Portable fallback |
 
-## What about AVX-512?
+## AVX-512
 
-As of .NET 9, the C# support for AVX-512 is still incomplete — in particular the VBMI2
-instructions this algorithm relies on are missing. So SimdBase64 does **not** use AVX-512 under
-x64 at this time. As soon as the runtime exposes the necessary intrinsics, we will add a kernel
-and update the benchmarks.
+On .NET 10 the VBMI / VBMI2 intrinsics (`PermuteVar64x8x2`, `Compress`) are available, so we
+ship an Ice Lake kernel ported from [simdutf](https://github.com/simdutf/simdutf). It processes
+64 input bytes per iteration, compresses white space with `VPCOMPRESSB`, and writes exactly 48
+decoded bytes with a masked store.
 
 ## Why an `OperationStatus`, not a `bool`?
 

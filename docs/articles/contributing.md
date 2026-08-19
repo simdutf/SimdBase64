@@ -91,6 +91,8 @@ A few hard-won tips when working on the SIMD kernels:
 
 - `Vector128.Shuffle` is **not** the same as `Ssse3.Shuffle`, nor is `Vector256.Shuffle`
   the same as `Avx2.Shuffle`. Prefer the architecture-specific intrinsics.
+- `Vector512.Shuffle` is a full 64-byte permute; `Avx512BW.Shuffle` is lane-wise `VPSHUFB`.
+  The Ice Lake kernel uses `Avx512Vbmi.PermuteVar64x8` / `PermuteVar64x8x2`.
 - Likewise, `Vector128.Shuffle` differs from `AdvSimd.Arm64.VectorTableLookup`; use the latter on ARM.
 - Avoid `stackalloc` arrays in class instances.
 - Prefer `struct` over `class` to make thread-local data explicit.

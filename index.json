@@ -1,0 +1,227 @@
+{
+  "api/SimdBase64.AVX2.Base64.Compress.html": {
+    "href": "api/SimdBase64.AVX2.Base64.Compress.html",
+    "title": "Method Compress | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method Compress Namespace SimdBase64.AVX2 Assembly SimdBase64.dll Compress(Vector256<byte>, uint, byte*, byte*) public static void Compress(Vector256<byte> data, uint mask, byte* output, byte* tablePtr) Parameters data Vector256<byte> mask uint output byte* tablePtr byte*"
+  },
+  "api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html": {
+    "href": "api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html",
+    "title": "Method DecodeFromBase64AVX2 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64AVX2 Namespace SimdBase64.AVX2 Assembly SimdBase64.dll DecodeFromBase64AVX2(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64AVX2(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.AVX2.Base64.html": {
+    "href": "api/SimdBase64.AVX2.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64.AVX2 Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Compress(Vector256<byte>, uint, byte*, byte*) DecodeFromBase64AVX2(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64AVX2(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)"
+  },
+  "api/SimdBase64.AVX2.html": {
+    "href": "api/SimdBase64.AVX2.html",
+    "title": "Namespace SimdBase64.AVX2 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64.AVX2 Classes Base64"
+  },
+  "api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html": {
+    "href": "api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html",
+    "title": "Method DecodeFromBase64AVX512 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64AVX512 Namespace SimdBase64.AVX512 Assembly SimdBase64.dll DecodeFromBase64AVX512(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64AVX512(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64AVX512(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64AVX512(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.AVX512.Base64.html": {
+    "href": "api/SimdBase64.AVX512.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64.AVX512 Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods DecodeFromBase64AVX512(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64AVX512(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)"
+  },
+  "api/SimdBase64.AVX512.html": {
+    "href": "api/SimdBase64.AVX512.html",
+    "title": "Namespace SimdBase64.AVX512 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64.AVX512 Classes Base64"
+  },
+  "api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html": {
+    "href": "api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html",
+    "title": "Method DecodeFromBase64ARM | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64ARM Namespace SimdBase64.Arm Assembly SimdBase64.dll DecodeFromBase64ARM(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64ARM(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64ARM(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64ARM(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Arm.Base64.html": {
+    "href": "api/SimdBase64.Arm.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64.Arm Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods DecodeFromBase64ARM(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64ARM(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)"
+  },
+  "api/SimdBase64.Arm.html": {
+    "href": "api/SimdBase64.Arm.html",
+    "title": "Namespace SimdBase64.Arm | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64.Arm Classes Base64"
+  },
+  "api/SimdBase64.Base64.DecodeFromBase64.html": {
+    "href": "api/SimdBase64.Base64.DecodeFromBase64.html",
+    "title": "Method DecodeFromBase64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64 Namespace SimdBase64 Assembly SimdBase64.dll DecodeFromBase64(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Base64.FromBase64String.html": {
+    "href": "api/SimdBase64.Base64.FromBase64String.html",
+    "title": "Method FromBase64String | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method FromBase64String Namespace SimdBase64 Assembly SimdBase64.dll FromBase64String(string) public static byte[] FromBase64String(string s) Parameters s string Returns byte[]"
+  },
+  "api/SimdBase64.Base64.MaximalBinaryLengthFromBase64.html": {
+    "href": "api/SimdBase64.Base64.MaximalBinaryLengthFromBase64.html",
+    "title": "Method MaximalBinaryLengthFromBase64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method MaximalBinaryLengthFromBase64 Namespace SimdBase64 Assembly SimdBase64.dll MaximalBinaryLengthFromBase64<T>(ReadOnlySpan<T>) public static int MaximalBinaryLengthFromBase64<T>(ReadOnlySpan<T> input) Parameters input ReadOnlySpan<T> Returns int Type Parameters T"
+  },
+  "api/SimdBase64.Base64.html": {
+    "href": "api/SimdBase64.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64 Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods DecodeFromBase64(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) FromBase64String(string) MaximalBinaryLengthFromBase64<T>(ReadOnlySpan<T>)"
+  },
+  "api/SimdBase64.Base64Default.GetD.html": {
+    "href": "api/SimdBase64.Base64Default.GetD.html",
+    "title": "Method GetD | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetD Namespace SimdBase64 Assembly SimdBase64.dll GetD(char*) public static uint GetD(char* src) Parameters src char* Returns uint GetD(byte*) public static uint GetD(byte* src) Parameters src byte* Returns uint"
+  },
+  "api/SimdBase64.Base64Default.html": {
+    "href": "api/SimdBase64.Base64Default.html",
+    "title": "Class Base64Default | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64Default Namespace SimdBase64 Assembly SimdBase64.dll public static class Base64Default Inheritance object Base64Default Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods GetD(byte*) GetD(char*)"
+  },
+  "api/SimdBase64.Base64Url.GetD.html": {
+    "href": "api/SimdBase64.Base64Url.GetD.html",
+    "title": "Method GetD | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetD Namespace SimdBase64 Assembly SimdBase64.dll GetD(byte*) public static uint GetD(byte* src) Parameters src byte* Returns uint GetD(char*) public static uint GetD(char* src) Parameters src char* Returns uint"
+  },
+  "api/SimdBase64.Base64Url.html": {
+    "href": "api/SimdBase64.Base64Url.html",
+    "title": "Class Base64Url | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64Url Namespace SimdBase64 Assembly SimdBase64.dll public static class Base64Url Inheritance object Base64Url Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods GetD(byte*) GetD(char*)"
+  },
+  "api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html": {
+    "href": "api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html",
+    "title": "Method DecodeFromBase64SSE | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64SSE Namespace SimdBase64.SSE Assembly SimdBase64.dll DecodeFromBase64SSE(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64SSE(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.SSE.Base64.html": {
+    "href": "api/SimdBase64.SSE.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64.SSE Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods DecodeFromBase64SSE(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64SSE(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)"
+  },
+  "api/SimdBase64.SSE.html": {
+    "href": "api/SimdBase64.SSE.html",
+    "title": "Namespace SimdBase64.SSE | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64.SSE Classes Base64"
+  },
+  "api/SimdBase64.Scalar.Base64.Base64LengthFromBinary.html": {
+    "href": "api/SimdBase64.Scalar.Base64.Base64LengthFromBinary.html",
+    "title": "Method Base64LengthFromBinary | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method Base64LengthFromBinary Namespace SimdBase64.Scalar Assembly SimdBase64.dll Base64LengthFromBinary(int, bool) public static int Base64LengthFromBinary(int length, bool isUrl = false) Parameters length int isUrl bool Returns int"
+  },
+  "api/SimdBase64.Scalar.Base64.Base64Options.html": {
+    "href": "api/SimdBase64.Scalar.Base64.Base64Options.html",
+    "title": "Enum Base64.Base64Options | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Enum Base64.Base64Options Namespace SimdBase64.Scalar Assembly SimdBase64.dll [Flags] public enum Base64.Base64Options Fields None = 0 Url = 1"
+  },
+  "api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html": {
+    "href": "api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html",
+    "title": "Method Base64WithWhiteSpaceToBinaryScalar | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method Base64WithWhiteSpaceToBinaryScalar Namespace SimdBase64.Scalar Assembly SimdBase64.dll Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters input ReadOnlySpan<byte> output Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters input ReadOnlySpan<char> output Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html": {
+    "href": "api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html",
+    "title": "Method DecodeFromBase64Scalar | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method DecodeFromBase64Scalar Namespace SimdBase64.Scalar Assembly SimdBase64.dll DecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus DecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Scalar.Base64.Endianness.html": {
+    "href": "api/SimdBase64.Scalar.Base64.Endianness.html",
+    "title": "Enum Base64.Endianness | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Enum Base64.Endianness Namespace SimdBase64.Scalar Assembly SimdBase64.dll public enum Base64.Endianness Fields LITTLE = 0 BIG = 1"
+  },
+  "api/SimdBase64.Scalar.Base64.IsValidBase64Index.html": {
+    "href": "api/SimdBase64.Scalar.Base64.IsValidBase64Index.html",
+    "title": "Method IsValidBase64Index | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method IsValidBase64Index Namespace SimdBase64.Scalar Assembly SimdBase64.dll IsValidBase64Index(char) public static bool IsValidBase64Index(char b) Parameters b char Returns bool"
+  },
+  "api/SimdBase64.Scalar.Base64.MatchSystem.html": {
+    "href": "api/SimdBase64.Scalar.Base64.MatchSystem.html",
+    "title": "Method MatchSystem | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method MatchSystem Namespace SimdBase64.Scalar Assembly SimdBase64.dll MatchSystem(Endianness) public static bool MatchSystem(Base64.Endianness e) Parameters e Base64.Endianness Returns bool"
+  },
+  "api/SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar.html": {
+    "href": "api/SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar.html",
+    "title": "Method MaximalBinaryLengthFromBase64Scalar | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method MaximalBinaryLengthFromBase64Scalar Namespace SimdBase64.Scalar Assembly SimdBase64.dll MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T>) public static int MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T> input) Parameters input ReadOnlySpan<T> Returns int Type Parameters T"
+  },
+  "api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html": {
+    "href": "api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html",
+    "title": "Method SafeBase64ToBinaryWithWhiteSpace | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method SafeBase64ToBinaryWithWhiteSpace Namespace SimdBase64.Scalar Assembly SimdBase64.dll SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters input ReadOnlySpan<byte> output Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char> input, Span<byte> output, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters input ReadOnlySpan<char> output Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html": {
+    "href": "api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html",
+    "title": "Method SafeDecodeFromBase64Scalar | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method SafeDecodeFromBase64Scalar Namespace SimdBase64.Scalar Assembly SimdBase64.dll SafeDecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) public static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<byte> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<byte> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) public static OperationStatus SafeDecodeFromBase64Scalar(ReadOnlySpan<char> source, Span<byte> dest, out int bytesConsumed, out int bytesWritten, bool isUrl = false) Parameters source ReadOnlySpan<char> dest Span<byte> bytesConsumed int bytesWritten int isUrl bool Returns OperationStatus"
+  },
+  "api/SimdBase64.Scalar.Base64.html": {
+    "href": "api/SimdBase64.Scalar.Base64.html",
+    "title": "Class Base64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Base64 Namespace SimdBase64.Scalar Assembly SimdBase64.dll public static class Base64 Inheritance object Base64 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Base64LengthFromBinary(int, bool) Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) DecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) DecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) IsValidBase64Index(char) MatchSystem(Endianness) MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T>) SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char>, Span<byte>, out int, out int, bool) SafeDecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool) SafeDecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)"
+  },
+  "api/SimdBase64.Scalar.html": {
+    "href": "api/SimdBase64.Scalar.html",
+    "title": "Namespace SimdBase64.Scalar | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64.Scalar Classes Base64 Enums Base64.Base64Options Base64.Endianness"
+  },
+  "api/SimdBase64.Tables.GetBitsSetTable256mul2.html": {
+    "href": "api/SimdBase64.Tables.GetBitsSetTable256mul2.html",
+    "title": "Method GetBitsSetTable256mul2 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetBitsSetTable256mul2 Namespace SimdBase64 Assembly SimdBase64.dll GetBitsSetTable256mul2(uint) public static byte GetBitsSetTable256mul2(uint n) Parameters n uint Returns byte"
+  },
+  "api/SimdBase64.Tables.GetThintableEpi8.html": {
+    "href": "api/SimdBase64.Tables.GetThintableEpi8.html",
+    "title": "Method GetThintableEpi8 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetThintableEpi8 Namespace SimdBase64 Assembly SimdBase64.dll GetThintableEpi8(uint) public static ulong GetThintableEpi8(uint n) Parameters n uint Returns ulong"
+  },
+  "api/SimdBase64.Tables.GetToBase64UrlValue.html": {
+    "href": "api/SimdBase64.Tables.GetToBase64UrlValue.html",
+    "title": "Method GetToBase64UrlValue | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetToBase64UrlValue Namespace SimdBase64 Assembly SimdBase64.dll GetToBase64UrlValue(uint) public static byte GetToBase64UrlValue(uint n) Parameters n uint Returns byte"
+  },
+  "api/SimdBase64.Tables.GetToBase64Value.html": {
+    "href": "api/SimdBase64.Tables.GetToBase64Value.html",
+    "title": "Method GetToBase64Value | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Method GetToBase64Value Namespace SimdBase64 Assembly SimdBase64.dll GetToBase64Value(uint) public static byte GetToBase64Value(uint n) Parameters n uint Returns byte"
+  },
+  "api/SimdBase64.Tables.html": {
+    "href": "api/SimdBase64.Tables.html",
+    "title": "Class Tables | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Class Tables Namespace SimdBase64 Assembly SimdBase64.dll public static class Tables Inheritance object Tables Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods GetBitsSetTable256mul2(uint) GetThintableEpi8(uint) GetToBase64UrlValue(uint) GetToBase64Value(uint)"
+  },
+  "api/SimdBase64.html": {
+    "href": "api/SimdBase64.html",
+    "title": "Namespace SimdBase64 | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Namespace SimdBase64 Classes Base64 Base64Default Base64Url Tables"
+  },
+  "api/index.html": {
+    "href": "api/index.html",
+    "title": "API reference | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "API reference SimdBase64 exposes a small, focused public surface in the SimdBase64 namespace. Core types SimdBase64.Base64 — the main entry point. DecodeFromBase64 decodes a Span<byte> (ASCII / UTF-8) or Span<char> (UTF-16) input, dispatching to the fastest kernel your CPU supports. FromBase64String is a drop-in replacement for Convert.FromBase64String, and MaximalBinaryLengthFromBase64 sizes the output buffer. The architecture-specific kernels live in nested namespaces and are selected automatically at runtime — you normally never call them directly: SimdBase64.Arm.Base64 — ARM64 NEON. SimdBase64.AVX2.Base64 — x64 AVX2. SimdBase64.SSE.Base64 — x64 SSSE3 / SSE4.2. SimdBase64.Scalar.Base64 — portable fallback (also exposes the safe, length-checked variants). The members below are generated directly from the source."
+  },
+  "articles/benchmarks.html": {
+    "href": "articles/benchmarks.html",
+    "title": "Benchmarks | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Benchmarks All numbers are base64 decoding throughput in GB/s (higher is better) measured with BenchmarkDotNet on the enron email corpus (benchmark/data/email). The benchmarks are fully reproducible. To reproduce on your own machine: cd benchmark dotnet run -c Release # or a single benchmark: dotnet run -c Release --filter \"SimdUnicodeBenchmarks.RealDataBenchmark.AVX2DecodingRealDataUTF8(FileName: \\\"data/email/\\\")\" For the UTF-16 benchmarks (off by default): cd benchmark dotnet run -c Release --anyCategories UTF16 vs. the accelerated .NET functions Compared against System.Buffers.Text.Base64.DecodeFromUtf8, the runtime's fast SIMD base64 decoder. SimdBase64 is 1.7×–2.6× faster on realistic inputs of a few kilobytes. processor and base freq. SimdBase64 (GB/s) .NET (GB/s) speed-up Apple M2 (ARM, 3.5 GHz) 10 3.8 2.6× AWS Graviton 3 (ARM, 2.6 GHz) 5.1 2.0 2.6× Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) 11.3 4.7 2.4× Intel Ice Lake (AVX2, 2.0 GHz) 7.6 3.4 2.2× AMD EPYC 7R32 (Zen 2, 2.8 GHz) 6.9 3.0 2.3× vs. Convert.FromBase64String The .NET runtime does not accelerate Convert.FromBase64String. Replacing it with SimdBase64.Base64.FromBase64String multiplies the decoding speed: processor and base freq. SimdBase64 (GB/s) .NET (GB/s) speed-up Apple M2 (ARM, 3.5 GHz) 4.0 1.1 3.6× Intel Xeon Gold 6548N (AVX-512, 2.8 GHz) 2.1 0.71 2.9× Intel Ice Lake (2.0 GHz) 2.5 0.65 3.8× Hardware, runtime version and input all affect these numbers. Treat the tables as representative, and measure on your own target hardware for decisions that matter."
+  },
+  "articles/contributing.html": {
+    "href": "articles/contributing.html",
+    "title": "Contributing & building | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Contributing & building SimdBase64 is an open-source project under the MIT License. Contributions, issues, and benchmark reports from new hardware are welcome. Building the library cd src dotnet build Running the tests dotnet test List the available tests: dotnet test --list-tests Filter to a specific test: dotnet test -c Release --filter DecodeBase64CasesScalar Running the benchmarks cd benchmark dotnet run -c Release Filter to a single benchmark: dotnet run -c Release --filter \"SimdUnicodeBenchmarks.RealDataBenchmark.AVX2DecodingRealDataUTF8(FileName: \\\"data/email/\\\")\" On macOS or Linux you may want privileged mode for hardware counters: cd benchmark sudo dotnet run -c Release The UTF-16 benchmarks are off by default; enable them with a category flag: cd benchmark dotnet run -c Release --anyCategories UTF16 Code formatting cd test dotnet format Programming tips Print the contents of a vector register: public static void ToString(Vector256<byte> v) { Span<byte> b = stackalloc byte[32]; v.CopyTo(b); Console.WriteLine(Convert.ToHexString(b)); } public static void ToString(Vector128<byte> v) { Span<byte> b = stackalloc byte[16]; v.CopyTo(b); Console.WriteLine(Convert.ToHexString(b)); } Convert an integer to a hex string with $\"0x{myVariable:X}\". Performance notes A few hard-won tips when working on the SIMD kernels: Vector128.Shuffle is not the same as Ssse3.Shuffle, nor is Vector256.Shuffle the same as Avx2.Shuffle. Prefer the architecture-specific intrinsics. Vector512.Shuffle is a full 64-byte permute; Avx512BW.Shuffle is lane-wise VPSHUFB. The Ice Lake kernel uses Avx512Vbmi.PermuteVar64x8 / PermuteVar64x8x2. Likewise, Vector128.Shuffle differs from AdvSimd.Arm64.VectorTableLookup; use the latter on ARM. Avoid stackalloc arrays in class instances. Prefer struct over class to make thread-local data explicit. Dump JIT assembly with DOTNET_JitDisasm=... and gather profiling data with dotnet run -c Release -- -p EP. See Viewing JIT disassembly and dumps. Scientific references Wojciech Muła, Daniel Lemire, Base64 encoding and decoding at almost the speed of a memory copy, Software: Practice and Experience 50 (2), 2020. Wojciech Muła, Daniel Lemire, Faster Base64 Encoding and Decoding using AVX2 Instructions, ACM Transactions on the Web 12 (3), 2018. Further reading WHATWG forgiving-base64 decode base64 encoding with SIMD support (dotnet/runtime#27433) .NET framework design guidelines"
+  },
+  "articles/getting-started.html": {
+    "href": "articles/getting-started.html",
+    "title": "Getting started | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "Getting started SimdBase64 is a small, dependency-free C# library that decodes base64 with SIMD instructions. It targets .NET 10 (or better) and runs on x64 and ARM64. Requirements .NET 10 SDK or newer. A 64-bit x64 or ARM64 CPU for the SIMD kernels (a portable scalar fallback covers everything else). Build & reference Clone the repository and build the library: git clone https://github.com/simdutf/SimdBase64.git cd SimdBase64/src dotnet build -c Release Then add a project reference to src/SimdBase64.csproj from your own project: dotnet add reference path/to/SimdBase64/src/SimdBase64.csproj Decoding a buffer The core entry point is Base64.DecodeFromBase64. It decodes the input into a buffer you supply and returns an OperationStatus, along with the number of input characters consumed and output bytes written. Size the output buffer with MaximalBinaryLengthFromBase64: using System.Buffers; using SimdBase64; string base64 = \"SGVsbG8sIFdvcmxkIQ==\"; byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())]; OperationStatus status = Base64.DecodeFromBase64( base64.AsSpan(), buffer, out int bytesConsumed, out int bytesWritten, isUrl: false); if (status == OperationStatus.Done) { ReadOnlySpan<byte> decoded = buffer.AsSpan(0, bytesWritten); // Encoding.UTF8.GetString(decoded) == \"Hello, World!\" } The library supports both Span<byte> (ASCII / UTF-8) and Span<char> (UTF-16) input. If you have a C# string, get its Span<char> with AsSpan(). Allowable white space is skipped following the WHATWG forgiving-base64 rules. The return value and out parameters Result Meaning OperationStatus.Done The whole input was decoded successfully. OperationStatus.InvalidData The input contains a character that cannot be part of valid base64. OperationStatus.NeedMoreData The input ends with a single trailing character (an incomplete group). bytesConsumed Number of input characters consumed (including skipped white space and padding). bytesWritten Number of decoded bytes written to the output buffer. base64url Pass isUrl: true to decode the URL- and filename-safe alphabet (- and _ instead of + and /): var status = Base64.DecodeFromBase64(input, buffer, out int consumed, out int written, isUrl: true); Replacing Convert.FromBase64String The .NET runtime does not accelerate Convert.FromBase64String. SimdBase64 ships a faster drop-in: // before byte[] bytes = Convert.FromBase64String(s); // after byte[] bytes = SimdBase64.Base64.FromBase64String(s); Choosing a specific kernel DecodeFromBase64 dispatches to the fastest kernel your CPU supports. The architecture-specific implementations live in nested namespaces (SimdBase64.Arm, SimdBase64.AVX512, SimdBase64.AVX2, SimdBase64.SSE, SimdBase64.Scalar) and can be called directly — useful for testing or pinning behaviour. Continue to How it works or jump to the API reference."
+  },
+  "articles/how-it-works.html": {
+    "href": "articles/how-it-works.html",
+    "title": "How it works | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "How it works The problem Base64 represents arbitrary binary data as ASCII text. It is part of the email standard (MIME) and is widely used to embed data in XML, HTML and JSON — images, cryptographic keys, and more. Encoding is the easy direction: every input is valid. Decoding is harder. A decoder has to validate the input (not every ASCII string is legal base64) and skip allowable white space, which can appear anywhere. Those two requirements are exactly what makes a naïve, byte-at-a-time decoder slow and branch-heavy. We implement the WHATWG forgiving-base64 decode rules. SIMD decoding SimdBase64 implements the algorithm described in: Wojciech Muła, Daniel Lemire, Base64 encoding and decoding at almost the speed of a memory copy, Software: Practice and Experience 50 (2), 2020. The same approach is deployed in the simdutf C++ library and used in production by the Node.js and Bun JavaScript runtimes. The key idea is to process 16, 32, or 64 bytes at a time with SIMD lookup tables instead of per-character branches. At a high level, each vectorized block: Loads a block of base64 characters and translates each one to its 6-bit value with a shuffle-based table lookup. Detects invalid characters and white space in parallel, compressing the white space out of the block so only meaningful characters remain. Packs the 6-bit values down into the output bytes (4 base64 characters → 3 bytes). Falls back to a careful scalar tail for the last partial block and any padding (=). Runtime dispatch A single public method picks the best kernel for the host CPU, in priority order: ARM64 NEON → AVX-512 VBMI2 → AVX2 → SSSE3 → scalar fallback This means you write one call and automatically get NEON on an Apple M-series laptop, AVX-512 on Ice Lake and later x64 servers, AVX2 on older x64, and a correct scalar implementation everywhere else. Back-end Vector width Typical hardware AVX-512 VBMI2 512-bit Ice Lake, Sapphire Rapids, Emerald Rapids, Zen 4+ AVX2 256-bit Most current x64 SSE4.2 / SSSE3 128-bit Older x64 ARM64 NEON 128-bit Apple Silicon, AWS Graviton, Snapdragon Scalar — Portable fallback AVX-512 On .NET 10 the VBMI / VBMI2 intrinsics (PermuteVar64x8x2, Compress) are available, so we ship an Ice Lake kernel ported from simdutf. It processes 64 input bytes per iteration, compresses white space with VPCOMPRESSB, and writes exactly 48 decoded bytes with a masked store. Why an OperationStatus, not a bool? Returning an OperationStatus together with bytesConsumed/bytesWritten is strictly more informative than a boolean: callers can tell a genuinely invalid input (InvalidData) from a merely truncated one (NeedMoreData), report the exact offset where decoding stopped, and stream input in chunks. See the API reference for every available kernel, and the benchmarks for measured throughput."
+  },
+  "index.html": {
+    "href": "index.html",
+    "title": "SimdBase64 — fast base64 decoding for .NET | SimdBase64 — fast base64 decoding for .NET",
+    "summary": "SimdBase64 A blazing-fast C# library for WHATWG forgiving-base64 decoding — up to 2.6× faster than the accelerated .NET functions and 3.8× faster than Convert.FromBase64String, using AVX-512, AVX2, SSE and ARM NEON. Get started → API reference GitHub 2.6× faster than accelerated .NET base64 (Apple M2) 3.8× faster than Convert.FromBase64String 4 SIMD back-ends: AVX-512, AVX2, SSE4.2, NEON 0 allocations — decodes directly into your buffer Drop-in replacement SimdBase64 decodes base64 into a buffer you own. It accepts both Span<byte> (ASCII / UTF-8) and Span<char> (UTF-16) input, skips allowable white space, validates the input, and reports exactly how many bytes it consumed and wrote. using System.Buffers; using SimdBase64; string base64 = \"SGVsbG8sIFdvcmxkIQ==\"; // could be a Span<byte> of UTF-8 too byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())]; OperationStatus status = Base64.DecodeFromBase64( base64.AsSpan(), buffer, out int bytesConsumed, out int bytesWritten, isUrl: false); // true for the base64url alphabet // status == OperationStatus.Done ReadOnlySpan<byte> answer = buffer.AsSpan(0, bytesWritten); // Encoding.UTF8.GetString(answer) == \"Hello, World!\" Already calling Convert.FromBase64String? Swap in the accelerated version with a one-line change: byte[] bytes = SimdBase64.Base64.FromBase64String(s); The right SIMD kernel is selected automatically at runtime: ARM64 NEON, AVX-512, AVX2, SSE4.2 / SSSE3, or a portable scalar fallback. ⚡ SIMD-accelerated Decodes blocks of base64 at once with vector instructions — the same algorithm shipped in simdutf and used by Node.js and Bun. \uD83E\uDDED Runtime dispatch One call, the best available kernel. AVX-512, AVX2, SSE4.2, ARM NEON or a scalar fallback — chosen for your CPU. \uD83E\uDDF9 WHATWG forgiving Handles allowable white space and padding, and validates the input — implementing the WHATWG forgiving-base64 decode rules. \uD83C\uDF4F x64 & ARM First-class support for modern Intel/AMD and Apple Silicon / Graviton processors. How fast is it? Decoding throughput against the accelerated .NET functions (System.Buffers.Text.Base64.DecodeFromUtf8) on the enron email corpus. Longer bars are faster — SimdBase64 in purple, the .NET standard library in grey. Xeon Gold 6548N (AVX-512) 11.3 GB/s 4.7 2.4× Apple M2 (NEON) 10 GB/s 3.8 2.6× Intel Ice Lake (AVX2) 7.6 GB/s 3.4 2.2× AMD EPYC (Zen 2) 6.9 GB/s 3.0 2.3× AWS Graviton 3 5.1 GB/s 2.0 2.6× Against the unaccelerated Convert.FromBase64String, the gap is even larger — 3.6×–3.8×. See the full set of measurements in the benchmarks. Build it git clone https://github.com/simdutf/SimdBase64.git cd SimdBase64/src dotnet build -c Release Then add a project reference to src/SimdBase64.csproj. Head to the getting started guide or dive into the API reference. Citing The algorithms are described in: Wojciech Muła, Daniel Lemire, Base64 encoding and decoding at almost the speed of a memory copy, Software: Practice and Experience 50 (2), 2020. Wojciech Muła, Daniel Lemire, Faster Base64 Encoding and Decoding using AVX2 Instructions, ACM Transactions on the Web 12 (3), 2018."
+  }
+}

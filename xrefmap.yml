@@ -1,0 +1,555 @@
+### YamlMime:XRefMap
+sorted: true
+references:
+- uid: SimdBase64
+  name: SimdBase64
+  href: api/SimdBase64.html
+  commentId: N:SimdBase64
+  fullName: SimdBase64
+  nameWithType: SimdBase64
+- uid: SimdBase64.AVX2
+  name: SimdBase64.AVX2
+  href: api/SimdBase64.AVX2.html
+  commentId: N:SimdBase64.AVX2
+  fullName: SimdBase64.AVX2
+  nameWithType: SimdBase64.AVX2
+- uid: SimdBase64.AVX2.Base64
+  name: Base64
+  href: api/SimdBase64.AVX2.Base64.html
+  commentId: T:SimdBase64.AVX2.Base64
+  fullName: SimdBase64.AVX2.Base64
+  nameWithType: Base64
+- uid: SimdBase64.AVX2.Base64.Compress(System.Runtime.Intrinsics.Vector256{System.Byte},System.UInt32,System.Byte*,System.Byte*)
+  name: Compress(Vector256<byte>, uint, byte*, byte*)
+  href: api/SimdBase64.AVX2.Base64.Compress.html#SimdBase64_AVX2_Base64_Compress_System_Runtime_Intrinsics_Vector256_System_Byte__System_UInt32_System_Byte__System_Byte__
+  commentId: M:SimdBase64.AVX2.Base64.Compress(System.Runtime.Intrinsics.Vector256{System.Byte},System.UInt32,System.Byte*,System.Byte*)
+  name.vb: Compress(Vector256(Of Byte), UInteger, Byte*, Byte*)
+  fullName: SimdBase64.AVX2.Base64.Compress(System.Runtime.Intrinsics.Vector256<byte>, uint, byte*, byte*)
+  fullName.vb: SimdBase64.AVX2.Base64.Compress(System.Runtime.Intrinsics.Vector256(Of Byte), UInteger, Byte*, Byte*)
+  nameWithType: Base64.Compress(Vector256<byte>, uint, byte*, byte*)
+  nameWithType.vb: Base64.Compress(Vector256(Of Byte), UInteger, Byte*, Byte*)
+- uid: SimdBase64.AVX2.Base64.Compress*
+  name: Compress
+  href: api/SimdBase64.AVX2.Base64.Compress.html
+  commentId: Overload:SimdBase64.AVX2.Base64.Compress
+  fullName: SimdBase64.AVX2.Base64.Compress
+  nameWithType: Base64.Compress
+- uid: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64AVX2(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html#SimdBase64_AVX2_Base64_DecodeFromBase64AVX2_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64AVX2(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64AVX2(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64AVX2(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64AVX2(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html#SimdBase64_AVX2_Base64_DecodeFromBase64AVX2_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64AVX2(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64AVX2(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64AVX2(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2*
+  name: DecodeFromBase64AVX2
+  href: api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html
+  commentId: Overload:SimdBase64.AVX2.Base64.DecodeFromBase64AVX2
+  fullName: SimdBase64.AVX2.Base64.DecodeFromBase64AVX2
+  nameWithType: Base64.DecodeFromBase64AVX2
+- uid: SimdBase64.AVX512
+  name: SimdBase64.AVX512
+  href: api/SimdBase64.AVX512.html
+  commentId: N:SimdBase64.AVX512
+  fullName: SimdBase64.AVX512
+  nameWithType: SimdBase64.AVX512
+- uid: SimdBase64.AVX512.Base64
+  name: Base64
+  href: api/SimdBase64.AVX512.Base64.html
+  commentId: T:SimdBase64.AVX512.Base64
+  fullName: SimdBase64.AVX512.Base64
+  nameWithType: Base64
+- uid: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64AVX512(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html#SimdBase64_AVX512_Base64_DecodeFromBase64AVX512_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64AVX512(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64AVX512(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64AVX512(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64AVX512(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html#SimdBase64_AVX512_Base64_DecodeFromBase64AVX512_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64AVX512(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64AVX512(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64AVX512(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512*
+  name: DecodeFromBase64AVX512
+  href: api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html
+  commentId: Overload:SimdBase64.AVX512.Base64.DecodeFromBase64AVX512
+  fullName: SimdBase64.AVX512.Base64.DecodeFromBase64AVX512
+  nameWithType: Base64.DecodeFromBase64AVX512
+- uid: SimdBase64.Arm
+  name: SimdBase64.Arm
+  href: api/SimdBase64.Arm.html
+  commentId: N:SimdBase64.Arm
+  fullName: SimdBase64.Arm
+  nameWithType: SimdBase64.Arm
+- uid: SimdBase64.Arm.Base64
+  name: Base64
+  href: api/SimdBase64.Arm.Base64.html
+  commentId: T:SimdBase64.Arm.Base64
+  fullName: SimdBase64.Arm.Base64
+  nameWithType: Base64
+- uid: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64ARM(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html#SimdBase64_Arm_Base64_DecodeFromBase64ARM_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64ARM(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64ARM(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64ARM(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64ARM(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html#SimdBase64_Arm_Base64_DecodeFromBase64ARM_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64ARM(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Arm.Base64.DecodeFromBase64ARM(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64ARM(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64ARM(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Arm.Base64.DecodeFromBase64ARM*
+  name: DecodeFromBase64ARM
+  href: api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html
+  commentId: Overload:SimdBase64.Arm.Base64.DecodeFromBase64ARM
+  fullName: SimdBase64.Arm.Base64.DecodeFromBase64ARM
+  nameWithType: Base64.DecodeFromBase64ARM
+- uid: SimdBase64.Base64
+  name: Base64
+  href: api/SimdBase64.Base64.html
+  commentId: T:SimdBase64.Base64
+  fullName: SimdBase64.Base64
+  nameWithType: Base64
+- uid: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Base64.DecodeFromBase64.html#SimdBase64_Base64_DecodeFromBase64_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Base64.DecodeFromBase64.html#SimdBase64_Base64_DecodeFromBase64_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Base64.DecodeFromBase64(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Base64.DecodeFromBase64*
+  name: DecodeFromBase64
+  href: api/SimdBase64.Base64.DecodeFromBase64.html
+  commentId: Overload:SimdBase64.Base64.DecodeFromBase64
+  fullName: SimdBase64.Base64.DecodeFromBase64
+  nameWithType: Base64.DecodeFromBase64
+- uid: SimdBase64.Base64.FromBase64String(System.String)
+  name: FromBase64String(string)
+  href: api/SimdBase64.Base64.FromBase64String.html#SimdBase64_Base64_FromBase64String_System_String_
+  commentId: M:SimdBase64.Base64.FromBase64String(System.String)
+  name.vb: FromBase64String(String)
+  fullName: SimdBase64.Base64.FromBase64String(string)
+  fullName.vb: SimdBase64.Base64.FromBase64String(String)
+  nameWithType: Base64.FromBase64String(string)
+  nameWithType.vb: Base64.FromBase64String(String)
+- uid: SimdBase64.Base64.FromBase64String*
+  name: FromBase64String
+  href: api/SimdBase64.Base64.FromBase64String.html
+  commentId: Overload:SimdBase64.Base64.FromBase64String
+  fullName: SimdBase64.Base64.FromBase64String
+  nameWithType: Base64.FromBase64String
+- uid: SimdBase64.Base64.MaximalBinaryLengthFromBase64*
+  name: MaximalBinaryLengthFromBase64
+  href: api/SimdBase64.Base64.MaximalBinaryLengthFromBase64.html
+  commentId: Overload:SimdBase64.Base64.MaximalBinaryLengthFromBase64
+  fullName: SimdBase64.Base64.MaximalBinaryLengthFromBase64
+  nameWithType: Base64.MaximalBinaryLengthFromBase64
+- uid: SimdBase64.Base64.MaximalBinaryLengthFromBase64``1(System.ReadOnlySpan{``0})
+  name: MaximalBinaryLengthFromBase64<T>(ReadOnlySpan<T>)
+  href: api/SimdBase64.Base64.MaximalBinaryLengthFromBase64.html#SimdBase64_Base64_MaximalBinaryLengthFromBase64__1_System_ReadOnlySpan___0__
+  commentId: M:SimdBase64.Base64.MaximalBinaryLengthFromBase64``1(System.ReadOnlySpan{``0})
+  name.vb: MaximalBinaryLengthFromBase64(Of T)(ReadOnlySpan(Of T))
+  fullName: SimdBase64.Base64.MaximalBinaryLengthFromBase64<T>(System.ReadOnlySpan<T>)
+  fullName.vb: SimdBase64.Base64.MaximalBinaryLengthFromBase64(Of T)(System.ReadOnlySpan(Of T))
+  nameWithType: Base64.MaximalBinaryLengthFromBase64<T>(ReadOnlySpan<T>)
+  nameWithType.vb: Base64.MaximalBinaryLengthFromBase64(Of T)(ReadOnlySpan(Of T))
+- uid: SimdBase64.Base64Default
+  name: Base64Default
+  href: api/SimdBase64.Base64Default.html
+  commentId: T:SimdBase64.Base64Default
+  fullName: SimdBase64.Base64Default
+  nameWithType: Base64Default
+- uid: SimdBase64.Base64Default.GetD(System.Byte*)
+  name: GetD(byte*)
+  href: api/SimdBase64.Base64Default.GetD.html#SimdBase64_Base64Default_GetD_System_Byte__
+  commentId: M:SimdBase64.Base64Default.GetD(System.Byte*)
+  name.vb: GetD(Byte*)
+  fullName: SimdBase64.Base64Default.GetD(byte*)
+  fullName.vb: SimdBase64.Base64Default.GetD(Byte*)
+  nameWithType: Base64Default.GetD(byte*)
+  nameWithType.vb: Base64Default.GetD(Byte*)
+- uid: SimdBase64.Base64Default.GetD(System.Char*)
+  name: GetD(char*)
+  href: api/SimdBase64.Base64Default.GetD.html#SimdBase64_Base64Default_GetD_System_Char__
+  commentId: M:SimdBase64.Base64Default.GetD(System.Char*)
+  name.vb: GetD(Char*)
+  fullName: SimdBase64.Base64Default.GetD(char*)
+  fullName.vb: SimdBase64.Base64Default.GetD(Char*)
+  nameWithType: Base64Default.GetD(char*)
+  nameWithType.vb: Base64Default.GetD(Char*)
+- uid: SimdBase64.Base64Default.GetD*
+  name: GetD
+  href: api/SimdBase64.Base64Default.GetD.html
+  commentId: Overload:SimdBase64.Base64Default.GetD
+  fullName: SimdBase64.Base64Default.GetD
+  nameWithType: Base64Default.GetD
+- uid: SimdBase64.Base64Url
+  name: Base64Url
+  href: api/SimdBase64.Base64Url.html
+  commentId: T:SimdBase64.Base64Url
+  fullName: SimdBase64.Base64Url
+  nameWithType: Base64Url
+- uid: SimdBase64.Base64Url.GetD(System.Byte*)
+  name: GetD(byte*)
+  href: api/SimdBase64.Base64Url.GetD.html#SimdBase64_Base64Url_GetD_System_Byte__
+  commentId: M:SimdBase64.Base64Url.GetD(System.Byte*)
+  name.vb: GetD(Byte*)
+  fullName: SimdBase64.Base64Url.GetD(byte*)
+  fullName.vb: SimdBase64.Base64Url.GetD(Byte*)
+  nameWithType: Base64Url.GetD(byte*)
+  nameWithType.vb: Base64Url.GetD(Byte*)
+- uid: SimdBase64.Base64Url.GetD(System.Char*)
+  name: GetD(char*)
+  href: api/SimdBase64.Base64Url.GetD.html#SimdBase64_Base64Url_GetD_System_Char__
+  commentId: M:SimdBase64.Base64Url.GetD(System.Char*)
+  name.vb: GetD(Char*)
+  fullName: SimdBase64.Base64Url.GetD(char*)
+  fullName.vb: SimdBase64.Base64Url.GetD(Char*)
+  nameWithType: Base64Url.GetD(char*)
+  nameWithType.vb: Base64Url.GetD(Char*)
+- uid: SimdBase64.Base64Url.GetD*
+  name: GetD
+  href: api/SimdBase64.Base64Url.GetD.html
+  commentId: Overload:SimdBase64.Base64Url.GetD
+  fullName: SimdBase64.Base64Url.GetD
+  nameWithType: Base64Url.GetD
+- uid: SimdBase64.SSE
+  name: SimdBase64.SSE
+  href: api/SimdBase64.SSE.html
+  commentId: N:SimdBase64.SSE
+  fullName: SimdBase64.SSE
+  nameWithType: SimdBase64.SSE
+- uid: SimdBase64.SSE.Base64
+  name: Base64
+  href: api/SimdBase64.SSE.Base64.html
+  commentId: T:SimdBase64.SSE.Base64
+  fullName: SimdBase64.SSE.Base64
+  nameWithType: Base64
+- uid: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64SSE(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html#SimdBase64_SSE_Base64_DecodeFromBase64SSE_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64SSE(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64SSE(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64SSE(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64SSE(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html#SimdBase64_SSE_Base64_DecodeFromBase64SSE_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64SSE(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.SSE.Base64.DecodeFromBase64SSE(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64SSE(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64SSE(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.SSE.Base64.DecodeFromBase64SSE*
+  name: DecodeFromBase64SSE
+  href: api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html
+  commentId: Overload:SimdBase64.SSE.Base64.DecodeFromBase64SSE
+  fullName: SimdBase64.SSE.Base64.DecodeFromBase64SSE
+  nameWithType: Base64.DecodeFromBase64SSE
+- uid: SimdBase64.Scalar
+  name: SimdBase64.Scalar
+  href: api/SimdBase64.Scalar.html
+  commentId: N:SimdBase64.Scalar
+  fullName: SimdBase64.Scalar
+  nameWithType: SimdBase64.Scalar
+- uid: SimdBase64.Scalar.Base64
+  name: Base64
+  href: api/SimdBase64.Scalar.Base64.html
+  commentId: T:SimdBase64.Scalar.Base64
+  fullName: SimdBase64.Scalar.Base64
+  nameWithType: Base64
+- uid: SimdBase64.Scalar.Base64.Base64LengthFromBinary(System.Int32,System.Boolean)
+  name: Base64LengthFromBinary(int, bool)
+  href: api/SimdBase64.Scalar.Base64.Base64LengthFromBinary.html#SimdBase64_Scalar_Base64_Base64LengthFromBinary_System_Int32_System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.Base64LengthFromBinary(System.Int32,System.Boolean)
+  name.vb: Base64LengthFromBinary(Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.Base64LengthFromBinary(int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.Base64LengthFromBinary(Integer, Boolean)
+  nameWithType: Base64.Base64LengthFromBinary(int, bool)
+  nameWithType.vb: Base64.Base64LengthFromBinary(Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.Base64LengthFromBinary*
+  name: Base64LengthFromBinary
+  href: api/SimdBase64.Scalar.Base64.Base64LengthFromBinary.html
+  commentId: Overload:SimdBase64.Scalar.Base64.Base64LengthFromBinary
+  fullName: SimdBase64.Scalar.Base64.Base64LengthFromBinary
+  nameWithType: Base64.Base64LengthFromBinary
+- uid: SimdBase64.Scalar.Base64.Base64Options
+  name: Base64.Base64Options
+  href: api/SimdBase64.Scalar.Base64.Base64Options.html
+  commentId: T:SimdBase64.Scalar.Base64.Base64Options
+  fullName: SimdBase64.Scalar.Base64.Base64Options
+  nameWithType: Base64.Base64Options
+- uid: SimdBase64.Scalar.Base64.Base64Options.None
+  name: None
+  href: api/SimdBase64.Scalar.Base64.Base64Options.html#SimdBase64_Scalar_Base64_Base64Options_None
+  commentId: F:SimdBase64.Scalar.Base64.Base64Options.None
+  fullName: SimdBase64.Scalar.Base64.Base64Options.None
+  nameWithType: Base64.Base64Options.None
+- uid: SimdBase64.Scalar.Base64.Base64Options.Url
+  name: Url
+  href: api/SimdBase64.Scalar.Base64.Base64Options.html#SimdBase64_Scalar_Base64_Base64Options_Url
+  commentId: F:SimdBase64.Scalar.Base64.Base64Options.Url
+  fullName: SimdBase64.Scalar.Base64.Base64Options.Url
+  nameWithType: Base64.Base64Options.Url
+- uid: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html#SimdBase64_Scalar_Base64_Base64WithWhiteSpaceToBinaryScalar_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html#SimdBase64_Scalar_Base64_Base64WithWhiteSpaceToBinaryScalar_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.Base64WithWhiteSpaceToBinaryScalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar*
+  name: Base64WithWhiteSpaceToBinaryScalar
+  href: api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html
+  commentId: Overload:SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar
+  fullName: SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar
+  nameWithType: Base64.Base64WithWhiteSpaceToBinaryScalar
+- uid: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html#SimdBase64_Scalar_Base64_DecodeFromBase64Scalar_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64Scalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64Scalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: DecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html#SimdBase64_Scalar_Base64_DecodeFromBase64Scalar_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: DecodeFromBase64Scalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.DecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.DecodeFromBase64Scalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar*
+  name: DecodeFromBase64Scalar
+  href: api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html
+  commentId: Overload:SimdBase64.Scalar.Base64.DecodeFromBase64Scalar
+  fullName: SimdBase64.Scalar.Base64.DecodeFromBase64Scalar
+  nameWithType: Base64.DecodeFromBase64Scalar
+- uid: SimdBase64.Scalar.Base64.Endianness
+  name: Base64.Endianness
+  href: api/SimdBase64.Scalar.Base64.Endianness.html
+  commentId: T:SimdBase64.Scalar.Base64.Endianness
+  fullName: SimdBase64.Scalar.Base64.Endianness
+  nameWithType: Base64.Endianness
+- uid: SimdBase64.Scalar.Base64.Endianness.BIG
+  name: BIG
+  href: api/SimdBase64.Scalar.Base64.Endianness.html#SimdBase64_Scalar_Base64_Endianness_BIG
+  commentId: F:SimdBase64.Scalar.Base64.Endianness.BIG
+  fullName: SimdBase64.Scalar.Base64.Endianness.BIG
+  nameWithType: Base64.Endianness.BIG
+- uid: SimdBase64.Scalar.Base64.Endianness.LITTLE
+  name: LITTLE
+  href: api/SimdBase64.Scalar.Base64.Endianness.html#SimdBase64_Scalar_Base64_Endianness_LITTLE
+  commentId: F:SimdBase64.Scalar.Base64.Endianness.LITTLE
+  fullName: SimdBase64.Scalar.Base64.Endianness.LITTLE
+  nameWithType: Base64.Endianness.LITTLE
+- uid: SimdBase64.Scalar.Base64.IsValidBase64Index(System.Char)
+  name: IsValidBase64Index(char)
+  href: api/SimdBase64.Scalar.Base64.IsValidBase64Index.html#SimdBase64_Scalar_Base64_IsValidBase64Index_System_Char_
+  commentId: M:SimdBase64.Scalar.Base64.IsValidBase64Index(System.Char)
+  name.vb: IsValidBase64Index(Char)
+  fullName: SimdBase64.Scalar.Base64.IsValidBase64Index(char)
+  fullName.vb: SimdBase64.Scalar.Base64.IsValidBase64Index(Char)
+  nameWithType: Base64.IsValidBase64Index(char)
+  nameWithType.vb: Base64.IsValidBase64Index(Char)
+- uid: SimdBase64.Scalar.Base64.IsValidBase64Index*
+  name: IsValidBase64Index
+  href: api/SimdBase64.Scalar.Base64.IsValidBase64Index.html
+  commentId: Overload:SimdBase64.Scalar.Base64.IsValidBase64Index
+  fullName: SimdBase64.Scalar.Base64.IsValidBase64Index
+  nameWithType: Base64.IsValidBase64Index
+- uid: SimdBase64.Scalar.Base64.MatchSystem(SimdBase64.Scalar.Base64.Endianness)
+  name: MatchSystem(Endianness)
+  href: api/SimdBase64.Scalar.Base64.MatchSystem.html#SimdBase64_Scalar_Base64_MatchSystem_SimdBase64_Scalar_Base64_Endianness_
+  commentId: M:SimdBase64.Scalar.Base64.MatchSystem(SimdBase64.Scalar.Base64.Endianness)
+  fullName: SimdBase64.Scalar.Base64.MatchSystem(SimdBase64.Scalar.Base64.Endianness)
+  nameWithType: Base64.MatchSystem(Base64.Endianness)
+- uid: SimdBase64.Scalar.Base64.MatchSystem*
+  name: MatchSystem
+  href: api/SimdBase64.Scalar.Base64.MatchSystem.html
+  commentId: Overload:SimdBase64.Scalar.Base64.MatchSystem
+  fullName: SimdBase64.Scalar.Base64.MatchSystem
+  nameWithType: Base64.MatchSystem
+- uid: SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar*
+  name: MaximalBinaryLengthFromBase64Scalar
+  href: api/SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar.html
+  commentId: Overload:SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar
+  fullName: SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar
+  nameWithType: Base64.MaximalBinaryLengthFromBase64Scalar
+- uid: SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar``1(System.ReadOnlySpan{``0})
+  name: MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T>)
+  href: api/SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar.html#SimdBase64_Scalar_Base64_MaximalBinaryLengthFromBase64Scalar__1_System_ReadOnlySpan___0__
+  commentId: M:SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar``1(System.ReadOnlySpan{``0})
+  name.vb: MaximalBinaryLengthFromBase64Scalar(Of T)(ReadOnlySpan(Of T))
+  fullName: SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar<T>(System.ReadOnlySpan<T>)
+  fullName.vb: SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar(Of T)(System.ReadOnlySpan(Of T))
+  nameWithType: Base64.MaximalBinaryLengthFromBase64Scalar<T>(ReadOnlySpan<T>)
+  nameWithType.vb: Base64.MaximalBinaryLengthFromBase64Scalar(Of T)(ReadOnlySpan(Of T))
+- uid: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html#SimdBase64_Scalar_Base64_SafeBase64ToBinaryWithWhiteSpace_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html#SimdBase64_Scalar_Base64_SafeBase64ToBinaryWithWhiteSpace_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.SafeBase64ToBinaryWithWhiteSpace(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace*
+  name: SafeBase64ToBinaryWithWhiteSpace
+  href: api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html
+  commentId: Overload:SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace
+  fullName: SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace
+  nameWithType: Base64.SafeBase64ToBinaryWithWhiteSpace
+- uid: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: SafeDecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html#SimdBase64_Scalar_Base64_SafeDecodeFromBase64Scalar_System_ReadOnlySpan_System_Byte__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan{System.Byte},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: SafeDecodeFromBase64Scalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan<byte>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan(Of Byte), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.SafeDecodeFromBase64Scalar(ReadOnlySpan<byte>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.SafeDecodeFromBase64Scalar(ReadOnlySpan(Of Byte), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name: SafeDecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  href: api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html#SimdBase64_Scalar_Base64_SafeDecodeFromBase64Scalar_System_ReadOnlySpan_System_Char__System_Span_System_Byte__System_Int32__System_Int32__System_Boolean_
+  commentId: M:SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan{System.Char},System.Span{System.Byte},System.Int32@,System.Int32@,System.Boolean)
+  name.vb: SafeDecodeFromBase64Scalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+  fullName: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan<char>, System.Span<byte>, out int, out int, bool)
+  fullName.vb: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar(System.ReadOnlySpan(Of Char), System.Span(Of Byte), Integer, Integer, Boolean)
+  nameWithType: Base64.SafeDecodeFromBase64Scalar(ReadOnlySpan<char>, Span<byte>, out int, out int, bool)
+  nameWithType.vb: Base64.SafeDecodeFromBase64Scalar(ReadOnlySpan(Of Char), Span(Of Byte), Integer, Integer, Boolean)
+- uid: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar*
+  name: SafeDecodeFromBase64Scalar
+  href: api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html
+  commentId: Overload:SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar
+  fullName: SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar
+  nameWithType: Base64.SafeDecodeFromBase64Scalar
+- uid: SimdBase64.Tables
+  name: Tables
+  href: api/SimdBase64.Tables.html
+  commentId: T:SimdBase64.Tables
+  fullName: SimdBase64.Tables
+  nameWithType: Tables
+- uid: SimdBase64.Tables.GetBitsSetTable256mul2(System.UInt32)
+  name: GetBitsSetTable256mul2(uint)
+  href: api/SimdBase64.Tables.GetBitsSetTable256mul2.html#SimdBase64_Tables_GetBitsSetTable256mul2_System_UInt32_
+  commentId: M:SimdBase64.Tables.GetBitsSetTable256mul2(System.UInt32)
+  name.vb: GetBitsSetTable256mul2(UInteger)
+  fullName: SimdBase64.Tables.GetBitsSetTable256mul2(uint)
+  fullName.vb: SimdBase64.Tables.GetBitsSetTable256mul2(UInteger)
+  nameWithType: Tables.GetBitsSetTable256mul2(uint)
+  nameWithType.vb: Tables.GetBitsSetTable256mul2(UInteger)
+- uid: SimdBase64.Tables.GetBitsSetTable256mul2*
+  name: GetBitsSetTable256mul2
+  href: api/SimdBase64.Tables.GetBitsSetTable256mul2.html
+  commentId: Overload:SimdBase64.Tables.GetBitsSetTable256mul2
+  fullName: SimdBase64.Tables.GetBitsSetTable256mul2
+  nameWithType: Tables.GetBitsSetTable256mul2
+- uid: SimdBase64.Tables.GetThintableEpi8(System.UInt32)
+  name: GetThintableEpi8(uint)
+  href: api/SimdBase64.Tables.GetThintableEpi8.html#SimdBase64_Tables_GetThintableEpi8_System_UInt32_
+  commentId: M:SimdBase64.Tables.GetThintableEpi8(System.UInt32)
+  name.vb: GetThintableEpi8(UInteger)
+  fullName: SimdBase64.Tables.GetThintableEpi8(uint)
+  fullName.vb: SimdBase64.Tables.GetThintableEpi8(UInteger)
+  nameWithType: Tables.GetThintableEpi8(uint)
+  nameWithType.vb: Tables.GetThintableEpi8(UInteger)
+- uid: SimdBase64.Tables.GetThintableEpi8*
+  name: GetThintableEpi8
+  href: api/SimdBase64.Tables.GetThintableEpi8.html
+  commentId: Overload:SimdBase64.Tables.GetThintableEpi8
+  fullName: SimdBase64.Tables.GetThintableEpi8
+  nameWithType: Tables.GetThintableEpi8
+- uid: SimdBase64.Tables.GetToBase64UrlValue(System.UInt32)
+  name: GetToBase64UrlValue(uint)
+  href: api/SimdBase64.Tables.GetToBase64UrlValue.html#SimdBase64_Tables_GetToBase64UrlValue_System_UInt32_
+  commentId: M:SimdBase64.Tables.GetToBase64UrlValue(System.UInt32)
+  name.vb: GetToBase64UrlValue(UInteger)
+  fullName: SimdBase64.Tables.GetToBase64UrlValue(uint)
+  fullName.vb: SimdBase64.Tables.GetToBase64UrlValue(UInteger)
+  nameWithType: Tables.GetToBase64UrlValue(uint)
+  nameWithType.vb: Tables.GetToBase64UrlValue(UInteger)
+- uid: SimdBase64.Tables.GetToBase64UrlValue*
+  name: GetToBase64UrlValue
+  href: api/SimdBase64.Tables.GetToBase64UrlValue.html
+  commentId: Overload:SimdBase64.Tables.GetToBase64UrlValue
+  fullName: SimdBase64.Tables.GetToBase64UrlValue
+  nameWithType: Tables.GetToBase64UrlValue
+- uid: SimdBase64.Tables.GetToBase64Value(System.UInt32)
+  name: GetToBase64Value(uint)
+  href: api/SimdBase64.Tables.GetToBase64Value.html#SimdBase64_Tables_GetToBase64Value_System_UInt32_
+  commentId: M:SimdBase64.Tables.GetToBase64Value(System.UInt32)
+  name.vb: GetToBase64Value(UInteger)
+  fullName: SimdBase64.Tables.GetToBase64Value(uint)
+  fullName.vb: SimdBase64.Tables.GetToBase64Value(UInteger)
+  nameWithType: Tables.GetToBase64Value(uint)
+  nameWithType.vb: Tables.GetToBase64Value(UInteger)
+- uid: SimdBase64.Tables.GetToBase64Value*
+  name: GetToBase64Value
+  href: api/SimdBase64.Tables.GetToBase64Value.html
+  commentId: Overload:SimdBase64.Tables.GetToBase64Value
+  fullName: SimdBase64.Tables.GetToBase64Value
+  nameWithType: Tables.GetToBase64Value

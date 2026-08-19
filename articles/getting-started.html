@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Getting started | SimdBase64 — fast base64 decoding for .NET </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Getting started | SimdBase64 — fast base64 decoding for .NET ">
+      
+      
+      <link rel="icon" href="../logo.svg">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/simdutf/SimdBase64/blob/main/docs/articles/getting-started.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="SimdBase64">
+            SimdBase64
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="getting-started">Getting started</h1>
+
+<p>SimdBase64 is a small, dependency-free C# library that decodes base64 with SIMD
+instructions. It targets <strong>.NET 10</strong> (or better) and runs on x64 and ARM64.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><a href="https://dotnet.microsoft.com/en-us/download/dotnet/10.0">.NET 10 SDK</a> or newer.</li>
+<li>A 64-bit x64 or ARM64 CPU for the SIMD kernels (a portable scalar fallback covers everything else).</li>
+</ul>
+<h2 id="build--reference">Build &amp; reference</h2>
+<p>Clone the repository and build the library:</p>
+<pre><code class="lang-bash">git clone https://github.com/simdutf/SimdBase64.git
+cd SimdBase64/src
+dotnet build -c Release
+</code></pre>
+<p>Then add a project reference to <code>src/SimdBase64.csproj</code> from your own project:</p>
+<pre><code class="lang-bash">dotnet add reference path/to/SimdBase64/src/SimdBase64.csproj
+</code></pre>
+<h2 id="decoding-a-buffer">Decoding a buffer</h2>
+<p>The core entry point is <a class="xref" href="../api/SimdBase64.Base64.html"><code>Base64.DecodeFromBase64</code></a>. It decodes the
+input into a buffer you supply and returns an
+<a href="https://learn.microsoft.com/en-us/dotnet/api/system.buffers.operationstatus"><code>OperationStatus</code></a>,
+along with the number of input characters consumed and output bytes written.</p>
+<p>Size the output buffer with <a class="xref" href="../api/SimdBase64.Base64.html"><code>MaximalBinaryLengthFromBase64</code></a>:</p>
+<pre><code class="lang-csharp">using System.Buffers;
+using SimdBase64;
+
+string base64 = &quot;SGVsbG8sIFdvcmxkIQ==&quot;;
+byte[] buffer = new byte[Base64.MaximalBinaryLengthFromBase64(base64.AsSpan())];
+
+OperationStatus status = Base64.DecodeFromBase64(
+    base64.AsSpan(), buffer,
+    out int bytesConsumed,
+    out int bytesWritten,
+    isUrl: false);
+
+if (status == OperationStatus.Done)
+{
+    ReadOnlySpan&lt;byte&gt; decoded = buffer.AsSpan(0, bytesWritten);
+    // Encoding.UTF8.GetString(decoded) == &quot;Hello, World!&quot;
+}
+</code></pre>
+<p>The library supports both <code>Span&lt;byte&gt;</code> (ASCII / UTF-8) and <code>Span&lt;char&gt;</code> (UTF-16) input. If you
+have a C# <code>string</code>, get its <code>Span&lt;char&gt;</code> with <code>AsSpan()</code>. Allowable white space is skipped
+following the <a href="https://infra.spec.whatwg.org/#forgiving-base64-decode">WHATWG forgiving-base64</a>
+rules.</p>
+<h3 id="the-return-value-and-out-parameters">The return value and out parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Result</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OperationStatus.Done</code></td>
+<td>The whole input was decoded successfully.</td>
+</tr>
+<tr>
+<td><code>OperationStatus.InvalidData</code></td>
+<td>The input contains a character that cannot be part of valid base64.</td>
+</tr>
+<tr>
+<td><code>OperationStatus.NeedMoreData</code></td>
+<td>The input ends with a single trailing character (an incomplete group).</td>
+</tr>
+<tr>
+<td><code>bytesConsumed</code></td>
+<td>Number of input characters consumed (including skipped white space and padding).</td>
+</tr>
+<tr>
+<td><code>bytesWritten</code></td>
+<td>Number of decoded bytes written to the output buffer.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="base64url">base64url</h2>
+<p>Pass <code>isUrl: true</code> to decode the URL- and filename-safe alphabet (<code>-</code> and <code>_</code> instead of
+<code>+</code> and <code>/</code>):</p>
+<pre><code class="lang-csharp">var status = Base64.DecodeFromBase64(input, buffer,
+    out int consumed, out int written, isUrl: true);
+</code></pre>
+<h2 id="replacing-convertfrombase64string">Replacing <code>Convert.FromBase64String</code></h2>
+<p>The .NET runtime does <strong>not</strong> accelerate <code>Convert.FromBase64String</code>. SimdBase64 ships a
+faster drop-in:</p>
+<pre><code class="lang-csharp">// before
+byte[] bytes = Convert.FromBase64String(s);
+
+// after
+byte[] bytes = SimdBase64.Base64.FromBase64String(s);
+</code></pre>
+<h2 id="choosing-a-specific-kernel">Choosing a specific kernel</h2>
+<p><code>DecodeFromBase64</code> dispatches to the fastest kernel your CPU supports. The architecture-specific
+implementations live in nested namespaces (<code>SimdBase64.Arm</code>, <code>SimdBase64.AVX512</code>,
+<code>SimdBase64.AVX2</code>, <code>SimdBase64.SSE</code>, <code>SimdBase64.Scalar</code>) and can be called directly — useful
+for testing or pinning behaviour.</p>
+<p>Continue to <a href="how-it-works.html">How it works</a> or jump to the <a class="xref" href="../api/SimdBase64.Base64.html">API reference</a>.</p>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/simdutf/SimdBase64/blob/main/docs/articles/getting-started.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          SimdBase64 &copy; 2024-2026 &middot; Released under the MIT License
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

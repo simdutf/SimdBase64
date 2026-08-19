@@ -1,0 +1,674 @@
+{
+  "source_base_path": "/home/runner/work/SimdBase64/SimdBase64/docs",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX2.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX2.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX2.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX2.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX2.Base64.Compress.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX2.Base64.Compress",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX2.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX2.Base64.DecodeFromBase64AVX2.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX2.Base64.DecodeFromBase64AVX2",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX2.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX2",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX512.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX512.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX512.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX512.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX512.Base64.DecodeFromBase64AVX512.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX512.Base64.DecodeFromBase64AVX512",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.AVX512.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.AVX512.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.AVX512",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Arm.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Arm.Base64.DecodeFromBase64ARM.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Arm.Base64.DecodeFromBase64ARM",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Arm.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Arm.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Arm.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Arm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Arm.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Arm",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64.DecodeFromBase64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64.DecodeFromBase64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64.MaximalBinaryLengthFromBase64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64.MaximalBinaryLengthFromBase64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64.FromBase64String.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64.FromBase64String",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64Default.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64Default.GetD.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64Default.GetD",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64Default.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64Default.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64Default",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64Url.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64Url.GetD.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64Url.GetD",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Base64Url.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Base64Url.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Base64Url",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.SSE.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.SSE.Base64.DecodeFromBase64SSE.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.SSE.Base64.DecodeFromBase64SSE",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.SSE.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.SSE.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.SSE.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.SSE.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.SSE.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.SSE",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.Base64Options.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.Base64Options.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.Base64Options",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.Endianness.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.Endianness.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.Endianness",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.IsValidBase64Index.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.IsValidBase64Index",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.Base64LengthFromBinary.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.Base64LengthFromBinary",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.Base64WithWhiteSpaceToBinaryScalar",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.MaximalBinaryLengthFromBase64Scalar",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.SafeBase64ToBinaryWithWhiteSpace",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.DecodeFromBase64Scalar.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.DecodeFromBase64Scalar",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.MatchSystem.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.MatchSystem",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.Base64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar.Base64.SafeDecodeFromBase64Scalar",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Scalar.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Scalar.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Scalar",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Tables.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Tables.GetBitsSetTable256mul2.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Tables.GetBitsSetTable256mul2",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Tables.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Tables.GetThintableEpi8.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Tables.GetThintableEpi8",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Tables.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Tables.GetToBase64UrlValue.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Tables.GetToBase64UrlValue",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Tables.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Tables.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Tables",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.Tables.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.Tables.GetToBase64Value.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64.Tables.GetToBase64Value",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/SimdBase64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/SimdBase64.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "SimdBase64",
+      "Summary": null
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".json": {
+          "relative_path": "api/toc.json"
+        },
+        ".html": {
+          "relative_path": "api/toc.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/benchmarks.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/benchmarks.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/contributing.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/contributing.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/getting-started.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/getting-started.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/how-it-works.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/how-it-works.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/toc.yml",
+      "output": {
+        ".json": {
+          "relative_path": "articles/toc.json"
+        },
+        ".html": {
+          "relative_path": "articles/toc.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "logo.svg",
+      "output": {
+        "resource": {
+          "relative_path": "logo.svg"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".json": {
+          "relative_path": "toc.json"
+        },
+        ".html": {
+          "relative_path": "toc.html"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

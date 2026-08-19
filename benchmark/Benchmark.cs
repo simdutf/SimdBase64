@@ -633,11 +633,15 @@ namespace SimdUnicodeBenchmarks
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
+        [Benchmark]
+        [BenchmarkCategory("default")]
         public unsafe void AVX2DecodingRealDataUTF8()
         {
             RunAVX2DecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
+        [Benchmark]
+        [BenchmarkCategory("default")]
         public unsafe void AVX512DecodingRealDataUTF8()
         {
             RunAVX512DecodingBenchmarkUTF8(FileContent, DecodedLengths);

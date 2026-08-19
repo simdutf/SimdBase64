@@ -321,6 +321,24 @@ namespace SimdUnicodeBenchmarks
             }
         }
 
+        public unsafe void RunAVX512DecodingBenchmarkUTF8(string[] data, int[] lengths)
+        {
+            for (int i = 0; i < FileContent.Length; i++)
+            {
+                byte[] base64 = input[i];
+                byte[] dataoutput = output[i];
+                int bytesConsumed = 0;
+                int bytesWritten = 0;
+                SimdBase64.AVX512.Base64.DecodeFromBase64AVX512(base64.AsSpan(), dataoutput, out bytesConsumed, out bytesWritten, false);
+                if (bytesWritten != lengths[i])
+                {
+                    Console.WriteLine($"Error: {bytesWritten} != {lengths[i]}");
+#pragma warning disable CA2201
+                    throw new Exception("Error");
+                }
+            }
+        }
+
         public unsafe void RunAVX2DecodingBenchmarkUTF8(string[] data, int[] lengths)
         {
             for (int i = 0; i < FileContent.Length; i++)
@@ -615,9 +633,18 @@ namespace SimdUnicodeBenchmarks
             RunSSEDecodingBenchmarkWithAllocUTF8(FileContent, DecodedLengths);
         }
 
+        [Benchmark]
+        [BenchmarkCategory("default")]
         public unsafe void AVX2DecodingRealDataUTF8()
         {
             RunAVX2DecodingBenchmarkUTF8(FileContent, DecodedLengths);
+        }
+
+        [Benchmark]
+        [BenchmarkCategory("default")]
+        public unsafe void AVX512DecodingRealDataUTF8()
+        {
+            RunAVX512DecodingBenchmarkUTF8(FileContent, DecodedLengths);
         }
 
         [Benchmark]

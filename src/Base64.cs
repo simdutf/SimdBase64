@@ -32,10 +32,10 @@ namespace SimdBase64
             {
                 return Arm.Base64.DecodeFromBase64ARM(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
-            // To be completed, this may have to wait for .NET 10.
-            //if (Vector512.IsHardwareAccelerated && Avx512Vbmi2.IsSupported)
-            //{
-            //}
+            if (Avx512Vbmi2.IsSupported && Popcnt.X64.IsSupported)
+            {
+                return AVX512.Base64.DecodeFromBase64AVX512(source, dest, out bytesConsumed, out bytesWritten, isUrl);
+            }
             if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);
@@ -56,11 +56,10 @@ namespace SimdBase64
             {
                 return Arm.Base64.DecodeFromBase64ARM(source, dest, out bytesConsumed, out bytesWritten, isUrl);
             }
-            // To be completed, this may have to wait for .NET 10.
-            //if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported)
-            //{
-            //    return GetPointerToFirstInvalidByteAvx512(pInputBuffer, inputLength, out Utf16CodeUnitCountAdjustment, out ScalarCodeUnitCountAdjustment);
-            //}
+            if (Avx512Vbmi2.IsSupported && Popcnt.X64.IsSupported)
+            {
+                return AVX512.Base64.DecodeFromBase64AVX512(source, dest, out bytesConsumed, out bytesWritten, isUrl);
+            }
             if (Avx2.IsSupported  && Popcnt.IsSupported && Bmi1.IsSupported)
             {
                 return AVX2.Base64.DecodeFromBase64AVX2(source, dest, out bytesConsumed, out bytesWritten, isUrl);

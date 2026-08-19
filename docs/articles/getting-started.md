@@ -1,11 +1,11 @@
 # Getting started
 
 SimdBase64 is a small, dependency-free C# library that decodes base64 with SIMD
-instructions. It targets **.NET 9** (or better) and runs on x64 and ARM64.
+instructions. It targets **.NET 10** (or better) and runs on x64 and ARM64.
 
 ## Requirements
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) or newer.
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) or newer.
 - A 64-bit x64 or ARM64 CPU for the SIMD kernels (a portable scalar fallback covers everything else).
 
 ## Build &amp; reference
@@ -94,7 +94,8 @@ byte[] bytes = SimdBase64.Base64.FromBase64String(s);
 ## Choosing a specific kernel
 
 `DecodeFromBase64` dispatches to the fastest kernel your CPU supports. The architecture-specific
-implementations live in nested namespaces (`SimdBase64.Arm`, `SimdBase64.AVX2`, `SimdBase64.SSE`,
-`SimdBase64.Scalar`) and can be called directly — useful for testing or pinning behaviour.
+implementations live in nested namespaces (`SimdBase64.Arm`, `SimdBase64.AVX512`,
+`SimdBase64.AVX2`, `SimdBase64.SSE`, `SimdBase64.Scalar`) and can be called directly — useful
+for testing or pinning behaviour.
 
 Continue to [How it works](how-it-works.md) or jump to the [API reference](xref:SimdBase64.Base64).

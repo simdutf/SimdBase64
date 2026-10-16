@@ -190,6 +190,7 @@ You can convert an integer to a hex string like so: `$"0x{MyVariable:X}"`.
 
 ## Scientific References
 
+- Daniel Lemire, [Fast Forgiving Base64 Decoding with SIMD Instructions](https://doi.org/10.1145/3859286), ACM Transactions on Architecture and Code Optimization, 2026.
 - Wojciech Muła, Daniel Lemire, [Base64 encoding and decoding at almost the speed of a memory copy](https://arxiv.org/abs/1910.05109), Software: Practice and Experience 50 (2), 2020.
 - Wojciech Muła, Daniel Lemire, [Faster Base64 Encoding and Decoding using AVX2 Instructions](https://arxiv.org/abs/1704.00605), ACM Transactions on the Web 12 (3), 2018.
 
